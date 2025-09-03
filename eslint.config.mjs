@@ -3,127 +3,128 @@ import unicorn from "eslint-plugin-unicorn";
 import globals from "globals";
 import eslint from "@eslint/js";
 
-import tseslint, { parser } from "typescript-eslint";
+import tseslint, {parser} from "typescript-eslint";
 
 export default tseslint.config(
-  {
-    ignores: [
-      "src/fixtures/**",
-      "dist/**",
-      "**/commitlint.config.cjs",
-      "**/eslint.config.mjs",
-      "**/vitest.config.mts",
-      "*.e2e-spec.ts",
-      "*.spec.ts",
-      "test/**/*.ts"
-    ],
-  },
-  eslint.configs.recommended,
-  tseslint.configs.strictTypeChecked,
-  tseslint.configs.stylisticTypeChecked,
-  {
-    languageOptions: {
-      globals: {
-        ...globals.node,
-      },
-      parser,
-      ecmaVersion: 2022,
-      sourceType: "module",
-      parserOptions: {
-        project: "./tsconfig.lint.json",
-      },
+    {
+        ignores: [
+            "commitlint.config.ts",
+            "src/fixtures/**",
+            "dist/**",
+            "**/commitlint.config.cjs",
+            "**/eslint.config.mjs",
+            "**/vitest.config.mts",
+            "*.e2e-spec.ts",
+            "*.spec.ts",
+            "test/**/*.ts",
+        ],
     },
-    rules: {
-      "@typescript-eslint/no-unnecessary-condition": "off",
-      "@typescript-eslint/naming-convention": [
-        "error",
-        {
-          selector: "default",
-          format: null,
+    eslint.configs.recommended,
+    tseslint.configs.strictTypeChecked,
+    tseslint.configs.stylisticTypeChecked,
+    {
+        languageOptions: {
+            globals: {
+                ...globals.node,
+            },
+            parser,
+            ecmaVersion: 2022,
+            sourceType: "module",
+            parserOptions: {
+                project: "./tsconfig.lint.json",
+            },
         },
-        {
-          selector: "variable",
-          format: ["PascalCase", "UPPER_CASE"],
-          types: ["boolean"],
-          prefix: ["is", "should", "has", "can", "did", "will"],
+        rules: {
+            "@typescript-eslint/no-unnecessary-condition": "off",
+            "@typescript-eslint/naming-convention": [
+                "error",
+                {
+                    selector: "default",
+                    format: null,
+                },
+                {
+                    selector: "variable",
+                    format: ["PascalCase", "UPPER_CASE"],
+                    types: ["boolean"],
+                    prefix: ["is", "should", "has", "can", "did", "will"],
+                },
+                {
+                    selector: "variableLike",
+                    format: ["camelCase", "UPPER_CASE", "PascalCase"],
+                },
+                {
+                    selector: "parameter",
+                    format: ["camelCase"],
+                },
+                {
+                    selector: "memberLike",
+                    modifiers: ["private"],
+                    format: ["camelCase"],
+                    leadingUnderscore: "forbid",
+                },
+                {
+                    selector: "typeLike",
+                    format: ["PascalCase"],
+                },
+                {
+                    selector: "property",
+                    modifiers: ["readonly"],
+                    format: ["PascalCase"],
+                },
+                {
+                    selector: "enumMember",
+                    format: ["UPPER_CASE"],
+                },
+            ],
         },
-        {
-          selector: "variableLike",
-          format: ["camelCase", "UPPER_CASE", "PascalCase"],
-        },
-        {
-          selector: "parameter",
-          format: ["camelCase"],
-        },
-        {
-          selector: "memberLike",
-          modifiers: ["private"],
-          format: ["camelCase"],
-          leadingUnderscore: "forbid",
-        },
-        {
-          selector: "typeLike",
-          format: ["PascalCase"],
-        },
-        {
-          selector: "property",
-          modifiers: ["readonly"],
-          format: ["PascalCase"],
-        },
-        {
-          selector: "enumMember",
-          format: ["UPPER_CASE"],
-        },
-      ],
     },
-  },
-  {
-    ignores: ["src/fixtures/**", "dist/**"],
-    languageOptions: {
-      globals: globals.builtin,
-    },
-    plugins: {
-      unicorn,
-      preferArrow,
-    },
-    rules: {
-      "unicorn/filename-case": [
-        "warn",
-        {
-          cases: {
-            camelCase: true,
-            pascalCase: true,
-          },
+    {
+        ignores: ["src/fixtures/**", "dist/**"],
+        languageOptions: {
+            globals: globals.builtin,
         },
-      ],
+        plugins: {
+            unicorn,
+            preferArrow,
+        },
+        rules: {
+            "unicorn/filename-case": [
+                "warn",
+                {
+                    cases: {
+                        camelCase: true,
+                        pascalCase: true,
+                    },
+                },
+            ],
 
-      "unicorn/no-fn-reference-in-iterator": "off",
-      "@typescript-eslint/no-extraneous-class": "off",
-      "@typescript-eslint/no-floating-promises": "off",
-      "unicorn/no-array-for-each": "off",
-      "unicorn/no-null": "off",
-      "unicorn/prefer-array-some": "off",
-      "unicorn/consistent-destructuring": "off",
-      "unicorn/no-array-reduce": "off",
-      "unicorn/prefer-spread": "off",
-      "unicorn/no-array-callback-reference": "off",
-      "unicorn/consistent-function-scoping": "off",
-      "unicorn/no-useless-undefined": "off",
-      "unicorn/prefer-ternary": "off",
-      "unicorn/prefer-node-protocol": "off",
-      "unicorn/prevent-abbreviations": [
-        "error",
-        {
-          allowList: {
-            Param: true,
-            Req: true,
-            Res: true,
-          },
+            "unicorn/no-fn-reference-in-iterator": "off",
+            "@typescript-eslint/no-extraneous-class": "off",
+            "@typescript-eslint/no-floating-promises": "off",
+            "unicorn/no-array-for-each": "off",
+            "unicorn/no-null": "off",
+            "unicorn/prefer-array-some": "off",
+            "unicorn/consistent-destructuring": "off",
+            "unicorn/no-array-reduce": "off",
+            "unicorn/prefer-spread": "off",
+            "unicorn/no-array-callback-reference": "off",
+            "unicorn/consistent-function-scoping": "off",
+            "unicorn/no-useless-undefined": "off",
+            "unicorn/prefer-ternary": "off",
+            "unicorn/prefer-node-protocol": "off",
+            "unicorn/prevent-abbreviations": [
+                "error",
+                {
+                    allowList: {
+                        Param: true,
+                        Req: true,
+                        Res: true,
+                    },
+                },
+            ],
         },
-      ],
-    },
-  }
-  // eslintConfigPrettier
+    }
+    // eslintConfigPrettier
 );
 // const __filename = fileURLToPath(import.meta.url);
 // const __dirname = path.dirname(__filename);
