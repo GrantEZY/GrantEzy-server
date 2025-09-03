@@ -1,134 +1,253 @@
-import { FlatCompat } from "@eslint/eslintrc";
-import js from "@eslint/js";
-import eslintConfigPrettier from "eslint-config-prettier";
-import pluginJest from "eslint-plugin-jest";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
+import preferArrow from "eslint-plugin-prefer-arrow";
+import unicorn from "eslint-plugin-unicorn";
+import globals from "globals";
+import eslint from "@eslint/js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended,
-  allConfig: js.configs.all,
-});
+import tseslint, { parser } from "typescript-eslint";
 
-export default [
+export default tseslint.config(
   {
     ignores: [
-      "**/*.spec.{js,ts,jsx,tsx}",
-      "**/*.test.{js,ts,jsx,tsx}",
-      "**/jest.config.{js,ts}",
-      "**/eslint.config.{js,ts}",
-      "**/vite.config.{js,ts}",
-      "**/webpack.config.{js,ts}",
-      "**/rollup.config.{js,ts}",
-      "**/tailwind.config.{js,ts}",
-      "**/postcss.config.{js,ts}",
-      "**/dist/**",
-      "**/coverage/**",
-      "**/logs/**",
-      "**/node_modules/**",
+      "src/fixtures/**",
+      "dist/**",
+      "**/commitlint.config.cjs",
+      "**/eslint.config.mjs",
+      "**/vitest.config.mts",
+      "*.e2e-spec.ts",
+      "*.spec.ts",
+      "test/**/*.ts"
     ],
   },
-
-  ...compat.extends(
-    "next/core-web-vitals",
-    "next/typescript",
-    "plugin:jest/recommended",
-  ),
-  eslintConfigPrettier,
+  eslint.configs.recommended,
+  tseslint.configs.strictTypeChecked,
+  tseslint.configs.stylisticTypeChecked,
   {
-    plugins: { jest: pluginJest },
-
     languageOptions: {
       globals: {
-        ...pluginJest.environments.globals.globals,
+        ...globals.node,
+      },
+      parser,
+      ecmaVersion: 2022,
+      sourceType: "module",
+      parserOptions: {
+        project: "./tsconfig.lint.json",
       },
     },
-
     rules: {
-      // C
-      camelcase: "off",
-      "capitalized-comments": "off",
-      "default-param-last": "error",
-
-      // E
-      eqeqeq: "error",
-      "max-params": ["warn", 3],
-
-      // N
-      "no-console": [
-        "warn",
-        {
-          allow: ["warn", "error"],
-        },
-      ],
-      "no-empty-function": "warn",
-      "no-param-reassign": "error",
-
-      // P
-      "padding-line-between-statements": [
-        "off",
-        {
-          blankLine: "always",
-          prev: "*",
-          next: "return",
-        },
-        {
-          blankLine: "always",
-          prev: "*",
-          next: "function",
-        },
-        {
-          blankLine: "always",
-          prev: "*",
-          next: "block-like",
-        },
-        {
-          blankLine: "always",
-          prev: ["import"],
-          next: "*",
-        },
-        {
-          blankLine: "any",
-          prev: ["import"],
-          next: ["import"],
-        },
-        {
-          blankLine: "always",
-          prev: ["const", "let", "var"],
-          next: "*",
-        },
-        {
-          blankLine: "any",
-          prev: ["const", "let", "var"],
-          next: ["const", "let", "var"],
-        },
-      ],
-      "prefer-const": "error",
-      "prefer-destructuring": "error",
-      "prefer-object-spread": "warn",
-      "@typescript-eslint/no-explicit-any": "warn",
-      "@typescript-eslint/no-unused-vars": [
+      "@typescript-eslint/no-unnecessary-condition": "off",
+      "@typescript-eslint/naming-convention": [
         "error",
         {
-          argsIgnorePattern: "^_",
-          caughtErrors: "none",
-          varsIgnorePattern: "^_",
+          selector: "default",
+          format: null,
+        },
+        {
+          selector: "variable",
+          format: ["PascalCase", "UPPER_CASE"],
+          types: ["boolean"],
+          prefix: ["is", "should", "has", "can", "did", "will"],
+        },
+        {
+          selector: "variableLike",
+          format: ["camelCase", "UPPER_CASE", "PascalCase"],
+        },
+        {
+          selector: "parameter",
+          format: ["camelCase"],
+        },
+        {
+          selector: "memberLike",
+          modifiers: ["private"],
+          format: ["camelCase"],
+          leadingUnderscore: "forbid",
+        },
+        {
+          selector: "typeLike",
+          format: ["PascalCase"],
+        },
+        {
+          selector: "property",
+          modifiers: ["readonly"],
+          format: ["PascalCase"],
+        },
+        {
+          selector: "enumMember",
+          format: ["UPPER_CASE"],
+        },
+      ],
+    },
+  },
+  {
+    ignores: ["src/fixtures/**", "dist/**"],
+    languageOptions: {
+      globals: globals.builtin,
+    },
+    plugins: {
+      unicorn,
+      preferArrow,
+    },
+    rules: {
+      "unicorn/filename-case": [
+        "warn",
+        {
+          cases: {
+            camelCase: true,
+            pascalCase: true,
+          },
         },
       ],
 
-      "sort-keys": [
-        "off",
-        "asc",
+      "unicorn/no-fn-reference-in-iterator": "off",
+      "@typescript-eslint/no-extraneous-class": "off",
+      "@typescript-eslint/no-floating-promises": "off",
+      "unicorn/no-array-for-each": "off",
+      "unicorn/no-null": "off",
+      "unicorn/prefer-array-some": "off",
+      "unicorn/consistent-destructuring": "off",
+      "unicorn/no-array-reduce": "off",
+      "unicorn/prefer-spread": "off",
+      "unicorn/no-array-callback-reference": "off",
+      "unicorn/consistent-function-scoping": "off",
+      "unicorn/no-useless-undefined": "off",
+      "unicorn/prefer-ternary": "off",
+      "unicorn/prefer-node-protocol": "off",
+      "unicorn/prevent-abbreviations": [
+        "error",
         {
-          natural: true,
-          minKeys: 5,
+          allowList: {
+            Param: true,
+            Req: true,
+            Res: true,
+          },
         },
       ],
-      "sort-vars": "error",
-      "sort-imports": ["off"],
     },
-  },
-];
+  }
+  // eslintConfigPrettier
+);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
+// const compat = new FlatCompat({
+//     baseDirectory: __dirname,
+//     recommendedConfig: js.configs.recommended,
+//     allConfig: js.configs.all,
+// });
+
+// export default tseslint.config(
+//     {
+//         ignores: [
+//             "**/jest.config.ts",
+//             "**/node_modules",
+//             "**/commitlint.config.js",
+//             "**/jest.config.js",
+//             "**/jest.config.ts",
+//             "**/eslint.config.mjs",
+//             "**/dist/**",
+//         ],
+//     },
+//     eslint.configs.recommended,
+//     tseslint.configs.strictTypeChecked,
+//     tseslint.configs.stylisticTypeChecked,
+//     eslintConfigPrettier,
+//     {
+//         plugins: {
+//             "@typescript-eslint": typescriptEslint,
+//             "prefer-arrow": preferArrow,
+//             unicorn,
+//         },
+
+//         languageOptions: {
+//             globals: {
+//                 ...globals.node,
+//                 ...globals.jest,
+//             },
+
+//             parser: tsParser,
+//             ecmaVersion: 5,
+//             sourceType: "module",
+
+//             parserOptions: {
+//                 tsconfigRootDir: "./",
+//                 project: ["./tsconfig.lint.json"],
+//             },
+//         },
+
+//         rules: {
+//             "unicorn/filename-case": [
+//                 "warn",
+//                 {
+//                     cases: {
+//                         camelCase: true,
+//                         pascalCase: true,
+//                     },
+//                 },
+//             ],
+
+//             "no-eval": "error",
+//             "unicorn/no-fn-reference-in-iterator": "off",
+//             "unicorn/no-array-for-each": "off",
+//             "unicorn/no-null": "off",
+//             "unicorn/prefer-array-some": "off",
+//             "unicorn/consistent-destructuring": "off",
+//             "unicorn/no-array-reduce": "off",
+//             "unicorn/prefer-spread": "off",
+//             "unicorn/no-array-callback-reference": "off",
+//             "unicorn/consistent-function-scoping": "off",
+//             "unicorn/no-useless-undefined": "off",
+//             "unicorn/prefer-ternary": "off",
+//             "unicorn/prefer-node-protocol": "off",
+
+//             "unicorn/prevent-abbreviations": [
+//                 "error",
+//                 {
+//                     allowList: {
+//                         Param: true,
+//                         Req: true,
+//                         Res: true,
+//                     },
+//                 },
+//             ],
+
+//             "@typescript-eslint/naming-convention": [
+//                 "error",
+//                 {
+//                     selector: "default",
+//                     format: null,
+//                 },
+//                 {
+//                     selector: "variable",
+//                     format: ["PascalCase", "UPPER_CASE"],
+//                     types: ["boolean"],
+//                     prefix: ["is", "should", "has", "can", "did", "will"],
+//                 },
+//                 {
+//                     selector: "variableLike",
+//                     format: ["camelCase", "UPPER_CASE", "PascalCase"],
+//                 },
+//                 {
+//                     selector: "parameter",
+//                     format: ["camelCase"],
+//                 },
+//                 {
+//                     selector: "memberLike",
+//                     modifiers: ["private"],
+//                     format: ["camelCase"],
+//                     leadingUnderscore: "forbid",
+//                 },
+//                 {
+//                     selector: "typeLike",
+//                     format: ["PascalCase"],
+//                 },
+//                 {
+//                     selector: "property",
+//                     modifiers: ["readonly"],
+//                     format: ["PascalCase"],
+//                 },
+//                 {
+//                     selector: "enumMember",
+//                     format: ["UPPER_CASE"],
+//                 },
+//             ],
+//         },
+//     },
+// ];
