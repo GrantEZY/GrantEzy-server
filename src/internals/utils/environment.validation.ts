@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/*  eslint-disable @typescript-eslint/no-unsafe-call */
+
 import * as Joi from "joi";
 
 export const environmentValidationSchema = Joi.object({
@@ -10,4 +13,4 @@ export const environmentValidationSchema = Joi.object({
     JWT_TOKEN_KEY: Joi.string().required(),
     JWT_REFRESH_TOKEN_KEY: Joi.string().required(),
     AES_ENCRYPTION_KEY: Joi.string().required(),
-});
+}).unknown(false);
