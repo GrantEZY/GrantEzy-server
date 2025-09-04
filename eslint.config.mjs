@@ -17,6 +17,8 @@ export default tseslint.config(
             "*.e2e-spec.ts",
             "*.spec.ts",
             "test/**/*.ts",
+            "node_modules",
+            "coverage/**",
         ],
     },
     eslint.configs.recommended,
