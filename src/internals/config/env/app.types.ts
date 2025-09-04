@@ -1,11 +1,11 @@
-import {TypeOrmModuleOptions} from "@nestjs/typeorm";
+import {TypeOrmModuleOptions as DatabaseOptions} from "@nestjs/typeorm";
 import {AppConfigTypes} from "./app.config";
 import {JwtInterface} from "./jwt.config";
-import {RedisInterface} from "./cache.config";
+import {CacheInterface} from "./cache.config";
 
 export interface ConfigType {
     app: AppConfigTypes;
-    typeorm: TypeOrmModuleOptions;
+    database: DatabaseOptions;
     jwt: JwtInterface;
-    redis: RedisInterface;
+    cache: CacheInterface;
 }
