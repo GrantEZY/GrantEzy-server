@@ -19,18 +19,22 @@ export class User {
     @Column({type: "enum", enum: UserStatus, default: UserStatus.ACTIVE})
     status: UserStatus;
 
-    @Column({type: "array", enum: UserRoles, default: [UserRoles.NORMAL_USER]})
+    @Column({
+        type: "simple-array",
+        enum: UserRoles,
+        default: [UserRoles.NORMAL_USER],
+    })
     role: UserRoles[];
 
     @Column({type: "enum", enum: UserCommitmentStatus})
     commitment: UserCommitmentStatus;
 
-    @Column(() => Contact || null)
-    contact: Contact | null;
+    @Column({type: "jsonb"})
+    contact: Contact;
 
-    @Column(() => Audit || null)
+    @Column({type: "jsonb"})
     audit: Audit | null;
 
-    @Column(() => Experience || null)
+    @Column({type: "jsonb", nullable: true})
     experiences: Experience[] | null;
 }

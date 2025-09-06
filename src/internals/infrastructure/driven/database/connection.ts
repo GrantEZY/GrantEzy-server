@@ -20,7 +20,7 @@ export const DatabaseConnection = TypeOrmModule.forRootAsync({
             autoLoadEntities: false,
             entities: [
                 "dist/**/*.entity{.ts,.js}",
-                "dist/**/*.aggregate/*{.ts,.js}",
+                "dist/**/*.aggregate{.ts,.js}",
             ],
             synchronize: typeormConfig.synchronize,
             logging: true,

@@ -6,10 +6,10 @@ export class Contact {
     @Column()
     readonly email: string;
 
-    @Column()
+    @Column({nullable: true})
     readonly phone: string | null;
 
-    @Column()
+    @Column({nullable: true})
     readonly address: string | null;
 
     constructor(email: string, phone: string | null, address: string | null) {
