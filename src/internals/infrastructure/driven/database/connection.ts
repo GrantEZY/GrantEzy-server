@@ -23,7 +23,7 @@ export const DatabaseConnection = TypeOrmModule.forRootAsync({
                 "dist/**/*.aggregate{.ts,.js}",
             ],
             synchronize: typeormConfig.synchronize,
-            logging: true,
+            logging: false,
         };
     },
 });

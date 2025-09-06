@@ -6,6 +6,9 @@
 
 import {NestFactory} from "@nestjs/core";
 
+import {config as SwaggerConfig} from "./internals/config/swagger/setup";
+import {SwaggerModule} from "@nestjs/swagger";
+
 import {AppModule} from "./app.module";
 
 import helmet from "helmet";
@@ -18,6 +21,12 @@ async function initServer() {
     app.use(cookieParser());
 
     app.setGlobalPrefix("api/v1"); // Set v1 API prefix for all the routes
+
+    //swagger setup for api documentation
+    const document = SwaggerModule.createDocument(app, SwaggerConfig);
+    SwaggerModule.setup("api/v1/docs", app, document);
+
+    //cors setup
     app.enableCors({
         origin: process.env.CLIENT_URL,
         credentials: true,
