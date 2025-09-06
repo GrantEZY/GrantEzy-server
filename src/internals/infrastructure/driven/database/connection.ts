@@ -17,7 +17,11 @@ export const DatabaseConnection = TypeOrmModule.forRootAsync({
             username: typeormConfig.username,
             password: String(typeormConfig.password),
             database: typeormConfig.database,
-            autoLoadEntities: true,
+            autoLoadEntities: false,
+            entities: [
+                "dist/**/*.entity{.ts,.js}",
+                "dist/**/*.aggregate/*{.ts,.js}",
+            ],
             synchronize: typeormConfig.synchronize,
             logging: true,
         };
