@@ -16,7 +16,7 @@ export class UserAggregateRepository implements UserAggregatePort {
      * @param user - The user entity to be saved or updated in the database.
      * @returns The saved or updated user entity.
      */
-    async save(user: User): Promise<User> {
+    async save(user: Partial<User>): Promise<User> {
         return await this.userRepository.save(user);
     }
 

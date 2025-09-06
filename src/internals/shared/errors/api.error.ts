@@ -1,6 +1,6 @@
 export class ApiError extends Error {
     constructor(
-        public statusCode: number,
+        public status: number,
         public message: string,
         public name: string,
         public error?: string,
@@ -9,7 +9,7 @@ export class ApiError extends Error {
         super(message);
         this.name = name || "ApiError";
         this.error = error ?? "Internal Server Error";
-        this.statusCode = statusCode || 500;
+        this.status = status || 500;
         this.message = message || "An error occurred";
         this.stack = stack ?? new Error().stack;
     }

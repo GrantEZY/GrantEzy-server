@@ -28,4 +28,8 @@ export class Person {
 
     @UpdateDateColumn()
     updatedAt: Date;
+
+    constructor(init?: Partial<Person>) {
+        Object.assign(this, init);
+    }
 }
