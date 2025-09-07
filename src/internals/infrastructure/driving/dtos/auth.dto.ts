@@ -67,18 +67,20 @@ export class RegisterDTO {
 
 export class LoginDTO {
     @ApiProperty({
+        example: "tylerdurden@gmail.com",
         description: "User's email address",
     })
     @IsEmail()
     @IsNotEmpty({message: "Email is required"})
     email: string;
 
-    @ApiProperty({description: "User's Role"})
+    @ApiProperty({description: "User's Role", example: "ADMIN"})
     @IsString()
     @IsNotEmpty({message: "Role is required"})
     role: string;
 
     @ApiProperty({
+        example: "StrongPassword123!",
         description: "User's password",
         minLength: 8,
         maxLength: 20,

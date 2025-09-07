@@ -87,4 +87,27 @@ export class UserAggregateRepository implements UserAggregatePort {
             );
         }
     }
+
+    async setRThash(hash: string | null, id: string): Promise<boolean> {
+        try {
+            const user = await this.findById(id);
+            if (!user) {
+                throw new ApiError(
+                    400,
+                    "User Not Found",
+                    "User Removed from the application"
+                );
+            }
+
+            await this.userRepository.update({id}, user);
+            return true;
+        } catch (error) {
+            console.error("Error in setting RThash", error);
+            throw new ApiError(
+                502,
+                "Failed to set User RT hash",
+                "Database Error"
+            );
+        }
+    }
 }

@@ -2,11 +2,22 @@ import {Injectable, Inject} from "@nestjs/common";
 import UserAggregatePort, {
     USER_AGGREGATE_PORT,
 } from "../../ports/outputs/repository/user/user.aggregate.port";
-import {RegisterDTO} from "../../../infrastructure/driving/dtos/auth.dto";
+import {
+    LoginDTO,
+    RegisterDTO,
+} from "../../../infrastructure/driving/dtos/auth.dto";
 import ApiError from "../../../shared/errors/api.error";
 import {PasswordHasherPort} from "../../ports/outputs/crypto/hash.port";
 import {PASSWORD_HASHER_PORT} from "../../ports/outputs/crypto/hash.port";
-import {SignUpResponse} from "../../../infrastructure/driven/response-dtos/auth.response-dto";
+import {
+    LocalLoginResponse,
+    SignUpResponse,
+    LogoutResponse,
+} from "../../../infrastructure/driven/response-dtos/auth.response-dto";
+import {UserRoles} from "../../domain/constants/userRoles.constants";
+import {PassportResponseData} from "../../../infrastructure/driven/response-dtos/auth.response-dto";
+import {User} from "../../domain/aggregates/user.aggregate";
+import {JwtPort, JWT_PORT} from "../../ports/outputs/crypto/jwt.port";
 @Injectable()
 /**
  * Auth Use Case
@@ -18,7 +29,9 @@ export class AuthUseCase {
         @Inject(USER_AGGREGATE_PORT)
         private readonly userAggregateRepository: UserAggregatePort,
         @Inject(PASSWORD_HASHER_PORT)
-        private readonly passwordHasher: PasswordHasherPort
+        private readonly passwordHasher: PasswordHasherPort,
+        @Inject(JWT_PORT)
+        private readonly jwtRepository: JwtPort
     ) {}
 
     async register(userData: RegisterDTO): Promise<SignUpResponse> {
@@ -56,6 +69,89 @@ export class AuthUseCase {
         }
     }
 
+    async validateUser(userData: LoginDTO): Promise<PassportResponseData> {
+        try {
+            const {email, password, role} = userData;
+            const user = await this.userAggregateRepository.findByEmail(email);
+            if (!user) {
+                throw new ApiError(401, "User not found ", "Login Issue");
+            }
+            const isPasswordValid = await this.passwordHasher.compare(
+                password,
+                user.person.password_hash
+            );
+            if (!isPasswordValid) {
+                throw new ApiError(402, "Password is incorrect", "Login Issue");
+            }
+            const userRole = user.role;
+            if (role && userRole.includes(role as UserRoles)) {
+                return {
+                    user,
+                    message: "User validated successfully",
+                };
+            } else {
+                throw new ApiError(
+                    403,
+                    "User doesn't have access to that role",
+                    "Login Issue"
+                );
+            }
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async login(user: User, role: UserRoles): Promise<LocalLoginResponse> {
+        try {
+            const {contact, id} = user;
+            const jwtData = {
+                email: contact.email,
+                id: id,
+                role,
+            };
+
+            const tokens = await this.jwtRepository.signTokens(jwtData);
+
+            const response = {
+                id,
+                email: contact.email,
+                role,
+                name: `${user.person.firstName} ${user.person.lastName}`,
+                ...tokens,
+            };
+            return {
+                status: 200,
+                message: "Login Successful",
+                res: response,
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async logout(id: string): Promise<LogoutResponse> {
+        try {
+            const isUpdated = await this.userAggregateRepository.setRThash(
+                null,
+                id
+            );
+            if (isUpdated) {
+                return {
+                    status: 200,
+                    message: "Logout Successful",
+                    res: {
+                        status: true,
+                    },
+                };
+            }
+            return {
+                status: 400,
+                message: "Error in logging out the User",
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
     handleError(error: unknown): never {
         if (error instanceof ApiError) {
             throw error;
