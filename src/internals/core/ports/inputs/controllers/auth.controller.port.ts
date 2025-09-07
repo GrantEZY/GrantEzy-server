@@ -16,4 +16,5 @@ export interface AuthControllerPort {
     handleError(error: unknown, response: Response): Response;
     setCookie(response: Response, cookieName: string, value: string): void;
     removeCookie(response: Response, cookieName: string): void;
+    refresh(response: Response, user: JwtData): Promise<Response>;
 }

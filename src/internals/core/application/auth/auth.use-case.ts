@@ -13,11 +13,13 @@ import {
     LocalLoginResponse,
     SignUpResponse,
     LogoutResponse,
+    AccessTokenResponse,
 } from "../../../infrastructure/driven/response-dtos/auth.response-dto";
 import {UserRoles} from "../../domain/constants/userRoles.constants";
 import {PassportResponseData} from "../../../infrastructure/driven/response-dtos/auth.response-dto";
 import {User} from "../../domain/aggregates/user.aggregate";
 import {JwtPort, JWT_PORT} from "../../ports/outputs/crypto/jwt.port";
+import {JwtData} from "../../../shared/types/jwt.types";
 @Injectable()
 /**
  * Auth Use Case
@@ -108,6 +110,7 @@ export class AuthUseCase {
                 email: contact.email,
                 id: id,
                 role,
+                token_version: user.tokenVersion,
             };
 
             const tokens = await this.jwtRepository.signTokens(jwtData);
@@ -123,6 +126,40 @@ export class AuthUseCase {
                 status: 200,
                 message: "Login Successful",
                 res: response,
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async refresh(userData: JwtData): Promise<AccessTokenResponse> {
+        try {
+            const {id, token_version: token} = userData;
+            const user = await this.userAggregateRepository.findById(id);
+            if (!user) {
+                throw new ApiError(
+                    401,
+                    "User Not Found",
+                    "User removed from the application"
+                );
+            }
+
+            if (token != user.tokenVersion) {
+                throw new ApiError(
+                    403,
+                    "Token mismatch",
+                    "Version Token mismatch"
+                );
+            }
+
+            const tokens = await this.jwtRepository.getAccessToken(userData);
+
+            return {
+                status: 200,
+                message: "Access Token Created",
+                res: {
+                    accessToken: tokens.accessToken,
+                },
             };
         } catch (error) {
             this.handleError(error);

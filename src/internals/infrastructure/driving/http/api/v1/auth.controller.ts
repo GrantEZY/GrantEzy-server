@@ -5,6 +5,7 @@ import {
     Body,
     ValidationPipe,
     UseGuards,
+    Get,
 } from "@nestjs/common";
 import {Response} from "express";
 import {AuthUseCase} from "../../../../../core/application/auth/auth.use-case";
@@ -15,6 +16,7 @@ import {ApiTags, ApiResponse} from "@nestjs/swagger";
 import {
     LoginSwagger,
     LogoutSwagger,
+    RefreshSwagger,
     RegisterSwagger,
 } from "../../../../../config/swagger/auth.swagger";
 import {CurrentUser} from "../../../../../shared/decorators/currentuser.decorator";
@@ -27,6 +29,7 @@ import {User} from "../../../../../core/domain/aggregates/user.aggregate";
 import {UserRoles} from "../../../../../core/domain/constants/userRoles.constants";
 import {Public} from "../../../../../shared/decorators/public.decorator";
 import {LocalGuard} from "../../../../../shared/guards/local.guard";
+import {RtGuard} from "../../../../../shared/guards/rt.guard";
 
 @ApiTags("Auth")
 @Controller("auth")
@@ -118,6 +121,32 @@ export class AuthController implements AuthControllerPort {
                 status: 200,
                 message: "User Logged Out Successfully",
                 res: null,
+            });
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Public()
+    @Get("/local/refresh")
+    @UseGuards(RtGuard)
+    @ApiResponse(RefreshSwagger.SUCCESS)
+    @ApiResponse(RefreshSwagger.TOKEN_MISMATCH)
+    @ApiResponse(RefreshSwagger.USER_NOT_FOUND)
+    async refresh(
+        response: Response,
+        @CurrentUser() user: JwtData
+    ): Promise<Response> {
+        try {
+            const result = await this.authUseCase.refresh(user);
+
+            return response.status(result.status).json({
+                status: result.status,
+                message: result.message,
+                res: {
+                    userData: user,
+                    accessToken: result.res,
+                },
             });
         } catch (error) {
             return this.handleError(error, response);

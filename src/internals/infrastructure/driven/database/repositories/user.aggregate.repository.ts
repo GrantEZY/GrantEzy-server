@@ -88,6 +88,13 @@ export class UserAggregateRepository implements UserAggregatePort {
         }
     }
 
+    /**
+     *
+     * @param hash The RefreshToken hash for the user authentication
+     * @param id The unique identifier for the user
+     * @returns true if success , else false
+     */
+
     async setRThash(hash: string | null, id: string): Promise<boolean> {
         try {
             const user = await this.findById(id);
@@ -98,6 +105,8 @@ export class UserAggregateRepository implements UserAggregatePort {
                     "User Removed from the application"
                 );
             }
+
+            user.person.rt_hash = hash;
 
             await this.userRepository.update({id}, user);
             return true;

@@ -93,6 +93,9 @@ export class User {
     })
     experiences: Experience[] | null;
 
+    @Column({default: 0})
+    tokenVersion: number;
+
     @CreateDateColumn()
     createdAt: Date;
 

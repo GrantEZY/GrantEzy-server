@@ -78,3 +78,34 @@ export const LogoutSwagger = {
         },
     },
 };
+
+export const RefreshSwagger = {
+    SUCCESS: {
+        status: 200,
+        description: "Access Token Successfully created",
+        example: {
+            status: 200,
+            message: "Access Token Created",
+            res: "userData",
+        },
+    },
+
+    USER_NOT_FOUND: {
+        status: 401,
+        description: "User not found",
+        example: {
+            status: 401,
+            message: "User not found",
+            res: null,
+        },
+    },
+    TOKEN_MISMATCH: {
+        status: 403,
+        description: "Token mismatch",
+        example: {
+            status: 401,
+            message: "Token mismatch",
+            res: null,
+        },
+    },
+};
