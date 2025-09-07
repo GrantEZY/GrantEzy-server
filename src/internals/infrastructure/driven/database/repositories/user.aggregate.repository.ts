@@ -39,11 +39,13 @@ export class UserAggregateRepository implements UserAggregatePort {
                 person: savedPerson,
                 contact: contact,
                 commitment: user.commitment,
+                audit: null,
+                experiences: null,
             });
             return await this.userRepository.save(newUser);
         } catch (error) {
             console.error("Save user error:", error);
-            throw new ApiError(400, "Failed to save user", "Database Error");
+            throw new ApiError(502, "Failed to save user", "Database Error");
         }
     }
 
@@ -53,7 +55,16 @@ export class UserAggregateRepository implements UserAggregatePort {
      * @returns The user entity if found, otherwise null.
      */
     async findById(id: string): Promise<User | null> {
-        return await this.userRepository.findOne({where: {id}});
+        try {
+            return await this.userRepository.findOne({where: {id}});
+        } catch (error) {
+            console.error("Find user by ID error:", error);
+            throw new ApiError(
+                502,
+                "Failed to find user by ID",
+                "Database Error"
+            );
+        }
     }
 
     /**
@@ -62,9 +73,18 @@ export class UserAggregateRepository implements UserAggregatePort {
      * @returns The user entity if found, otherwise null.
      */
     async findByEmail(email: string): Promise<User | null> {
-        return await this.userRepository
-            .createQueryBuilder("user")
-            .where("user.contact ->> 'email' = :email", {email})
-            .getOne();
+        try {
+            return await this.userRepository
+                .createQueryBuilder("user")
+                .where("user.contact ->> 'email' = :email", {email})
+                .getOne();
+        } catch (error) {
+            console.error("Find user by email error:", error);
+            throw new ApiError(
+                502,
+                "Failed to find user by email",
+                "Database Error"
+            );
+        }
     }
 }

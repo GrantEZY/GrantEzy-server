@@ -15,6 +15,7 @@ import {UserCommitmentStatus} from "../../../core/domain/constants/commitment.co
 
 export class RegisterDTO {
     @ApiProperty({
+        example: "Tyler",
         description: "User's first name",
     })
     @IsString({message: "First name must be a string"})
@@ -24,6 +25,7 @@ export class RegisterDTO {
     firstName: string;
 
     @ApiProperty({
+        example: "Durden",
         description: "User's last name",
     })
     @IsString({message: "Last name must be a string"})
@@ -33,6 +35,7 @@ export class RegisterDTO {
     lastName: string;
 
     @ApiProperty({
+        example: "TylerDurden@gmail.com",
         description: "User's email address",
     })
     @IsEmail()
@@ -40,6 +43,7 @@ export class RegisterDTO {
     email: string;
 
     @ApiProperty({
+        example: UserCommitmentStatus.FULL_TIME,
         description: "User's Commitment",
     })
     @IsEnum(UserCommitmentStatus, {
@@ -48,6 +52,7 @@ export class RegisterDTO {
     commitment: UserCommitmentStatus;
 
     @ApiProperty({
+        example: "StrongPassword123!",
         description: "User's password",
         minLength: 8,
         maxLength: 20,

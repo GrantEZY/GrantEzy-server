@@ -4,12 +4,19 @@ import {AuthUseCase} from "../../../../../core/application/auth/auth.use-case";
 import {AuthControllerPort} from "../../../../../core/ports/inputs/controllers/auth.controller.port";
 import {RegisterDTO} from "../../../dtos/auth.dto";
 import ApiError from "../../../../../shared/errors/api.error";
+import {ApiTags, ApiResponse} from "@nestjs/swagger";
 
+@ApiTags("auth")
 @Controller("auth")
 export class AuthController implements AuthControllerPort {
     constructor(private readonly authUseCase: AuthUseCase) {}
 
     @Post("/local/register")
+    @ApiResponse({
+        status: 201,
+        description: "The user has been successfully created.",
+    })
+    @ApiResponse({status: 403, description: "Forbidden."})
     async register(
         @Body(ValidationPipe) userData: RegisterDTO,
         @Res() response: Response

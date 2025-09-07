@@ -28,7 +28,7 @@ export class AuthUseCase {
                 await this.userAggregateRepository.findByEmail(email);
             if (existingUser) {
                 throw new ApiError(
-                    400,
+                    409,
                     "Email already in use",
                     "Email Conflict"
                 );
