@@ -1,14 +1,9 @@
-import {
-    Entity,
-    Column,
-    PrimaryGeneratedColumn,
-    CreateDateColumn,
-    UpdateDateColumn,
-} from "typeorm";
+import {Entity, Column, PrimaryColumn} from "typeorm";
+const {v4: uuid} = require("uuid"); // eslint-disable-line
 
 @Entity({name: "persons"})
 export class Person {
-    @PrimaryGeneratedColumn("uuid")
+    @PrimaryColumn("uuid")
     id: string;
 
     @Column({type: "varchar", length: 60})
@@ -23,13 +18,9 @@ export class Person {
     @Column({type: "varchar"})
     password_hash: string;
 
-    @CreateDateColumn()
-    createdAt: Date;
-
-    @UpdateDateColumn()
-    updatedAt: Date;
-
     constructor(init?: Partial<Person>) {
+        this.id = uuid(); // eslint-disable-line
+        this.rt_hash = null;
         Object.assign(this, init);
     }
 }

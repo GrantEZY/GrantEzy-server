@@ -1,11 +1,19 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
-import {CreateDateColumn, UpdateDateColumn} from "typeorm";
-
 export class Audit {
-    @CreateDateColumn()
     readonly createdAt: Date;
-
-    @UpdateDateColumn()
     readonly updatedAt: Date;
+
+    constructor(createdAt?: Date, updatedAt?: Date) {
+        const now = new Date();
+        this.createdAt = createdAt ?? now;
+        this.updatedAt = updatedAt ?? now;
+    }
+
+    toJSON() {
+        return {
+            createdAt: this.createdAt,
+            updatedAt: this.updatedAt,
+        };
+    }
 }

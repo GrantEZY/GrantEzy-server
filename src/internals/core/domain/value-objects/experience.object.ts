@@ -1,21 +1,14 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
-import {Column} from "typeorm";
-
 export class Experience {
-    @Column()
     readonly company: string;
 
-    @Column()
     readonly position: string;
 
-    @Column({type: "date"})
     readonly startDate: Date;
 
-    @Column({type: "date", nullable: true})
     readonly endDate?: Date;
 
-    @Column({type: "text"})
     readonly description: string;
 
     constructor(
@@ -37,5 +30,20 @@ export class Experience {
         this.startDate = startDate;
         this.endDate = endDate;
         this.description = description;
+    }
+
+    toJSON() {
+        return {
+            company: this.company,
+            position: this.position,
+            startDate: this.startDate,
+            endDate: this.endDate,
+            description: this.description,
+            isCurrent: this.isCurrent(),
+        };
+    }
+
+    isCurrent(): boolean {
+        return !this.endDate;
     }
 }

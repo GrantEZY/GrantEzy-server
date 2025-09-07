@@ -1,4 +1,14 @@
-import {Entity, Column, PrimaryGeneratedColumn, OneToOne} from "typeorm";
+/* eslint-disable  */
+
+import {
+    Entity,
+    Column,
+    PrimaryGeneratedColumn,
+    OneToOne,
+    JoinColumn,
+    UpdateDateColumn,
+    CreateDateColumn,
+} from "typeorm";
 
 import {Person} from "../entities/person.entity";
 import {UserStatus} from "../constants/status.constants";
@@ -14,6 +24,7 @@ export class User {
     id: string;
 
     @OneToOne(() => Person, {cascade: true, eager: true})
+    @JoinColumn()
     person: Person;
 
     @Column({type: "enum", enum: UserStatus, default: UserStatus.ACTIVE})
@@ -29,12 +40,62 @@ export class User {
     @Column({type: "enum", enum: UserCommitmentStatus})
     commitment: UserCommitmentStatus;
 
-    @Column({type: "jsonb"})
+    @Column({
+        type: "jsonb",
+        transformer: {
+            to: (value: Contact) => (value ? value.toJSON() : null),
+            from: (value: any) =>
+                value
+                    ? new Contact(value.email, value.phone, value.address)
+                    : null,
+        },
+    })
     contact: Contact;
 
-    @Column({type: "jsonb"})
+    @Column({
+        type: "jsonb",
+        nullable: true,
+        transformer: {
+            to: (value: Audit | null) => (value ? value.toJSON() : null),
+            from: (value: any) =>
+                value
+                    ? new Audit(
+                          new Date(value.createdAt),
+                          new Date(value.updatedAt)
+                      )
+                    : null,
+        },
+    })
     audit: Audit | null;
 
-    @Column({type: "jsonb", nullable: true})
+    @Column({
+        type: "jsonb",
+        nullable: true,
+        transformer: {
+            to: (value: Experience[] | null) =>
+                value ? value.map((exp) => exp.toJSON()) : null,
+            from: (value: any[]) =>
+                value
+                    ? value.map(
+                          (exp) =>
+                              new Experience(
+                                  exp.company,
+                                  exp.position,
+                                  new Date(exp.startDate),
+                                  exp.description,
+                                  exp.endDate
+                                      ? new Date(exp.endDate)
+                                      : undefined
+                              )
+                      )
+                    : null,
+        },
+    })
     experiences: Experience[] | null;
+
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
 }

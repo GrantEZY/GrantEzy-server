@@ -1,15 +1,10 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
-import {Column} from "typeorm";
-
 export class Contact {
-    @Column()
     readonly email: string;
 
-    @Column({nullable: true})
     readonly phone: string | null;
 
-    @Column({nullable: true})
     readonly address: string | null;
 
     constructor(email: string, phone: string | null, address: string | null) {
@@ -19,5 +14,13 @@ export class Contact {
         this.email = email;
         this.phone = phone;
         this.address = address;
+    }
+
+    toJSON() {
+        return {
+            email: this.email,
+            phone: this.phone,
+            address: this.address,
+        };
     }
 }
