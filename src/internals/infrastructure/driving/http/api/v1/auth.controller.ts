@@ -1,4 +1,11 @@
-import {Controller, Res, Post, Body, ValidationPipe} from "@nestjs/common";
+import {
+    Controller,
+    Res,
+    Post,
+    Body,
+    ValidationPipe,
+    UseGuards,
+} from "@nestjs/common";
 import {Response} from "express";
 import {AuthUseCase} from "../../../../../core/application/auth/auth.use-case";
 import {AuthControllerPort} from "../../../../../core/ports/inputs/controllers/auth.controller.port";
@@ -19,6 +26,7 @@ import {JwtData} from "../../../../../shared/types/jwt.types";
 import {User} from "../../../../../core/domain/aggregates/user.aggregate";
 import {UserRoles} from "../../../../../core/domain/constants/userRoles.constants";
 import {Public} from "../../../../../shared/decorators/public.decorator";
+import {LocalGuard} from "../../../../../shared/guards/local.guard";
 
 @ApiTags("Auth")
 @Controller("auth")
@@ -47,6 +55,7 @@ export class AuthController implements AuthControllerPort {
 
     @Public()
     @Post("/local/login")
+    @UseGuards(LocalGuard)
     @ApiResponse(LoginSwagger.SUCCESS)
     @ApiResponse(LoginSwagger.PASSWORD_DONT_MATCH)
     @ApiResponse(LoginSwagger.USER_DONT_HAVE_THE_ROLE)

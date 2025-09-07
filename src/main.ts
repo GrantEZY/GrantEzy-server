@@ -4,7 +4,7 @@
  * @file src/main.ts
  */
 
-import {NestFactory} from "@nestjs/core";
+import {NestFactory, Reflector} from "@nestjs/core";
 
 import {config as SwaggerConfig} from "./internals/config/swagger/setup";
 import {SwaggerModule} from "@nestjs/swagger";
@@ -13,9 +13,16 @@ import {AppModule} from "./app.module";
 
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
+import {ValidationPipe} from "@nestjs/common";
+import {AtGuard} from "./internals/shared/guards/at.guard";
 
 async function initServer() {
     const app = await NestFactory.create(AppModule);
+
+    //setting up accessToken guard
+    const reflector = new Reflector();
+    app.useGlobalPipes(new ValidationPipe());
+    app.useGlobalGuards(new AtGuard(reflector));
     app.enableShutdownHooks();
     app.use(helmet());
     app.use(cookieParser());
