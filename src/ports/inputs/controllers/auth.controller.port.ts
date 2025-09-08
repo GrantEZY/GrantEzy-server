@@ -1,10 +1,10 @@
-import {PassportResponseData} from "../../../../infrastructure/driven/response-dtos/auth.response-dto";
+import {PassportResponseData} from "../../../infrastructure/driven/response-dtos/auth.response-dto";
 import {
     LoginDTO,
     RegisterDTO,
-} from "../../../../infrastructure/driving/dtos/auth.dto";
+} from "../../../infrastructure/driving/dtos/auth.dto";
 import {Response} from "express";
-import {JwtData} from "../../../../shared/types/jwt.types";
+import {JwtData} from "../../../shared/types/jwt.types";
 export interface AuthControllerPort {
     register(userData: RegisterDTO, response: Response): Promise<Response>;
     login(

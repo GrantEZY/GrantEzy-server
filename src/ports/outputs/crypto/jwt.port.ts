@@ -1,9 +1,9 @@
-import {JwtData} from "../../../../shared/types/jwt.types";
+import {JwtData} from "../../../shared/types/jwt.types";
 
 import {
     RefreshAccessTokenData,
     LoginTokenSigningData,
-} from "../../../../infrastructure/driven/response-dtos/jwt.response-dto";
+} from "../../../infrastructure/driven/response-dtos/jwt.response-dto";
 
 export interface JwtPort {
     signTokens(jwtData: JwtData): Promise<LoginTokenSigningData>;

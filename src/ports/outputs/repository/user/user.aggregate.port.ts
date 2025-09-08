@@ -1,4 +1,4 @@
-import {User} from "../../../../domain/aggregates/user.aggregate";
+import {User} from "../../../../core/domain/aggregates/user.aggregate";
 import {UserAggregateDTO} from "./user.aggregate.dto";
 
 export default interface UserAggregatePort {

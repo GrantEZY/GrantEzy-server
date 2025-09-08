@@ -1,5 +1,5 @@
 import {ConfigService} from "@nestjs/config";
-import {JwtPort} from "../../../core/ports/outputs/crypto/jwt.port";
+import {JwtPort} from "../../../ports/outputs/crypto/jwt.port";
 import {JwtData} from "../../../shared/types/jwt.types";
 import {
     LoginTokenSigningData,

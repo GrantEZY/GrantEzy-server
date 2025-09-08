@@ -1,17 +1,17 @@
 import {Module, Global} from "@nestjs/common";
 
-import {UserAggregateRepository} from "../../../infrastructure/driven/database/repositories/user.aggregate.repository";
+import {UserAggregateRepository} from "../../infrastructure/driven/database/repositories/user.aggregate.repository";
 import {USER_AGGREGATE_PORT} from "./repository/user/user.aggregate.port";
 import {PASSWORD_HASHER_PORT} from "./crypto/hash.port";
-import {BcryptPasswordHasher} from "../../../infrastructure/driven/crypto/hash.repository";
+import {BcryptPasswordHasher} from "../../infrastructure/driven/crypto/hash.repository";
 import {TypeOrmModule} from "@nestjs/typeorm";
-import {User} from "../../domain/aggregates/user.aggregate";
-import {Person} from "../../domain/entities/person.entity";
+import {User} from "../../core/domain/aggregates/user.aggregate";
+import {Person} from "../../core/domain/entities/person.entity";
 import {JWT_PORT} from "./crypto/jwt.port";
-import {JwtRepository} from "../../../infrastructure/driven/crypto/jwt.repository";
+import {JwtRepository} from "../../infrastructure/driven/crypto/jwt.repository";
 import {JwtModule} from "@nestjs/jwt";
 import {CACHE_REPOSITORY_PORT} from "./cache/cache.repository.port";
-import {CacheRepository} from "../../../infrastructure/driven/cache/cache.repository";
+import {CacheRepository} from "../../infrastructure/driven/cache/cache.repository";
 import {ConfigModule} from "@nestjs/config";
 @Global()
 @Module({

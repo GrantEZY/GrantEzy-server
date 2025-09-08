@@ -1,6 +1,6 @@
 /* eslint-disable */
 
-import {CacheRepositoryPort} from "../../../core/ports/outputs/cache/cache.repository.port";
+import {CacheRepositoryPort} from "../../../ports/outputs/cache/cache.repository.port";
 
 export class CacheRepository implements CacheRepositoryPort {
     getKey(key: string) {}

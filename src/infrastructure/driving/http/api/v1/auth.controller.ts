@@ -9,7 +9,7 @@ import {
 } from "@nestjs/common";
 import {Response} from "express";
 import {AuthUseCase} from "../../../../../core/application/auth/auth.use-case";
-import {AuthControllerPort} from "../../../../../core/ports/inputs/controllers/auth.controller.port";
+import {AuthControllerPort} from "../../../../../ports/inputs/controllers/auth.controller.port";
 import {LoginDTO, RegisterDTO} from "../../../dtos/auth.dto";
 import ApiError from "../../../../../shared/errors/api.error";
 import {ApiTags, ApiResponse} from "@nestjs/swagger";

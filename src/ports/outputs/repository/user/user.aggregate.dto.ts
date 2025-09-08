@@ -1,4 +1,4 @@
-import {UserCommitmentStatus} from "../../../../domain/constants/commitment.constants";
+import {UserCommitmentStatus} from "../../../../core/domain/constants/commitment.constants";
 
 export class UserAggregateDTO {
     firstName: string;
