@@ -1,7 +1,7 @@
 import UserAggregatePort from "../../../../ports/outputs/repository/user/user.aggregate.port";
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
-import {Repository} from "typeorm";
+import {Repository, FindOptionsWhere} from "typeorm";
 import {User} from "../../../../core/domain/aggregates/user.aggregate";
 import {UserAggregateDTO} from "../../../../ports/outputs/repository/user/user.aggregate.dto";
 import {Contact} from "../../../../core/domain/value-objects/contact.object";
@@ -118,6 +118,40 @@ export class UserAggregateRepository implements UserAggregatePort {
             throw new ApiError(
                 502,
                 "Failed to set User RT hash",
+                "Database Error"
+            );
+        }
+    }
+
+    /**
+     *
+     * @param filter Options for filtering out to search the user
+     * @param page number of page for pagination
+     * @param numberOfUsers number of Users in the page
+     * @returns User[] of the retrieved users.
+     */
+
+    async getUsers(
+        filter: FindOptionsWhere<User> | FindOptionsWhere<User>[] | undefined,
+        page: number,
+        numberOfUsers: number
+    ): Promise<User[]> {
+        try {
+            const users = await this.userRepository.find({
+                where: filter,
+                skip: (page - 1) * numberOfUsers,
+                take: numberOfUsers,
+                order: {
+                    createdAt: "DESC",
+                },
+            });
+
+            return users;
+        } catch (error) {
+            console.error("Error in fetching Users", error);
+            throw new ApiError(
+                502,
+                "User Details Fetching Error",
                 "Database Error"
             );
         }

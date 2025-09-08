@@ -17,6 +17,11 @@ export class JwtRepository implements JwtPort {
         private readonly jwtService: JwtService
     ) {}
 
+    /**
+     *
+     * @param jwtData data for signing tokens
+     * @returns returns accessToken and refreshToken
+     */
     async signTokens(jwtData: JwtData): Promise<LoginTokenSigningData> {
         try {
             const REFRESH_TOKEN_KEY =
@@ -49,6 +54,12 @@ export class JwtRepository implements JwtPort {
             throw new ApiError(400, "Error in Signing JWT", "JWT error");
         }
     }
+
+    /**
+     *
+     * @param jwtData data for signing accessToken
+     * @returns returns accessToken
+     */
 
     async getAccessToken(jwtData: JwtData): Promise<RefreshAccessTokenData> {
         try {
