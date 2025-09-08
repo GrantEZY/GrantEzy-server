@@ -1,4 +1,3 @@
-import UserAggregatePort from "../../../../ports/outputs/repository/user/user.aggregate.port";
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository, FindOptionsWhere} from "typeorm";
@@ -7,7 +6,7 @@ import {UserAggregateDTO} from "../../../../ports/outputs/repository/user/user.a
 import {Contact} from "../../../../core/domain/value-objects/contact.object";
 import {Person} from "../../../../core/domain/entities/person.entity";
 import ApiError from "../../../../shared/errors/api.error";
-
+import {UserAggregatePort} from "../../../../ports/outputs/repository/user/user.aggregate.port";
 @Injectable()
 export class UserAggregateRepository implements UserAggregatePort {
     constructor(
@@ -135,7 +134,7 @@ export class UserAggregateRepository implements UserAggregatePort {
         filter: FindOptionsWhere<User> | FindOptionsWhere<User>[] | undefined,
         page: number,
         numberOfUsers: number
-    ): Promise<User[]> {
+    ): Promise<{users: User[]; totalNumberOfUsers: number}> {
         try {
             const users = await this.userRepository.find({
                 where: filter,
@@ -146,7 +145,14 @@ export class UserAggregateRepository implements UserAggregatePort {
                 },
             });
 
-            return users;
+            const totalNumberOfUsers = await this.userRepository
+                .createQueryBuilder("user")
+                .getCount();
+
+            return {
+                users,
+                totalNumberOfUsers,
+            };
         } catch (error) {
             console.error("Error in fetching Users", error);
             throw new ApiError(

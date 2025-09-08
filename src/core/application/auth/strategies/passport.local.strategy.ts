@@ -4,11 +4,11 @@ import {Strategy} from "passport-local";
 import {LoginDTO} from "../../../../infrastructure/driving/dtos/auth.dto";
 import {PassportResponseData} from "../../../../infrastructure/driven/response-dtos/auth.response-dto";
 import {UserRoles} from "../../../domain/constants/userRoles.constants";
-import {AuthUseCase} from "../auth.use-case";
+import {AuthService} from "../../../domain/services/auth.service";
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
-    constructor(private authUseCase: AuthUseCase) {
+    constructor(private authUseCase: AuthService) {
         super({
             usernameField: "email",
             passwordField: "password",

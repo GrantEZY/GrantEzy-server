@@ -2,7 +2,7 @@ import {FindOptionsWhere} from "typeorm";
 import {User} from "../../../../core/domain/aggregates/user.aggregate";
 import {UserAggregateDTO} from "./user.aggregate.dto";
 
-export default interface UserAggregatePort {
+export interface UserAggregatePort {
     save(user: Partial<UserAggregateDTO>): Promise<User>;
     findById(id: string): Promise<User | null>;
     findByEmail(email: string): Promise<User | null>;
@@ -11,7 +11,6 @@ export default interface UserAggregatePort {
         filter: FindOptionsWhere<User>,
         page: number,
         numberOfUser: number
-    ): Promise<User[]>;
+    ): Promise<{users: User[]; totalNumberOfUsers: number}>;
 }
-
 export const USER_AGGREGATE_PORT = Symbol("UserAggregatePort");

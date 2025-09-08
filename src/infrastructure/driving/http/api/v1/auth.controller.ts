@@ -8,7 +8,7 @@ import {
     Get,
 } from "@nestjs/common";
 import {Response} from "express";
-import {AuthUseCase} from "../../../../../core/application/auth/auth.use-case";
+import {AuthService} from "../../../../../core/domain/services/auth.service";
 import {AuthControllerPort} from "../../../../../ports/inputs/controllers/auth.controller.port";
 import {LoginDTO, RegisterDTO} from "../../../dtos/auth.dto";
 import ApiError from "../../../../../shared/errors/api.error";
@@ -34,7 +34,7 @@ import {RtGuard} from "../../../../../shared/guards/rt.guard";
 @ApiTags("Auth")
 @Controller("auth")
 export class AuthController implements AuthControllerPort {
-    constructor(private readonly authUseCase: AuthUseCase) {}
+    constructor(private readonly authUseCase: AuthService) {}
 
     @Public()
     @Post("/local/register")

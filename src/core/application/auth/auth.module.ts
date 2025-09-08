@@ -1,6 +1,6 @@
 import {Module} from "@nestjs/common";
 import {AuthController} from "../../../infrastructure/driving/http/api/v1/auth.controller";
-import {AuthUseCase} from "./auth.use-case";
+import {AuthService} from "../../domain/services/auth.service";
 import {PassportModule} from "@nestjs/passport";
 import {LocalStrategy} from "./strategies/passport.local.strategy";
 import {AccessTokenStrategy} from "./strategies/passport.accesstoken.strategy";
@@ -9,7 +9,7 @@ import {RefreshTokenStrategy} from "./strategies/passport.refreshtoken.strategy"
     imports: [PassportModule.register({defaultStrategy: "jwt"})],
     controllers: [AuthController],
     providers: [
-        AuthUseCase,
+        AuthService,
         LocalStrategy,
         AccessTokenStrategy,
         RefreshTokenStrategy,
