@@ -62,7 +62,7 @@ export class AuthUseCase {
                 status: 201,
                 message: "User registered successfully",
                 res: {
-                    id: newUser.id,
+                    id: newUser.personId,
                     email: newUser.contact.email,
                 },
             };
@@ -73,7 +73,7 @@ export class AuthUseCase {
 
     async validateUser(userData: LoginDTO): Promise<PassportResponseData> {
         try {
-            const {email, password, role} = userData;
+            const {email, password} = userData;
             const user = await this.userAggregateRepository.findByEmail(email);
             if (!user) {
                 throw new ApiError(401, "User not found ", "Login Issue");
@@ -85,19 +85,25 @@ export class AuthUseCase {
             if (!isPasswordValid) {
                 throw new ApiError(402, "Password is incorrect", "Login Issue");
             }
-            const userRole = user.role;
-            if (role && userRole.includes(role as UserRoles)) {
-                return {
-                    user,
-                    message: "User validated successfully",
-                };
-            } else {
-                throw new ApiError(
-                    403,
-                    "User doesn't have access to that role",
-                    "Login Issue"
-                );
-            }
+            // TODO  uncomment once authorization employed
+            // const userRole = user.role;
+            // if (role && userRole.includes(role as UserRoles)) {
+            //     return {
+            //         user,
+            //         message: "User validated successfully",
+            //     };
+            // } else {
+            //     throw new ApiError(
+            //         403,
+            //         "User doesn't have access to that role",
+            //         "Login Issue"
+            //     );
+            // }
+
+            return {
+                user,
+                message: "User validated successfully",
+            };
         } catch (error) {
             this.handleError(error);
         }
@@ -105,10 +111,10 @@ export class AuthUseCase {
 
     async login(user: User, role: UserRoles): Promise<LocalLoginResponse> {
         try {
-            const {contact, id} = user;
+            const {contact, personId} = user;
             const jwtData = {
                 email: contact.email,
-                id: id,
+                id: personId,
                 role,
                 token_version: user.tokenVersion,
             };
@@ -116,7 +122,7 @@ export class AuthUseCase {
             const tokens = await this.jwtRepository.signTokens(jwtData);
 
             const response = {
-                id,
+                id: personId,
                 email: contact.email,
                 role,
                 name: `${user.person.firstName} ${user.person.lastName}`,

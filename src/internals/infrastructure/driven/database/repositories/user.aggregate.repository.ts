@@ -29,14 +29,14 @@ export class UserAggregateRepository implements UserAggregatePort {
 
             const person = this.personRepository.create({
                 firstName: user.firstName,
-                lastName: user.lastName,
+                lastName: user.firstName,
                 password_hash: user.password_hash,
             });
 
-            const savedPerson = await this.personRepository.save(person);
+            await this.personRepository.save(person);
 
             const newUser = this.userRepository.create({
-                person: savedPerson,
+                person: person,
                 contact: contact,
                 commitment: user.commitment,
                 audit: null,
@@ -56,7 +56,7 @@ export class UserAggregateRepository implements UserAggregatePort {
      */
     async findById(id: string): Promise<User | null> {
         try {
-            return await this.userRepository.findOne({where: {id}});
+            return await this.userRepository.findOne({where: {personId: id}});
         } catch (error) {
             console.error("Find user by ID error:", error);
             throw new ApiError(
@@ -74,12 +74,15 @@ export class UserAggregateRepository implements UserAggregatePort {
      */
     async findByEmail(email: string): Promise<User | null> {
         try {
-            return await this.userRepository
+            const user = await this.userRepository
                 .createQueryBuilder("user")
+                .leftJoinAndSelect("user.person", "person")
                 .where("user.contact ->> 'email' = :email", {email})
                 .getOne();
+
+            return user;
         } catch (error) {
-            console.error("Find user by email error:", error);
+            console.error(error);
             throw new ApiError(
                 502,
                 "Failed to find user by email",
@@ -108,7 +111,7 @@ export class UserAggregateRepository implements UserAggregatePort {
 
             user.person.rt_hash = hash;
 
-            await this.userRepository.update({id}, user);
+            await this.userRepository.update({personId: id}, user);
             return true;
         } catch (error) {
             console.error("Error in setting RThash", error);

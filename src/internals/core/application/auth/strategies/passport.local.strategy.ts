@@ -17,9 +17,9 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     }
 
     async validate(
+        request: Request,
         email: string,
-        password: string,
-        request: Request
+        password: string
     ): Promise<PassportResponseData> {
         const body = request.body as unknown as {role: UserRoles};
         const role = body?.role;

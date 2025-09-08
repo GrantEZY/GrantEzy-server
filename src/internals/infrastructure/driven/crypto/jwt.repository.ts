@@ -8,11 +8,13 @@ import {
 import {ConfigType} from "../../../config/env/app.types";
 import {JwtService} from "@nestjs/jwt";
 import ApiError from "../../../shared/errors/api.error";
+import {Injectable} from "@nestjs/common";
 
+@Injectable()
 export class JwtRepository implements JwtPort {
     constructor(
         private readonly configService: ConfigService<ConfigType>,
-        private readonly jwtservice: JwtService
+        private readonly jwtService: JwtService
     ) {}
 
     async signTokens(jwtData: JwtData): Promise<LoginTokenSigningData> {
@@ -22,7 +24,7 @@ export class JwtRepository implements JwtPort {
             const ACCESS_TOKEN_KEY =
                 this.configService.get("jwt").JWT_TOKEN_KEY;
 
-            const accessToken = await this.jwtservice.signAsync(
+            const accessToken = await this.jwtService.signAsync(
                 {payload: jwtData},
                 {
                     secret: ACCESS_TOKEN_KEY,
@@ -30,7 +32,7 @@ export class JwtRepository implements JwtPort {
                 }
             );
 
-            const refreshToken = await this.jwtservice.signAsync(
+            const refreshToken = await this.jwtService.signAsync(
                 {payload: jwtData},
                 {
                     secret: REFRESH_TOKEN_KEY,
@@ -53,7 +55,7 @@ export class JwtRepository implements JwtPort {
             const ACCESS_TOKEN_KEY =
                 this.configService.get("jwt").JWT_TOKEN_KEY;
 
-            const accessToken = await this.jwtservice.signAsync(
+            const accessToken = await this.jwtService.signAsync(
                 {payload: jwtData},
                 {
                     secret: ACCESS_TOKEN_KEY,

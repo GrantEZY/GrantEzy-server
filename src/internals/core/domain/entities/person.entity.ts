@@ -1,9 +1,8 @@
-import {Entity, Column, PrimaryColumn} from "typeorm";
-const {v4: uuid} = require("uuid"); // eslint-disable-line
+import {Entity, Column, PrimaryGeneratedColumn} from "typeorm";
 
 @Entity({name: "persons"})
 export class Person {
-    @PrimaryColumn("uuid")
+    @PrimaryGeneratedColumn("uuid")
     id: string;
 
     @Column({type: "varchar", length: 60})
@@ -17,10 +16,4 @@ export class Person {
 
     @Column({type: "varchar"})
     password_hash: string;
-
-    constructor(init?: Partial<Person>) {
-        this.id = uuid(); // eslint-disable-line
-        this.rt_hash = null;
-        Object.assign(this, init);
-    }
 }

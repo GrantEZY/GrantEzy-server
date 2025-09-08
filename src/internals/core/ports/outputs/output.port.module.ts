@@ -12,9 +12,14 @@ import {JwtRepository} from "../../../infrastructure/driven/crypto/jwt.repositor
 import {JwtModule} from "@nestjs/jwt";
 import {CACHE_REPOSITORY_PORT} from "./cache/cache.repository.port";
 import {CacheRepository} from "../../../infrastructure/driven/cache/cache.repository";
+import {ConfigModule} from "@nestjs/config";
 @Global()
 @Module({
-    imports: [TypeOrmModule.forFeature([User, Person]), JwtModule.register({})],
+    imports: [
+        TypeOrmModule.forFeature([User, Person]),
+        JwtModule.register({}),
+        ConfigModule,
+    ],
     providers: [
         {provide: USER_AGGREGATE_PORT, useClass: UserAggregateRepository},
         {provide: PASSWORD_HASHER_PORT, useClass: BcryptPasswordHasher},

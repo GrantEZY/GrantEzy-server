@@ -3,11 +3,11 @@
 import {
     Entity,
     Column,
-    PrimaryGeneratedColumn,
     OneToOne,
     JoinColumn,
     UpdateDateColumn,
     CreateDateColumn,
+    PrimaryColumn,
 } from "typeorm";
 
 import {Person} from "../entities/person.entity";
@@ -20,11 +20,11 @@ import {Experience} from "../value-objects/experience.object";
 
 @Entity({name: "users"})
 export class User {
-    @PrimaryGeneratedColumn("uuid")
-    id: string;
+    @PrimaryColumn()
+    personId: string;
 
     @OneToOne(() => Person, {cascade: true, eager: true})
-    @JoinColumn()
+    @JoinColumn({name: "personId"})
     person: Person;
 
     @Column({type: "enum", enum: UserStatus, default: UserStatus.ACTIVE})
