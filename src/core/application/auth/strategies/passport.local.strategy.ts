@@ -4,7 +4,7 @@ import {Strategy} from "passport-local";
 import {LoginDTO} from "../../../../infrastructure/driving/dtos/auth.dto";
 import {PassportResponseData} from "../../../../infrastructure/driven/response-dtos/auth.response-dto";
 import {UserRoles} from "../../../domain/constants/userRoles.constants";
-import {AuthService} from "../../../domain/services/auth.service";
+import {AuthService} from "../../../domain/services/auth/auth.service";
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {

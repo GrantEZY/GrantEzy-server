@@ -8,7 +8,7 @@ import {
     Get,
 } from "@nestjs/common";
 import {Response} from "express";
-import {AuthService} from "../../../../../core/domain/services/auth.service";
+import {AuthService} from "../../../../../core/domain/services/auth/auth.service";
 import {AuthControllerPort} from "../../../../../ports/inputs/controllers/auth.controller.port";
 import {LoginDTO, RegisterDTO} from "../../../dtos/auth.dto";
 import ApiError from "../../../../../shared/errors/api.error";

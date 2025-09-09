@@ -1,11 +1,11 @@
 import {Inject, Injectable} from "@nestjs/common";
-import ApiError from "../../../shared/errors/api.error";
+import ApiError from "../../../../shared/errors/api.error";
 import {
     USER_AGGREGATE_PORT,
     UserAggregatePort,
-} from "../../../ports/outputs/repository/user/user.aggregate.port";
-import {GetAllUsersDTO} from "../../../infrastructure/driving/dtos/admin.dto";
-import {GetUsersDataResponse} from "../../../infrastructure/driven/response-dtos/admin.response-dto";
+} from "../../../../ports/outputs/repository/user/user.aggregate.port";
+import {GetAllUsersDTO} from "../../../../infrastructure/driving/dtos/admin.dto";
+import {GetUsersDataResponse} from "../../../../infrastructure/driven/response-dtos/admin.response-dto";
 @Injectable()
 /**
  * This is the service for admin endpoints

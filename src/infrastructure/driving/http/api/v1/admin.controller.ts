@@ -3,7 +3,7 @@ import {ApiTags, ApiResponse} from "@nestjs/swagger";
 import {Response} from "express";
 import {AdminControllerInterfacePort} from "../../../../../ports/inputs/controllers/admin.controller.port";
 import ApiError from "../../../../../shared/errors/api.error";
-import {AdminService} from "../../../../../core/domain/services/admin.service";
+import {AdminService} from "../../../../../core/domain/services/admin/admin.service";
 import {GetAllUsersDTO} from "../../../dtos/admin.dto";
 import {GET_ALL_USERS} from "../../../../../config/swagger/admin.swagger";
 @ApiTags("Admin")
