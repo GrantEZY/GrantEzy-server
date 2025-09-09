@@ -9,7 +9,7 @@ import {NestFactory, Reflector} from "@nestjs/core";
 import {config as SwaggerConfig} from "./config/swagger/setup";
 import {SwaggerModule} from "@nestjs/swagger";
 
-import {AppModule} from "./app.module";
+import {AppModule} from "./core/application/app.module";
 
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
