@@ -7,6 +7,7 @@ import {Contact} from "../../../../core/domain/value-objects/contact.object";
 import {Person} from "../../../../core/domain/entities/person.entity";
 import ApiError from "../../../../shared/errors/api.error";
 import {UserAggregatePort} from "../../../../ports/outputs/repository/user/user.aggregate.port";
+import {UserRoles} from "../../../../core/domain/constants/userRoles.constants";
 @Injectable()
 export class UserAggregateRepository implements UserAggregatePort {
     constructor(
@@ -40,6 +41,7 @@ export class UserAggregateRepository implements UserAggregatePort {
                 commitment: user.commitment,
                 audit: null,
                 experiences: null,
+                role: [user.role],
             });
             return await this.userRepository.save(newUser);
         } catch (error) {
@@ -111,6 +113,31 @@ export class UserAggregateRepository implements UserAggregatePort {
             user.person.rt_hash = hash;
 
             await this.userRepository.update({personId: id}, user);
+            return true;
+        } catch (error) {
+            console.error("Error in setting RThash", error);
+            throw new ApiError(
+                502,
+                "Failed to set User RT hash",
+                "Database Error"
+            );
+        }
+    }
+
+    /**
+     *
+     * @param id Unique Identifier of the user
+     * @param roles Role to update
+     * @returns true if success , else false
+     */
+    async updateUserRole(id: string, roles: UserRoles[]): Promise<boolean> {
+        try {
+            await this.userRepository.update(
+                {personId: id},
+                {
+                    role: roles,
+                }
+            );
             return true;
         } catch (error) {
             console.error("Error in setting RThash", error);

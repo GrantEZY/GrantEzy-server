@@ -6,6 +6,7 @@ import {
     ValidateNested,
     IsObject,
     IsEnum,
+    IsEmail,
 } from "class-validator";
 import {Type} from "class-transformer";
 import {UserRoles} from "../../../core/domain/constants/userRoles.constants";
@@ -48,4 +49,20 @@ export class GetAllUsersDTO {
     @ValidateNested()
     @Type(() => UserFilterDto)
     filter?: UserFilterDto;
+}
+
+export class AddUserDTO {
+    @ApiProperty({
+        description: "Email of the person to be added",
+        example: "inthrak04@gmail.com",
+    })
+    @IsEmail()
+    email: string;
+
+    @ApiProperty({
+        description: "Role for which the person need to be added",
+        example: UserRoles.DIRECTOR,
+    })
+    @IsEnum(UserRoles)
+    role: UserRoles;
 }

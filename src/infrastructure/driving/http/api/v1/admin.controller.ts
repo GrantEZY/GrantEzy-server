@@ -1,11 +1,14 @@
-import {Controller, Res, Get, Query} from "@nestjs/common";
-import {ApiTags, ApiResponse} from "@nestjs/swagger";
+import {Controller, Res, Get, Query, Post, Body} from "@nestjs/common";
+import {ApiTags, ApiResponse, ApiProperty} from "@nestjs/swagger";
 import {Response} from "express";
 import {AdminControllerInterfacePort} from "../../../../../ports/inputs/controllers/admin.controller.port";
 import ApiError from "../../../../../shared/errors/api.error";
 import {AdminService} from "../../../../../core/domain/services/admin/admin.service";
-import {GetAllUsersDTO} from "../../../dtos/admin.dto";
-import {GET_ALL_USERS} from "../../../../../config/swagger/admin.swagger";
+import {AddUserDTO, GetAllUsersDTO} from "../../../dtos/admin.dto";
+import {
+    GET_ALL_USERS,
+    ADD_USERS,
+} from "../../../../../config/swagger/admin.swagger";
 @ApiTags("Admin")
 @Controller("admin")
 export class AdminController implements AdminControllerInterfacePort {
@@ -20,6 +23,18 @@ export class AdminController implements AdminControllerInterfacePort {
     ): Promise<Response> {
         try {
             const result = await this.adminService.getAllUsers(query);
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Post("/add-user")
+    @ApiProperty(ADD_USERS.SUCCESS)
+    @ApiProperty(ADD_USERS.USER_ALREADY_PRESENT)
+    async addUser(@Body() body: AddUserDTO, @Res() response: Response) {
+        try {
+            const result = await this.adminService.addUser(body);
             return response.status(result.status).json(result);
         } catch (error) {
             return this.handleError(error, response);
