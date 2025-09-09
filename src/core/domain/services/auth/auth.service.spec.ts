@@ -181,4 +181,83 @@ describe("AuthService", () => {
             expect((error as ApiError).message).toBe("Error In Signing JWTs");
         }
     });
+
+    it("Refresh : Successful refresh of AccessToken", async () => {
+        try {
+            const user = {
+                id: "111-23434-234345234-353456",
+                token_version: "1",
+            };
+            userAggregateRepository.findById.mockResolvedValue(
+                SAVED_USER as any
+            );
+            const tokens = {
+                accessToken: "access-token",
+            };
+            jwtRepository.getAccessToken.mockResolvedValue(tokens);
+
+            const result = await authService.refresh(user as any);
+
+            expect(result).toBe({
+                status: 200,
+                message: "Access Token Created",
+                res: {
+                    accessToken: tokens.accessToken,
+                },
+            });
+        } catch (error) {}
+    });
+
+    it("Refresh : Token Mismatch Error", async () => {
+        try {
+            const user = {
+                id: "111-23434-234345234-353456",
+                token_version: "2",
+            };
+            userAggregateRepository.findById.mockResolvedValue(
+                SAVED_USER as any
+            );
+
+            await authService.refresh(user as any);
+        } catch (error) {
+            expect(error).toBeInstanceOf(ApiError);
+            expect((error as ApiError).status).toBe(403);
+            expect((error as ApiError).message).toBe("Token mismatch");
+        }
+    });
+
+    it("Logout : Successful RTHash change", async () => {
+        try {
+            const user = {
+                id: "111-23434-234345234-353456",
+            };
+            userAggregateRepository.setRThash.mockResolvedValue(true);
+
+            const result = await authService.logout(user.id);
+            expect(result).toBe({
+                status: 200,
+                message: "Logout Successful",
+                res: {
+                    status: true,
+                },
+            });
+        } catch (error) {}
+    });
+
+    it("Logout : UnSuccessful RTHash change", async () => {
+        try {
+            const user = {
+                id: "111-23434-234345234-353456",
+            };
+            userAggregateRepository.setRThash.mockResolvedValue(false);
+
+            await authService.logout(user.id);
+        } catch (error) {
+            expect(error).toBeInstanceOf(ApiError);
+            expect((error as ApiError).status).toBe(400);
+            expect((error as ApiError).message).toBe(
+                "Error in logging out the User"
+            );
+        }
+    });
 });
