@@ -2,25 +2,25 @@ import {Injectable, Inject} from "@nestjs/common";
 import {
     UserAggregatePort,
     USER_AGGREGATE_PORT,
-} from "../../../ports/outputs/repository/user/user.aggregate.port";
+} from "../../../../ports/outputs/repository/user/user.aggregate.port";
 import {
     LoginDTO,
     RegisterDTO,
-} from "../../../infrastructure/driving/dtos/auth.dto";
-import ApiError from "../../../shared/errors/api.error";
-import {PasswordHasherPort} from "../../../ports/outputs/crypto/hash.port";
-import {PASSWORD_HASHER_PORT} from "../../../ports/outputs/crypto/hash.port";
+} from "../../../../infrastructure/driving/dtos/auth.dto";
+import ApiError from "../../../../shared/errors/api.error";
+import {PasswordHasherPort} from "../../../../ports/outputs/crypto/hash.port";
+import {PASSWORD_HASHER_PORT} from "../../../../ports/outputs/crypto/hash.port";
 import {
     LocalLoginResponse,
     SignUpResponse,
     LogoutResponse,
     AccessTokenResponse,
-} from "../../../infrastructure/driven/response-dtos/auth.response-dto";
-import {UserRoles} from "../constants/userRoles.constants";
-import {PassportResponseData} from "../../../infrastructure/driven/response-dtos/auth.response-dto";
-import {User} from "../aggregates/user.aggregate";
-import {JwtPort, JWT_PORT} from "../../../ports/outputs/crypto/jwt.port";
-import {JwtData} from "../../../shared/types/jwt.types";
+} from "../../../../infrastructure/driven/response-dtos/auth.response-dto";
+import {UserRoles} from "../../constants/userRoles.constants";
+import {PassportResponseData} from "../../../../infrastructure/driven/response-dtos/auth.response-dto";
+import {User} from "../../aggregates/user.aggregate";
+import {JwtPort, JWT_PORT} from "../../../../ports/outputs/crypto/jwt.port";
+import {JwtData} from "../../../../shared/types/jwt.types";
 @Injectable()
 /**
  * Auth Use Case

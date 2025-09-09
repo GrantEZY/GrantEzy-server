@@ -1,6 +1,6 @@
 import {Module} from "@nestjs/common";
 import {AppController} from "../../infrastructure/driving/http/api/v1/app.controller";
-import {AppService} from "../domain/services/app.service";
+import {AppService} from "../domain/services/app/app.service";
 import {DatabaseConnection} from "../../infrastructure/driven/database/connection";
 import {CacheConnection} from "../../infrastructure/driven/cache/connection";
 import {ConfigConnection} from "../../infrastructure/driven/env/connection";
