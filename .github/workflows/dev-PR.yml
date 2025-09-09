@@ -1,4 +1,4 @@
-name: CI Checks For Pull Requests
+name: CI Checks For Pull Requests (Lint , Prettier And Tests)
 
 on:
   pull_request:
