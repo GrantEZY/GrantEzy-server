@@ -4,7 +4,11 @@ import {Response} from "express";
 import {AdminControllerInterfacePort} from "../../../../../ports/inputs/controllers/admin.controller.port";
 import ApiError from "../../../../../shared/errors/api.error";
 import {AdminService} from "../../../../../core/domain/services/admin/admin.service";
-import {AddUserDTO, GetAllUsersDTO} from "../../../dtos/admin.dto";
+import {
+    AddUserDTO,
+    GetAllUsersDTO,
+    UpdateUserRoleDTO,
+} from "../../../dtos/admin.dto";
 import {
     GET_ALL_USERS,
     ADD_USERS,
@@ -41,6 +45,19 @@ export class AdminController implements AdminControllerInterfacePort {
         }
     }
 
+    @Post("/update-role")
+    async updateRole(
+        @Res() response: Response,
+        @Body() userDetails: UpdateUserRoleDTO
+    ) {
+        try {
+            const result = await this.adminService.updateUserRole(userDetails);
+
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
     handleError(error: unknown, response: Response): Response {
         if (error instanceof ApiError) {
             return response.status(error.status).json({

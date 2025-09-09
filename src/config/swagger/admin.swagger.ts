@@ -43,7 +43,7 @@ export const ADD_USERS = {
         status: 400,
         description: "User Already Found",
         example: {
-            status: 201,
+            status: 400,
             message: "User Already Found",
             res: null,
         },

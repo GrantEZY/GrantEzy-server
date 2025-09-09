@@ -7,11 +7,14 @@ import {
 import {
     AddUserDTO,
     GetAllUsersDTO,
+    UpdateRole,
+    UpdateUserRoleDTO,
 } from "../../../../infrastructure/driving/dtos/admin.dto";
 import {
     GetUsersDataResponse,
     AddUserDataResponse,
     AddUserData,
+    UpdateUserDataResponse,
 } from "../../../../infrastructure/driven/response-dtos/admin.response-dto";
 import {UserCommitmentStatus} from "../../constants/commitment.constants";
 import {
@@ -78,6 +81,88 @@ export class AdminService {
                     email: contact.email,
                 },
             };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async updateUserRole(
+        userData: UpdateUserRoleDTO
+    ): Promise<UpdateUserDataResponse> {
+        try {
+            const {type, role, email} = userData;
+            const user = await this.userAggregateRepository.findByEmail(email);
+            if (!user) {
+                throw new ApiError(400, "User Not Found", "User conflict");
+            }
+            const isThere = user.role.includes(role);
+
+            if (type === UpdateRole.ADD_ROLE) {
+                if (isThere) {
+                    throw new ApiError(
+                        401,
+                        "User already has the role privileges",
+                        "Conflict Error"
+                    );
+                }
+                user.role.push(role);
+                const newRoles = user.role;
+                const isUpdated =
+                    await this.userAggregateRepository.updateUserRole(
+                        user.personId,
+                        newRoles
+                    );
+                if (isUpdated) {
+                    return {
+                        status: 204,
+                        message: "User role Updated",
+                        res: {
+                            id: user.personId,
+                            role,
+                        },
+                    };
+                } else {
+                    throw new ApiError(
+                        500,
+                        "Error in Updating User Role",
+                        "Internal Error"
+                    );
+                }
+            } else {
+                if (!isThere) {
+                    throw new ApiError(
+                        401,
+                        "User don't  have the role privileges",
+                        "Conflict Error"
+                    );
+                }
+                const newRoles = user.role.filter(
+                    (userRole) => userRole != role
+                );
+
+                const isUpdated =
+                    await this.userAggregateRepository.updateUserRole(
+                        user.personId,
+                        newRoles
+                    );
+
+                if (isUpdated) {
+                    return {
+                        status: 204,
+                        message: "User role Updated",
+                        res: {
+                            id: user.personId,
+                            role,
+                        },
+                    };
+                } else {
+                    throw new ApiError(
+                        500,
+                        "Error in Updating User Role",
+                        "Internal Error"
+                    );
+                }
+            }
         } catch (error) {
             this.handleError(error);
         }

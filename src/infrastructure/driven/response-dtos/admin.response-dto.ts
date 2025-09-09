@@ -1,4 +1,5 @@
 import {User} from "../../../core/domain/aggregates/user.aggregate";
+import {UserRoles} from "../../../core/domain/constants/userRoles.constants";
 import {ApiResponse} from "../../../shared/types/response.type";
 
 class GetUsersData {
@@ -15,5 +16,13 @@ class AddUserResponseData {
     email: string;
 }
 
+class UpdateUserResponseData {
+    id: string;
+    role: UserRoles;
+}
+
 export class GetUsersDataResponse extends ApiResponse(GetUsersData) {}
 export class AddUserDataResponse extends ApiResponse(AddUserResponseData) {}
+export class UpdateUserDataResponse extends ApiResponse(
+    UpdateUserResponseData
+) {}
