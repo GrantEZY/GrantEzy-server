@@ -20,7 +20,7 @@ export class RegisterDTO {
     })
     @IsString({message: "First name must be a string"})
     @IsNotEmpty({message: "First name is required"})
-    @MinLength(6, {message: "First name must be at least 6 characters"})
+    @MinLength(3, {message: "First name must be at least 3 characters"})
     @MaxLength(30, {message: "First name must be at most 30 characters"})
     firstName: string;
 
@@ -30,7 +30,7 @@ export class RegisterDTO {
     })
     @IsString({message: "Last name must be a string"})
     @IsNotEmpty({message: "Last name is required"})
-    @MinLength(6, {message: "Last name must be at least 6 characters"})
+    @MinLength(1, {message: "Last name must be at least 1 character"})
     @MaxLength(30, {message: "Last name must be at most 30 characters"})
     lastName: string;
 
