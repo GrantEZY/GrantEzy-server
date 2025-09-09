@@ -1,6 +1,5 @@
-name: CI Checks and Build
+name: CI Checks and Build For main Branch
 
-env:
 
 on:
   push:
