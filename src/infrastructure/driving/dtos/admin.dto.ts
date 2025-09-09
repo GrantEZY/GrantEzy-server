@@ -74,7 +74,7 @@ export enum UpdateRole {
 
 export class UpdateUserRoleDTO {
     @ApiProperty({
-        description: "Email of the person to be added",
+        description: "Email of the person to be updated",
         example: "inthrak04@gmail.com",
     })
     @IsEmail()
@@ -93,4 +93,13 @@ export class UpdateUserRoleDTO {
     })
     @IsEnum(UserRoles)
     role: UserRoles;
+}
+
+export class DeleteUserDTO {
+    @ApiProperty({
+        description: "Email of the person to be deleted",
+        example: "inthrak04@gmail.com",
+    })
+    @IsEmail()
+    email: string;
 }

@@ -112,7 +112,8 @@ export class UserAggregateRepository implements UserAggregatePort {
 
             user.person.rt_hash = hash;
 
-            await this.userRepository.update({personId: id}, user);
+            await this.personRepository.save(user.person);
+
             return true;
         } catch (error) {
             console.error("Error in setting RThash", error);
@@ -185,6 +186,33 @@ export class UserAggregateRepository implements UserAggregatePort {
             throw new ApiError(
                 502,
                 "User Details Fetching Error",
+                "Database Error"
+            );
+        }
+    }
+
+    /**
+     *
+     * @param userId The unique identifier for the user
+     * @returns if success , else false
+     */
+
+    async deleteUser(userId: string): Promise<boolean> {
+        try {
+            const user = await this.userRepository.delete({
+                personId: userId,
+            });
+
+            if (user.affected) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (error) {
+            console.error("Error in deleting Users", error);
+            throw new ApiError(
+                502,
+                "User Details deleting Error",
                 "Database Error"
             );
         }

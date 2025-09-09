@@ -21,8 +21,15 @@ class UpdateUserResponseData {
     role: UserRoles;
 }
 
+class DeleteUserResponseData {
+    status: boolean;
+}
+
 export class GetUsersDataResponse extends ApiResponse(GetUsersData) {}
 export class AddUserDataResponse extends ApiResponse(AddUserResponseData) {}
 export class UpdateUserDataResponse extends ApiResponse(
     UpdateUserResponseData
+) {}
+export class DeleteUserDataResponse extends ApiResponse(
+    DeleteUserResponseData
 ) {}

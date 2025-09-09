@@ -6,6 +6,7 @@ import {
 } from "../../../../ports/outputs/repository/user/user.aggregate.port";
 import {
     AddUserDTO,
+    DeleteUserDTO,
     GetAllUsersDTO,
     UpdateRole,
     UpdateUserRoleDTO,
@@ -15,6 +16,7 @@ import {
     AddUserDataResponse,
     AddUserData,
     UpdateUserDataResponse,
+    DeleteUserDataResponse,
 } from "../../../../infrastructure/driven/response-dtos/admin.response-dto";
 import {UserCommitmentStatus} from "../../constants/commitment.constants";
 import {
@@ -163,6 +165,37 @@ export class AdminService {
                     );
                 }
             }
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async deleteUser(
+        userDetails: DeleteUserDTO
+    ): Promise<DeleteUserDataResponse> {
+        try {
+            const {email} = userDetails;
+            const user = await this.userAggregateRepository.findByEmail(email);
+            if (!user) {
+                throw new ApiError(400, "User Not Found", "User conflict");
+            }
+            const isDeleted = await this.userAggregateRepository.deleteUser(
+                user.personId
+            );
+            if (isDeleted) {
+                return {
+                    status: 200,
+                    message: "User Deleted Successfully",
+                    res: {
+                        status: true,
+                    },
+                };
+            }
+            throw new ApiError(
+                500,
+                "Error in Deleting the User",
+                "Deletion Error"
+            );
         } catch (error) {
             this.handleError(error);
         }

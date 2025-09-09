@@ -6,12 +6,15 @@ import ApiError from "../../../../../shared/errors/api.error";
 import {AdminService} from "../../../../../core/domain/services/admin/admin.service";
 import {
     AddUserDTO,
+    DeleteUserDTO,
     GetAllUsersDTO,
     UpdateUserRoleDTO,
 } from "../../../dtos/admin.dto";
 import {
     GET_ALL_USERS,
     ADD_USERS,
+    UPDATE_USER_ROLE,
+    DELETE_USER,
 } from "../../../../../config/swagger/admin.swagger";
 @ApiTags("Admin")
 @Controller("admin")
@@ -46,6 +49,8 @@ export class AdminController implements AdminControllerInterfacePort {
     }
 
     @Post("/update-role")
+    @ApiProperty(UPDATE_USER_ROLE.SUCCESS)
+    @ApiProperty(UPDATE_USER_ROLE.ALREADY_ROLE_LINKED)
     async updateRole(
         @Res() response: Response,
         @Body() userDetails: UpdateUserRoleDTO
@@ -53,6 +58,21 @@ export class AdminController implements AdminControllerInterfacePort {
         try {
             const result = await this.adminService.updateUserRole(userDetails);
 
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Post("/delete-user")
+    @ApiProperty(DELETE_USER.SUCCESS)
+    @ApiProperty(DELETE_USER.USER_NOT_FOUND)
+    async deleteUser(
+        @Res() response: Response,
+        @Body() userDetails: DeleteUserDTO
+    ) {
+        try {
+            const result = await this.adminService.deleteUser(userDetails);
             return response.status(result.status).json(result);
         } catch (error) {
             return this.handleError(error, response);

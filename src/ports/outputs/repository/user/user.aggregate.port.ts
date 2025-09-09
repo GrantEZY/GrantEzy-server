@@ -14,5 +14,6 @@ export interface UserAggregatePort {
         numberOfUser: number
     ): Promise<{users: User[]; totalNumberOfUsers: number}>;
     updateUserRole(id: string, roles: UserRoles[]): Promise<boolean>;
+    deleteUser(id: string): Promise<boolean>;
 }
 export const USER_AGGREGATE_PORT = Symbol("UserAggregatePort");
