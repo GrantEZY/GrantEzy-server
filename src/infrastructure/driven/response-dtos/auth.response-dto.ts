@@ -7,6 +7,7 @@ class SignUpResponseData {
 }
 
 export class PassportResponseData {
+    status: number;
     user: User | null;
     message: string;
 }

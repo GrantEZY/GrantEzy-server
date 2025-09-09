@@ -77,19 +77,28 @@ export class AuthService {
             const {email, password} = userData;
             const user = await this.userAggregateRepository.findByEmail(email);
             if (!user) {
-                throw new ApiError(401, "User not found ", "Login Issue");
+                return {
+                    status: 401,
+                    user: null,
+                    message: "User Not Found",
+                };
             }
             const isPasswordValid = await this.passwordHasher.compare(
                 password,
                 user.person.password_hash
             );
             if (!isPasswordValid) {
-                throw new ApiError(402, "Password is incorrect", "Login Issue");
+                return {
+                    status: 402,
+                    user: null,
+                    message: "Password Is Incorrect",
+                };
             }
             // TODO  uncomment once authorization employed
             // const userRole = user.role;
             // if (role && userRole.includes(role as UserRoles)) {
             //     return {
+            //         status:200,
             //         user,
             //         message: "User validated successfully",
             //     };
@@ -99,9 +108,10 @@ export class AuthService {
             //         "User doesn't have access to that role",
             //         "Login Issue"
             //     );
-            // }
+            // }p
 
             return {
+                status: 200,
                 user,
                 message: "User validated successfully",
             };
