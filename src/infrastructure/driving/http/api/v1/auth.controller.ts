@@ -71,9 +71,9 @@ export class AuthController implements AuthControllerPort {
         try {
             const currentUser = user.user;
             if (!currentUser) {
-                return response.status(401).json({
-                    status: 401,
-                    message: "User Not Authenticated",
+                return response.status(user.status).json({
+                    status: user.status,
+                    message: user.message,
                     res: null,
                 });
             }
