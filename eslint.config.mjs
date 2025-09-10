@@ -19,6 +19,7 @@ export default tseslint.config(
             "**/commitlint.config.*",
             "**/eslint.config.mjs",
             "**/vitest.config.mts",
+            "**/*.mock.data.ts",
         ],
     },
 

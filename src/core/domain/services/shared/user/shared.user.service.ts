@@ -83,7 +83,7 @@ export class UserSharedService {
                     );
                 if (isUpdated) {
                     return {
-                        status: 204,
+                        status: 200,
                         message: "User role Updated",
                         res: {
                             id: user.personId,
@@ -98,6 +98,7 @@ export class UserSharedService {
                     );
                 }
             } else {
+                console.log(isThere);
                 if (!isThere) {
                     throw new ApiError(
                         401,
@@ -124,7 +125,7 @@ export class UserSharedService {
 
                 if (isUpdated) {
                     return {
-                        status: 204,
+                        status: 200,
                         message: "User role Updated",
                         res: {
                             id: user.personId,
