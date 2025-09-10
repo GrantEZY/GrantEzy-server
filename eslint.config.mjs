@@ -20,6 +20,7 @@ export default tseslint.config(
             "**/eslint.config.mjs",
             "**/vitest.config.mts",
             "**/*.mock.data.ts",
+            "**/*.dto.ts",
         ],
     },
 

@@ -24,7 +24,7 @@ import {
     ADD_USERS,
     UPDATE_USER_ROLE,
     DELETE_USER,
-} from "../../../../../config/swagger/admin.swagger";
+} from "../../../../../config/swagger/docs/admin.swagger";
 @ApiTags("Admin")
 @Controller("admin")
 export class AdminController implements AdminControllerInterfacePort {
