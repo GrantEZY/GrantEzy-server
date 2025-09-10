@@ -98,7 +98,6 @@ export class UserSharedService {
                     );
                 }
             } else {
-                console.log(isThere);
                 if (!isThere) {
                     throw new ApiError(
                         401,
