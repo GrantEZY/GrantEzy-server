@@ -1,6 +1,6 @@
 import {ApiProperty} from "@nestjs/swagger";
 import {IsEmail, IsEnum} from "class-validator";
-import {UserRoles} from "../../../core/domain/constants/userRoles.constants";
+import {UserRoles} from "../../../../core/domain/constants/userRoles.constants";
 
 export class AddUserDTO {
     @ApiProperty({
@@ -19,8 +19,8 @@ export class AddUserDTO {
 }
 
 export enum UpdateRole {
-    ADD_ROLE,
-    DELETE_ROLE,
+    ADD_ROLE = "ADD_ROLE",
+    DELETE_ROLE = "DELETE_ROLE",
 }
 
 export class UpdateUserRoleDTO {

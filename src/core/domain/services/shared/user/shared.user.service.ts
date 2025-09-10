@@ -14,7 +14,7 @@ import {
     DeleteUserDTO,
     UpdateRole,
     UpdateUserRoleDTO,
-} from "../../../../../infrastructure/driving/dtos/shared.dto";
+} from "../../../../../infrastructure/driving/dtos/shared/shared.user.dto";
 import ApiError from "../../../../../shared/errors/api.error";
 import {UserCommitmentStatus} from "../../../constants/commitment.constants";
 import {
@@ -66,8 +66,7 @@ export class UserSharedService {
                 throw new ApiError(400, "User Not Found", "User conflict");
             }
             const isThere = user.role.includes(role);
-
-            if (type === UpdateRole.ADD_ROLE) {
+            if (type == UpdateRole.ADD_ROLE) {
                 if (isThere) {
                     throw new ApiError(
                         401,
@@ -110,6 +109,13 @@ export class UserSharedService {
                     (userRole) => userRole != role
                 );
 
+                if (newRoles.length == 0) {
+                    throw new ApiError(
+                        400,
+                        "User Should have at least one Role",
+                        "Conflict Error"
+                    );
+                }
                 const isUpdated =
                     await this.userAggregateRepository.updateUserRole(
                         user.personId,

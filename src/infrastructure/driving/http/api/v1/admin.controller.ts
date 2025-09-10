@@ -18,7 +18,7 @@ import {
     AddUserDTO,
     DeleteUserDTO,
     UpdateUserRoleDTO,
-} from "../../../dtos/shared.dto";
+} from "../../../dtos/shared/shared.user.dto";
 import {
     GET_ALL_USERS,
     ADD_USERS,

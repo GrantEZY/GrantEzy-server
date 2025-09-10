@@ -9,7 +9,7 @@ import {
     AddUserDTO,
     DeleteUserDTO,
     UpdateUserRoleDTO,
-} from "../../../../infrastructure/driving/dtos/shared.dto";
+} from "../../../../infrastructure/driving/dtos/shared/shared.user.dto";
 import {
     AddUserDataResponse,
     UpdateUserDataResponse,
@@ -17,7 +17,7 @@ import {
 } from "../../../../infrastructure/driven/response-dtos/shared.response-dto";
 import {GetUsersDataResponse} from "../../../../infrastructure/driven/response-dtos/admin.response-dto";
 
-import {UserSharedService} from "../shared/user/user.service";
+import {UserSharedService} from "../shared/user/shared.user.service";
 @Injectable()
 /**
  * This is the service for admin endpoints

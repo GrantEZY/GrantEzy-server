@@ -4,7 +4,7 @@ import {
     AddUserDTO,
     DeleteUserDTO,
     UpdateUserRoleDTO,
-} from "../../../infrastructure/driving/dtos/shared.dto";
+} from "../../../infrastructure/driving/dtos/shared/shared.user.dto";
 
 export interface AdminControllerInterfacePort {
     getAllUsers(response: Response, query: GetAllUsersDTO): Promise<Response>;
