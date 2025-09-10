@@ -1,4 +1,13 @@
-import {Controller, Res, Get, Query, Post, Body} from "@nestjs/common";
+import {
+    Controller,
+    Res,
+    Get,
+    Query,
+    Post,
+    Body,
+    Patch,
+    Delete,
+} from "@nestjs/common";
 import {ApiTags, ApiResponse, ApiProperty} from "@nestjs/swagger";
 import {Response} from "express";
 import {AdminControllerInterfacePort} from "../../../../../ports/inputs/controllers/admin.controller.port";
@@ -48,7 +57,7 @@ export class AdminController implements AdminControllerInterfacePort {
         }
     }
 
-    @Post("/update-role")
+    @Patch("/update-role")
     @ApiProperty(UPDATE_USER_ROLE.SUCCESS)
     @ApiProperty(UPDATE_USER_ROLE.ALREADY_ROLE_LINKED)
     async updateRole(
@@ -64,7 +73,7 @@ export class AdminController implements AdminControllerInterfacePort {
         }
     }
 
-    @Post("/delete-user")
+    @Delete("/delete-user")
     @ApiProperty(DELETE_USER.SUCCESS)
     @ApiProperty(DELETE_USER.USER_NOT_FOUND)
     async deleteUser(
