@@ -7,6 +7,7 @@ import {ConfigConnection} from "../../infrastructure/driven/env/connection";
 import {AuthModule} from "./auth/auth.module";
 import {OutputPortModule} from "../../ports/outputs/output.port.module";
 import {AdminModule} from "./admin/admin.module";
+import {SharedModule} from "./shared/shared.module";
 @Module({
     imports: [
         ConfigConnection,
@@ -15,6 +16,7 @@ import {AdminModule} from "./admin/admin.module";
         AuthModule,
         OutputPortModule,
         AdminModule,
+        SharedModule,
     ],
     controllers: [AppController],
     providers: [AppService],

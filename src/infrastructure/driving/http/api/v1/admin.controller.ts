@@ -4,12 +4,12 @@ import {Response} from "express";
 import {AdminControllerInterfacePort} from "../../../../../ports/inputs/controllers/admin.controller.port";
 import ApiError from "../../../../../shared/errors/api.error";
 import {AdminService} from "../../../../../core/domain/services/admin/admin.service";
+import {GetAllUsersDTO} from "../../../dtos/admin.dto";
 import {
     AddUserDTO,
     DeleteUserDTO,
-    GetAllUsersDTO,
     UpdateUserRoleDTO,
-} from "../../../dtos/admin.dto";
+} from "../../../dtos/shared.dto";
 import {
     GET_ALL_USERS,
     ADD_USERS,
