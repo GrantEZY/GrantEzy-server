@@ -1,0 +1,10 @@
+export enum OrganisationType {
+    IIT = "IIT",
+    NIT = "NIT",
+    IIIT = "IIIT",
+    OTHER_CFTI = "OTHER_CFTI",
+    STATE_UNIVERSITY = "STATE_UNIVERSITY",
+    PRIVATE_UNIVERSITY = "PRIVATE_UNIVERSITY",
+    STARTUP = "STARTUP",
+    OTHERS = "OTHERS",
+}
