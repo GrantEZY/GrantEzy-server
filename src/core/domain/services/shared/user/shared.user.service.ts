@@ -203,10 +203,39 @@ export class UserSharedService {
     private generateRandomStringFromEmail(email: string): string {
         const base =
             email + Date.now().toString() + Math.random().toString(36).slice(2);
+
         const hash = Buffer.from(base)
             .toString("base64")
             .replace(/[^a-zA-Z0-9]/g, "");
-        return hash.slice(0, 20);
+
+        const targetLength = Math.floor(Math.random() * (20 - 8 + 1)) + 8;
+        let result = hash.slice(0, targetLength);
+
+        while (result.length < targetLength) {
+            result += Math.random().toString(36).slice(2);
+        }
+        result = result.slice(0, targetLength);
+
+        const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        const lower = "abcdefghijklmnopqrstuvwxyz";
+        const digits = "0123456789";
+        const specials = "!@#$%^&*()_-+=<>?";
+
+        if (!/[A-Z]/.test(result))
+            result += upper[Math.floor(Math.random() * upper.length)];
+        if (!/[a-z]/.test(result))
+            result += lower[Math.floor(Math.random() * lower.length)];
+        if (!/[0-9]/.test(result))
+            result += digits[Math.floor(Math.random() * digits.length)];
+        if (!/[!@#$%^&*()_\-+=<>?]/.test(result))
+            result += specials[Math.floor(Math.random() * specials.length)];
+
+        const shuffled = result
+            .split("")
+            .sort(() => Math.random() - 0.5)
+            .join("");
+
+        return shuffled.slice(0, Math.min(shuffled.length, 20));
     }
 
     handleError(error: unknown): never {
