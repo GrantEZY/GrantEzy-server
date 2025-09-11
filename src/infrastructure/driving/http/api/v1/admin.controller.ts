@@ -10,7 +10,7 @@ import {
 } from "@nestjs/common";
 import {ApiTags, ApiResponse, ApiProperty} from "@nestjs/swagger";
 import {Response} from "express";
-import {AdminControllerInterfacePort} from "../../../../../ports/inputs/controllers/admin.controller.port";
+import {AdminControllerPort} from "../../../../../ports/inputs/controllers/admin.controller.port";
 import ApiError from "../../../../../shared/errors/api.error";
 import {AdminService} from "../../../../../core/domain/services/admin/admin.service";
 import {GetAllUsersDTO} from "../../../dtos/admin.dto";
@@ -27,7 +27,7 @@ import {
 } from "../../../../../config/swagger/docs/admin.swagger";
 @ApiTags("Admin")
 @Controller("admin")
-export class AdminController implements AdminControllerInterfacePort {
+export class AdminController implements AdminControllerPort {
     constructor(private readonly adminService: AdminService) {}
 
     @Get("/get-users")

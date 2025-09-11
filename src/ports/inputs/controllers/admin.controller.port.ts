@@ -6,7 +6,7 @@ import {
     UpdateUserRoleDTO,
 } from "../../../infrastructure/driving/dtos/shared/shared.user.dto";
 
-export interface AdminControllerInterfacePort {
+export interface AdminControllerPort {
     getAllUsers(response: Response, query: GetAllUsersDTO): Promise<Response>;
     handleError(error: unknown, response: Response): Response;
     addUser(body: AddUserDTO, response: Response): Promise<Response>;
