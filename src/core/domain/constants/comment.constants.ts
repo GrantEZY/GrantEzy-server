@@ -1,0 +1,7 @@
+export enum CommentTarget {
+    APPLICATION = "APPLICATION",
+    PROJEECT = "PROJECT",
+    REVIEW = "REVIEW",
+    DISBURSEMENT = "DISBURSEMENT",
+    MILESTONE = "MILESTONE",
+}
