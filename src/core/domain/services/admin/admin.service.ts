@@ -5,7 +5,19 @@ import {
     UserAggregatePort,
 } from "../../../../ports/outputs/repository/user/user.aggregate.port";
 import {GetAllUsersDTO} from "../../../../infrastructure/driving/dtos/admin.dto";
+import {
+    AddUserDTO,
+    DeleteUserDTO,
+    UpdateUserRoleDTO,
+} from "../../../../infrastructure/driving/dtos/shared/shared.user.dto";
+import {
+    AddUserDataResponse,
+    UpdateUserDataResponse,
+    DeleteUserDataResponse,
+} from "../../../../infrastructure/driven/response-dtos/shared.response-dto";
 import {GetUsersDataResponse} from "../../../../infrastructure/driven/response-dtos/admin.response-dto";
+
+import {UserSharedService} from "../shared/user/shared.user.service";
 @Injectable()
 /**
  * This is the service for admin endpoints
@@ -13,7 +25,8 @@ import {GetUsersDataResponse} from "../../../../infrastructure/driven/response-d
 export class AdminService {
     constructor(
         @Inject(USER_AGGREGATE_PORT)
-        private readonly userAggregateRepository: UserAggregatePort
+        private readonly userAggregateRepository: UserAggregatePort,
+        private readonly userSharedService: UserSharedService
     ) {}
     async getAllUsers(
         filterData: GetAllUsersDTO
@@ -41,6 +54,34 @@ export class AdminService {
                 message: "User Data for Filter",
                 res: {users, totalNumberOfUsers},
             };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async addUser(userData: AddUserDTO): Promise<AddUserDataResponse> {
+        try {
+            return await this.userSharedService.addUser(userData);
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async updateUserRole(
+        userData: UpdateUserRoleDTO
+    ): Promise<UpdateUserDataResponse> {
+        try {
+            return await this.userSharedService.updateUserRole(userData);
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async deleteUser(
+        userDetails: DeleteUserDTO
+    ): Promise<DeleteUserDataResponse> {
+        try {
+            return await this.userSharedService.deleteUser(userDetails);
         } catch (error) {
             this.handleError(error);
         }

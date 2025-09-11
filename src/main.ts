@@ -21,11 +21,13 @@ async function initServer() {
 
     //setting up accessToken guard
     const reflector = new Reflector();
-    app.useGlobalPipes(new ValidationPipe());
     app.useGlobalGuards(new AtGuard(reflector));
     app.enableShutdownHooks();
     app.use(helmet());
     app.use(cookieParser());
+
+    //Enable global for DTO's
+    app.useGlobalPipes(new ValidationPipe());
 
     app.setGlobalPrefix("api/v1"); // Set v1 API prefix for all the routes
 

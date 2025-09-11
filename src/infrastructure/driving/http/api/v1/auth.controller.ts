@@ -18,7 +18,7 @@ import {
     LogoutSwagger,
     RefreshSwagger,
     RegisterSwagger,
-} from "../../../../../config/swagger/auth.swagger";
+} from "../../../../../config/swagger/docs/auth.swagger";
 import {CurrentUser} from "../../../../../shared/decorators/currentuser.decorator";
 import {
     LocalLoginResponseData,

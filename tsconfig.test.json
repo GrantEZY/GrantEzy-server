@@ -1,5 +1,6 @@
 {
-  "extends": "./tsconfig.common",
-  "include": ["src"],
-  "exclude": ["**/dist/*", "**/jest.config.ts"]
+    "extends": "./tsconfig.common",
+    "include": ["src"],
+    "isolatedModules": true,
+    "exclude": ["**/dist/*", "**/jest.config.ts"]
 }

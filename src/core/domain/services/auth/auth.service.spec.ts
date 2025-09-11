@@ -10,7 +10,7 @@ import {
     PasswordHasherPort,
 } from "../../../../ports/outputs/crypto/hash.port";
 import {JWT_PORT, JwtPort} from "../../../../ports/outputs/crypto/jwt.port";
-import {LOGIN_DATA, REGISTER_USER, SAVED_USER} from "./auth.service.data";
+import {LOGIN_DATA, REGISTER_USER, SAVED_USER} from "./auth.service.mock.data";
 import ApiError from "../../../../shared/errors/api.error";
 import {UserRoles} from "../../constants/userRoles.constants";
 

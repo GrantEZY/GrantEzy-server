@@ -6,4 +6,8 @@ class GetUsersData {
     totalNumberOfUsers: number;
 }
 
+export class AddUserData {
+    user: User;
+}
+
 export class GetUsersDataResponse extends ApiResponse(GetUsersData) {}

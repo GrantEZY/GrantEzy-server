@@ -1,6 +1,7 @@
 import {FindOptionsWhere} from "typeorm";
 import {User} from "../../../../core/domain/aggregates/user.aggregate";
 import {UserAggregateDTO} from "./user.aggregate.dto";
+import {UserRoles} from "../../../../core/domain/constants/userRoles.constants";
 
 export interface UserAggregatePort {
     save(user: Partial<UserAggregateDTO>): Promise<User>;
@@ -12,5 +13,7 @@ export interface UserAggregatePort {
         page: number,
         numberOfUser: number
     ): Promise<{users: User[]; totalNumberOfUsers: number}>;
+    updateUserRole(id: string, roles: UserRoles[]): Promise<boolean>;
+    deleteUser(id: string): Promise<boolean>;
 }
 export const USER_AGGREGATE_PORT = Symbol("UserAggregatePort");

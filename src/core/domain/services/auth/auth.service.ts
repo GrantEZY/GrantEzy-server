@@ -58,6 +58,7 @@ export class AuthService {
                 password_hash: hashedPassword,
                 email: userData.email,
                 commitment: userData.commitment,
+                role: UserRoles.NORMAL_USER,
             });
             return {
                 status: 201,
