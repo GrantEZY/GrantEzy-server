@@ -97,7 +97,7 @@ export class GCVService {
 
             return {
                 status: 200,
-                message: "User Data for Filter",
+                message: "GCV Member Data for Filter",
                 res: {users, totalNumberOfUsers},
             };
         } catch (error) {
