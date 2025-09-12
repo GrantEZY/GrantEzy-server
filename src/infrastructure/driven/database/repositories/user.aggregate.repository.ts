@@ -55,9 +55,25 @@ export class UserAggregateRepository implements UserAggregatePort {
      * @param id - The unique identifier of the user to be retrieved.
      * @returns The user entity if found, otherwise null.
      */
-    async findById(id: string): Promise<User | null> {
+    async findById(
+        id: string,
+        isPasswordRequired = false
+    ): Promise<User | null> {
         try {
-            return await this.userRepository.findOne({where: {personId: id}});
+            let user: User | null;
+            if (isPasswordRequired) {
+                user = await this.userRepository
+                    .createQueryBuilder("user")
+                    .leftJoinAndSelect("user.person", "person")
+                    .addSelect("person.password_hash", "person.rt_hash")
+                    .where("user.personId = :id", {id})
+                    .getOne();
+            } else {
+                user = await this.userRepository.findOne({
+                    where: {personId: id},
+                });
+            }
+            return user;
         } catch (error) {
             console.error("Find user by ID error:", error);
             throw new ApiError(
@@ -73,14 +89,24 @@ export class UserAggregateRepository implements UserAggregatePort {
      * @param email - The email address of the user to be retrieved.
      * @returns The user entity if found, otherwise null.
      */
-    async findByEmail(email: string): Promise<User | null> {
+    async findByEmail(
+        email: string,
+        isPasswordRequired = false
+    ): Promise<User | null> {
         try {
-            const user = await this.userRepository
+            let query = this.userRepository
                 .createQueryBuilder("user")
                 .leftJoinAndSelect("user.person", "person")
-                .where("user.contact ->> 'email' = :email", {email})
-                .getOne();
+                .where("user.contact ->> 'email' = :email", {email});
 
+            if (isPasswordRequired) {
+                query = query.addSelect(
+                    "person.password_hash",
+                    "person.rt_hash"
+                );
+            }
+
+            const user = await query.getOne();
             return user;
         } catch (error) {
             console.error(error);

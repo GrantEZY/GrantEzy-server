@@ -10,6 +10,8 @@ import {
     PrimaryColumn,
     OneToMany,
     ManyToMany,
+    BeforeInsert,
+    BeforeUpdate,
 } from "typeorm";
 
 import {Person} from "../entities/person.entity";
@@ -20,6 +22,7 @@ import {UserCommitmentStatus} from "../constants/commitment.constants";
 import {Audit} from "../value-objects/audit.object";
 import {Experience} from "../value-objects/experience.object";
 import {GrantApplication} from "./grantapplication.aggregate";
+import {slugify} from "../../../shared/helpers/slug.generator";
 
 @Entity({name: "users"})
 export class User {
@@ -71,6 +74,9 @@ export class User {
     })
     audit: Audit | null;
 
+    @Column({unique: true, nullable: true})
+    slug: string;
+
     @Column({
         type: "jsonb",
         nullable: true,
@@ -118,4 +124,12 @@ export class User {
 
     @UpdateDateColumn()
     updatedAt: Date;
+
+    @BeforeInsert()
+    @BeforeUpdate()
+    generateSlug() {
+        if (this.person?.firstName && this.personId) {
+            this.slug = slugify(this.person.firstName, this.personId);
+        }
+    }
 }

@@ -40,8 +40,10 @@ export class AuthService {
     async register(userData: RegisterDTO): Promise<SignUpResponse> {
         try {
             const {email} = userData;
-            const existingUser =
-                await this.userAggregateRepository.findByEmail(email);
+            const existingUser = await this.userAggregateRepository.findByEmail(
+                email,
+                false
+            );
             if (existingUser) {
                 throw new ApiError(
                     409,
@@ -76,7 +78,10 @@ export class AuthService {
     async validateUser(userData: LoginDTO): Promise<PassportResponseData> {
         try {
             const {email, password} = userData;
-            const user = await this.userAggregateRepository.findByEmail(email);
+            const user = await this.userAggregateRepository.findByEmail(
+                email,
+                true
+            );
             if (!user) {
                 return {
                     status: 401,
@@ -153,7 +158,7 @@ export class AuthService {
     async refresh(userData: JwtData): Promise<AccessTokenResponse> {
         try {
             const {id, token_version: token} = userData;
-            const user = await this.userAggregateRepository.findById(id);
+            const user = await this.userAggregateRepository.findById(id, false);
             if (!user) {
                 throw new ApiError(
                     401,

@@ -36,7 +36,10 @@ export class UserSharedService {
     async addUser(userData: AddUserDTO): Promise<AddUserDataResponse> {
         try {
             const {email} = userData;
-            const user = await this.userAggregateRepository.findByEmail(email);
+            const user = await this.userAggregateRepository.findByEmail(
+                email,
+                false
+            );
             if (user) {
                 throw new ApiError(400, "User Already Found", "User conflict");
             }
@@ -61,7 +64,10 @@ export class UserSharedService {
     ): Promise<UpdateUserDataResponse> {
         try {
             const {type, role, email} = userData;
-            const user = await this.userAggregateRepository.findByEmail(email);
+            const user = await this.userAggregateRepository.findByEmail(
+                email,
+                false
+            );
             if (!user) {
                 throw new ApiError(400, "User Not Found", "User conflict");
             }
@@ -149,7 +155,10 @@ export class UserSharedService {
     ): Promise<DeleteUserDataResponse> {
         try {
             const {email} = userDetails;
-            const user = await this.userAggregateRepository.findByEmail(email);
+            const user = await this.userAggregateRepository.findByEmail(
+                email,
+                false
+            );
             if (!user) {
                 throw new ApiError(400, "User Not Found", "User conflict");
             }
