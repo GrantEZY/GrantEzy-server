@@ -16,6 +16,7 @@ import {ConfigModule} from "@nestjs/config";
 import {PROGRAM_AGGREGATE_PORT} from "./repository/program/program.aggregate.port";
 import {ProgramAggregateRepository} from "../../infrastructure/driven/database/repositories/program.aggregate.repository";
 import {Program} from "../../core/domain/aggregates/program.aggregate";
+
 @Global()
 @Module({
     imports: [
