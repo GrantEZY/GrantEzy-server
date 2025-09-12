@@ -10,6 +10,7 @@ import {
     JoinTable,
     BeforeInsert,
     BeforeUpdate,
+    OneToMany,
 } from "typeorm";
 import {User} from "./user.aggregate";
 import {Cycle} from "./cycle.aggregate";
@@ -26,6 +27,7 @@ import {
 import {Risk} from "../value-objects/risk.object";
 import {ProjectMilestone} from "../value-objects/project.status.object";
 import {slugify} from "../../../shared/helpers/slug.generator";
+import {Review} from "./review.aggregate";
 
 @Entity({name: "grant-applications"})
 export class GrantApplication {
@@ -205,6 +207,9 @@ export class GrantApplication {
         },
     })
     milestones: ProjectMilestone[] | null;
+
+    @OneToMany(() => Review, (review) => review.application, {eager: false})
+    reviews: Review[];
 
     @Column({type: "enum", enum: TRL, nullable: true})
     currentTRL: TRL;

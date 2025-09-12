@@ -37,3 +37,9 @@ export enum CycleStatus {
     CLOSED = "CLOSED",
     ARCHIVED = "ARCHIVED",
 }
+
+export enum ReviewStatus {
+    UNASSIGNED = "UNASSIGNED",
+    IN_PROGRESS = "IN_PROGRESS",
+    COMPLETED = "COMPLETED",
+}

@@ -1,0 +1,6 @@
+export enum Recommendation {
+    APPROVE = "APPROVE",
+    REJECT = "REJECT",
+    REVISE = "REVISE",
+    APPROVE_WITH_CONDITIONS = "APPROVE_WITH_CONDITIONS",
+}
