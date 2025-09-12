@@ -1,6 +1,6 @@
 import {ConfigService} from "@nestjs/config";
 import {JwtPort} from "../../../ports/outputs/crypto/jwt.port";
-import {JwtData} from "../../../shared/types/jwt.types";
+import {SignJwtTokenData} from "../../../shared/types/jwt.types";
 import {
     LoginTokenSigningData,
     RefreshAccessTokenData,
@@ -22,7 +22,9 @@ export class JwtRepository implements JwtPort {
      * @param jwtData data for signing tokens
      * @returns returns accessToken and refreshToken
      */
-    async signTokens(jwtData: JwtData): Promise<LoginTokenSigningData> {
+    async signTokens(
+        jwtData: SignJwtTokenData
+    ): Promise<LoginTokenSigningData> {
         try {
             const REFRESH_TOKEN_KEY =
                 this.configService.get("jwt").JWT_REFRESH_TOKEN_KEY;
@@ -61,7 +63,9 @@ export class JwtRepository implements JwtPort {
      * @returns returns accessToken
      */
 
-    async getAccessToken(jwtData: JwtData): Promise<RefreshAccessTokenData> {
+    async getAccessToken(
+        jwtData: SignJwtTokenData
+    ): Promise<RefreshAccessTokenData> {
         try {
             const ACCESS_TOKEN_KEY =
                 this.configService.get("jwt").JWT_TOKEN_KEY;

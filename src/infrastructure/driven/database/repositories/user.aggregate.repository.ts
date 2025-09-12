@@ -65,7 +65,7 @@ export class UserAggregateRepository implements UserAggregatePort {
                 user = await this.userRepository
                     .createQueryBuilder("user")
                     .leftJoinAndSelect("user.person", "person")
-                    .addSelect("person.password_hash", "person.rt_hash")
+                    .addSelect("person.password_hash")
                     .where("user.personId = :id", {id})
                     .getOne();
             } else {
@@ -100,10 +100,7 @@ export class UserAggregateRepository implements UserAggregatePort {
                 .where("user.contact ->> 'email' = :email", {email});
 
             if (isPasswordRequired) {
-                query = query.addSelect(
-                    "person.password_hash",
-                    "person.rt_hash"
-                );
+                query = query.addSelect("person.password_hash");
             }
 
             const user = await query.getOne();

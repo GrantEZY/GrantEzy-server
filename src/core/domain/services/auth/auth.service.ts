@@ -20,7 +20,7 @@ import {UserRoles} from "../../constants/userRoles.constants";
 import {PassportResponseData} from "../../../../infrastructure/driven/response-dtos/auth.response-dto";
 import {User} from "../../aggregates/user.aggregate";
 import {JwtPort, JWT_PORT} from "../../../../ports/outputs/crypto/jwt.port";
-import {JwtData} from "../../../../shared/types/jwt.types";
+import {RefreshTokenJwt} from "../../../../shared/types/jwt.types";
 @Injectable()
 /**
  * Auth Use Case
@@ -155,9 +155,10 @@ export class AuthService {
         }
     }
 
-    async refresh(userData: JwtData): Promise<AccessTokenResponse> {
+    async refresh(userData: RefreshTokenJwt): Promise<AccessTokenResponse> {
         try {
-            const {id, token_version: token} = userData;
+            const {userData: data} = userData;
+            const {id, token_version: token} = data.payload;
             const user = await this.userAggregateRepository.findById(id, false);
             if (!user) {
                 throw new ApiError(
@@ -166,7 +167,6 @@ export class AuthService {
                     "User removed from the application"
                 );
             }
-
             if (token != user.tokenVersion) {
                 throw new ApiError(
                     403,
@@ -175,7 +175,9 @@ export class AuthService {
                 );
             }
 
-            const tokens = await this.jwtRepository.getAccessToken(userData);
+            const tokens = await this.jwtRepository.getAccessToken(
+                data.payload
+            );
 
             return {
                 status: 200,

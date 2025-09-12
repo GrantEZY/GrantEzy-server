@@ -1,24 +1,19 @@
+/* eslint-disable  */
+
 import {PassportStrategy} from "@nestjs/passport";
 import {Strategy} from "passport-jwt";
 import {ConfigService} from "@nestjs/config";
 import {Injectable} from "@nestjs/common";
 import {ConfigType} from "../../../../config/env/app.types";
-import {JwtData} from "../../../../shared/types/jwt.types";
+import {AccessTokenJwt, JwtData} from "../../../../shared/types/jwt.types";
+import {Request} from "express";
 const headerExtractor = (request: Request) => {
     let token = null;
-    if (request.headers) {
-        const header = request.headers.get("authentication");
-        let parts;
-        if (header) {
-            parts = header.split(" ");
-        } else {
-            return null;
-        }
+    if (request.headers && request.headers["authorization"]) {
+        const parts = request.headers["authorization"].split(" ");
 
         if (parts.length === 2 && parts[0] === "Bearer") {
             token = parts[1];
-        } else {
-            return null;
         }
     }
     return token;
@@ -36,7 +31,9 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, "jwt") {
     }
 
     //eslint-disable-next-line
-    async validate(payload: JwtData): Promise<JwtData> {
-        return payload;
+    async validate(payload: JwtData): Promise<AccessTokenJwt> {
+        return {
+            userData: payload,
+        };
     }
 }
