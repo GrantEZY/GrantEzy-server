@@ -7,6 +7,8 @@ import {
     CreateDateColumn,
     UpdateDateColumn,
     OneToMany,
+    BeforeInsert,
+    BeforeUpdate,
 } from "typeorm";
 import {Organization} from "../entities/organization.entity";
 import {ProgramDetails} from "../value-objects/program.details.object";
@@ -15,6 +17,7 @@ import {ProgramStatus} from "../constants/status.constants";
 import {Money} from "../value-objects/project.metrics.object";
 import {TRL} from "../constants/trl.constants";
 import {Cycle} from "./cycle.aggregate";
+import {slugify} from "../../../shared/helpers/slug.generator";
 @Entity({name: "programs"})
 export class Program {
     @PrimaryGeneratedColumn("uuid")
@@ -85,9 +88,20 @@ export class Program {
     @Column({type: "enum", enum: TRL})
     maxTRL: TRL;
 
+    @Column({unique: true, nullable: true})
+    slug: string;
+
     @CreateDateColumn()
     createdAt: Date;
 
     @UpdateDateColumn()
     updatedAt: Date;
+
+    @BeforeInsert()
+    @BeforeUpdate()
+    generateSlug() {
+        if (this.details.name && this.id) {
+            this.slug = slugify(this.details.name, this.id);
+        }
+    }
 }
