@@ -18,6 +18,7 @@ import {
 import {GetUsersDataResponse} from "../../../../infrastructure/driven/response-dtos/admin.response-dto";
 
 import {UserSharedService} from "../shared/user/shared.user.service";
+import {UpdateRole} from "../../../../infrastructure/driving/dtos/shared/shared.user.dto";
 @Injectable()
 /**
  * This is the service for admin endpoints
@@ -61,6 +62,31 @@ export class AdminService {
 
     async addUser(userData: AddUserDTO): Promise<AddUserDataResponse> {
         try {
+            const {email, role} = userData;
+            const user = await this.userAggregateRepository.findByEmail(
+                email,
+                false
+            );
+            const addRole = UpdateRole.ADD_ROLE;
+            if (user) {
+                const {email} = user.contact;
+                const updatedUser = await this.userSharedService.updateUserRole(
+                    {email, type: addRole, role},
+                    user
+                );
+
+                const {status} = updatedUser;
+                if (status == 200) {
+                    return {
+                        status: 200,
+                        message: "User Role Added",
+                        res: {
+                            id: user.personId,
+                            email,
+                        },
+                    };
+                }
+            }
             return await this.userSharedService.addUser(userData);
         } catch (error) {
             this.handleError(error);
@@ -71,7 +97,15 @@ export class AdminService {
         userData: UpdateUserRoleDTO
     ): Promise<UpdateUserDataResponse> {
         try {
-            return await this.userSharedService.updateUserRole(userData);
+            const {email} = userData;
+            const user = await this.userAggregateRepository.findByEmail(
+                email,
+                false
+            );
+            if (!user) {
+                throw new ApiError(400, "User Not Found", "User conflict");
+            }
+            return await this.userSharedService.updateUserRole(userData, user);
         } catch (error) {
             this.handleError(error);
         }
@@ -81,7 +115,15 @@ export class AdminService {
         userDetails: DeleteUserDTO
     ): Promise<DeleteUserDataResponse> {
         try {
-            return await this.userSharedService.deleteUser(userDetails);
+            const {email} = userDetails;
+            const user = await this.userAggregateRepository.findByEmail(
+                email,
+                false
+            );
+            if (!user) {
+                throw new ApiError(400, "User Not Found", "User conflict");
+            }
+            return await this.userSharedService.deleteUser(user.personId);
         } catch (error) {
             this.handleError(error);
         }

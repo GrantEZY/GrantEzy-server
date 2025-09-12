@@ -1,4 +1,4 @@
-export const GET_ALL_USERS = {
+export const GET_GCV_MEMBERS = {
     SUCCESS: {
         status: 200,
         description: "User Successfully Fetched",
@@ -26,7 +26,7 @@ export const GET_ALL_USERS = {
     },
 };
 
-export const ADD_USERS = {
+export const ADD_GCV_USERS = {
     SUCCESS: {
         status: 201,
         description: "User Added Successfully",
@@ -53,7 +53,8 @@ export const ADD_USERS = {
     },
 };
 
-export const UPDATE_USER_ROLE = {
+
+export const UPDATE_GCV_USER_ROLE = {
     SUCCESS: {
         status: 204,
         description: "User Role Updated",
@@ -72,29 +73,6 @@ export const UPDATE_USER_ROLE = {
         example: {
             status: 401,
             message: "User already has the role privileges",
-            res: null,
-        },
-    },
-};
-
-export const DELETE_USER = {
-    SUCCESS: {
-        status: 200,
-        description: "User Deleted Successfully",
-        example: {
-            status: 200,
-            message: "User Deleted Successfully",
-            res: {
-                status: true,
-            },
-        },
-    },
-    USER_NOT_FOUND: {
-        status: 400,
-        description: "User Not Found",
-        example: {
-            status: 400,
-            message: "User Not Found",
             res: null,
         },
     },

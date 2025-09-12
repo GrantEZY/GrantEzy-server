@@ -11,7 +11,6 @@ import {
 
 import {
     AddUserDTO,
-    DeleteUserDTO,
     UpdateRole,
     UpdateUserRoleDTO,
 } from "../../../../../infrastructure/driving/dtos/shared/shared.user.dto";
@@ -23,6 +22,7 @@ import {
     DeleteUserDataResponse,
     AddUserData,
 } from "../../../../../infrastructure/driven/response-dtos/shared.response-dto";
+import {User} from "../../../aggregates/user.aggregate";
 
 @Injectable()
 export class UserSharedService {
@@ -35,15 +35,6 @@ export class UserSharedService {
 
     async addUser(userData: AddUserDTO): Promise<AddUserDataResponse> {
         try {
-            const {email} = userData;
-            const user = await this.userAggregateRepository.findByEmail(
-                email,
-                false
-            );
-            if (user) {
-                throw new ApiError(400, "User Already Found", "User conflict");
-            }
-
             const {user: newUser} = await this.addUserDetails(userData);
             const {personId, contact} = newUser;
             return {
@@ -60,17 +51,11 @@ export class UserSharedService {
     }
 
     async updateUserRole(
-        userData: UpdateUserRoleDTO
+        userData: UpdateUserRoleDTO,
+        user: User
     ): Promise<UpdateUserDataResponse> {
         try {
-            const {type, role, email} = userData;
-            const user = await this.userAggregateRepository.findByEmail(
-                email,
-                false
-            );
-            if (!user) {
-                throw new ApiError(400, "User Not Found", "User conflict");
-            }
+            const {type, role} = userData;
             const isThere = user.role.includes(role);
             if (type == UpdateRole.ADD_ROLE) {
                 if (isThere) {
@@ -150,21 +135,10 @@ export class UserSharedService {
         }
     }
 
-    async deleteUser(
-        userDetails: DeleteUserDTO
-    ): Promise<DeleteUserDataResponse> {
+    async deleteUser(userId: string): Promise<DeleteUserDataResponse> {
         try {
-            const {email} = userDetails;
-            const user = await this.userAggregateRepository.findByEmail(
-                email,
-                false
-            );
-            if (!user) {
-                throw new ApiError(400, "User Not Found", "User conflict");
-            }
-            const isDeleted = await this.userAggregateRepository.deleteUser(
-                user.personId
-            );
+            const isDeleted =
+                await this.userAggregateRepository.deleteUser(userId);
             if (isDeleted) {
                 return {
                     status: 200,

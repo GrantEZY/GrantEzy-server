@@ -12,6 +12,9 @@ import {
     ManyToMany,
     BeforeInsert,
     BeforeUpdate,
+    AfterInsert,
+    AfterUpdate,
+    Index,
 } from "typeorm";
 
 import {Person} from "../entities/person.entity";
@@ -77,6 +80,10 @@ export class User {
     @Column({unique: true, nullable: true})
     slug: string;
 
+    @Index()
+    @Column({type: "boolean", default: false})
+    isGCVmember: boolean;
+
     @Column({
         type: "jsonb",
         nullable: true,
@@ -130,6 +137,20 @@ export class User {
     generateSlug() {
         if (this.person?.firstName && this.personId) {
             this.slug = slugify(this.person.firstName, this.personId);
+        }
+    }
+
+    @AfterInsert()
+    @AfterUpdate()
+    updateGCVMemberStatus() {
+        if (
+            this.role.includes(UserRoles.DIRECTOR) ||
+            this.role.includes(UserRoles.COMMITTEE_MEMBER) ||
+            this.role.includes(UserRoles.FINANCE)
+        ) {
+            this.isGCVmember = true;
+        } else {
+            this.isGCVmember = false;
         }
     }
 }
