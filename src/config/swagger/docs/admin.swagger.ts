@@ -51,6 +51,16 @@ export const ADD_USERS = {
             },
         },
     },
+    ERROR_IN_ADDING_ROLE: {
+        status: 400,
+        description: "Error in Adding Role to Existing User",
+        example: {
+            status: 400,
+            message: "Error in Adding Role to Existing User",
+            res: null,
+        },
+    },  
+
 };
 
 export const UPDATE_USER_ROLE = {

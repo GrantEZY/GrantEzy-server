@@ -69,9 +69,10 @@ export class AdminService {
             );
             const addRole = UpdateRole.ADD_ROLE;
             if (user) {
-                const {email} = user.contact;
+                const {email: userEmail} = user.contact;
+
                 const updatedUser = await this.userSharedService.updateUserRole(
-                    {email, type: addRole, role},
+                    {email: userEmail, type: addRole, role},
                     user
                 );
 
@@ -84,6 +85,11 @@ export class AdminService {
                             id: user.personId,
                             email,
                         },
+                    };
+                } else {
+                    return {
+                        status: 400,
+                        message: "Error in Adding Role to Existing User",
                     };
                 }
             }

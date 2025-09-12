@@ -145,7 +145,6 @@ export class AuthController implements AuthControllerPort {
     ): Promise<Response> {
         try {
             const result = await this.authUseCase.refresh(user);
-            console.log(result.status);
             return response.status(result.status).json({
                 status: result.status,
                 message: result.message,
@@ -174,7 +173,6 @@ export class AuthController implements AuthControllerPort {
     }
 
     handleError(error: unknown, response: Response) {
-        console.log(error);
         console.error("AuthController error:", error);
 
         if (error instanceof ApiError) {

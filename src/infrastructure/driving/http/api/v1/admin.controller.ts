@@ -48,6 +48,7 @@ export class AdminController implements AdminControllerPort {
     @Post("/add-user")
     @ApiProperty(ADD_USERS.SUCCESS)
     @ApiProperty(ADD_USERS.USER_ALREADY_PRESENT)
+    @ApiProperty(ADD_USERS.ERROR_IN_ADDING_ROLE)
     async addUser(@Body() body: AddUserDTO, @Res() response: Response) {
         try {
             const result = await this.adminService.addUser(body);
