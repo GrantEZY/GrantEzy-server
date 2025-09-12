@@ -13,10 +13,13 @@ import {JwtModule} from "@nestjs/jwt";
 import {CACHE_REPOSITORY_PORT} from "./cache/cache.repository.port";
 import {CacheRepository} from "../../infrastructure/driven/cache/cache.repository";
 import {ConfigModule} from "@nestjs/config";
+import {PROGRAM_AGGREGATE_PORT} from "./repository/program/program.aggregate.port";
+import {ProgramAggregateRepository} from "../../infrastructure/driven/database/repositories/program.aggregate.repository";
+import {Program} from "../../core/domain/aggregates/program.aggregate";
 @Global()
 @Module({
     imports: [
-        TypeOrmModule.forFeature([User, Person]),
+        TypeOrmModule.forFeature([User, Person, Program]),
         JwtModule.register({}),
         ConfigModule,
     ],
@@ -25,6 +28,7 @@ import {ConfigModule} from "@nestjs/config";
         {provide: PASSWORD_HASHER_PORT, useClass: BcryptPasswordHasher},
         {provide: JWT_PORT, useClass: JwtRepository},
         {provide: CACHE_REPOSITORY_PORT, useClass: CacheRepository},
+        {provide: PROGRAM_AGGREGATE_PORT, useClass: ProgramAggregateRepository},
     ],
     exports: [USER_AGGREGATE_PORT, PASSWORD_HASHER_PORT, JWT_PORT, JwtModule],
 })
