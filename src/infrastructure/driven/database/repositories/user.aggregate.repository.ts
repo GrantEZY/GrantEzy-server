@@ -34,7 +34,7 @@ export class UserAggregateRepository implements UserAggregatePort {
             });
 
             await this.personRepository.save(person);
-
+            const isGCVmember = this.updateGCVMemberStatus([user.role]);
             const newUser = this.userRepository.create({
                 person: person,
                 contact: contact,
@@ -42,6 +42,7 @@ export class UserAggregateRepository implements UserAggregatePort {
                 audit: null,
                 experiences: null,
                 role: [user.role],
+                isGCVmember,
             });
             return await this.userRepository.save(newUser);
         } catch (error) {
@@ -156,10 +157,12 @@ export class UserAggregateRepository implements UserAggregatePort {
      */
     async updateUserRole(id: string, roles: UserRoles[]): Promise<boolean> {
         try {
+            const isGCVmember = this.updateGCVMemberStatus(roles);
             await this.userRepository.update(
                 {personId: id},
                 {
                     role: roles,
+                    isGCVmember: isGCVmember,
                 }
             );
             return true;
@@ -170,6 +173,18 @@ export class UserAggregateRepository implements UserAggregatePort {
                 "Failed to set User RT hash",
                 "Database Error"
             );
+        }
+    }
+
+    private updateGCVMemberStatus(roles: UserRoles[]): boolean {
+        if (
+            roles.includes(UserRoles.DIRECTOR) ||
+            roles.includes(UserRoles.COMMITTEE_MEMBER) ||
+            roles.includes(UserRoles.FINANCE)
+        ) {
+            return true;
+        } else {
+            return false;
         }
     }
 

@@ -28,7 +28,9 @@ export class OrganizationEntityRepository implements OrganizationEntityPort {
                 this.organizationRepository.create(organization);
             return await this.organizationRepository.save(newOrganization);
         } catch (error) {
-            console.error("Save organization error:", error);
+            if (error instanceof ApiError) {
+                throw error;
+            }
             throw new ApiError(
                 502,
                 "Failed to save organization",
@@ -46,7 +48,9 @@ export class OrganizationEntityRepository implements OrganizationEntityPort {
         try {
             return await this.organizationRepository.findOne({where: {id}});
         } catch (error) {
-            console.error("Find organization by ID error:", error);
+            if (error instanceof ApiError) {
+                throw error;
+            }
             throw new ApiError(
                 502,
                 "Failed to find organization by ID",
@@ -69,7 +73,9 @@ export class OrganizationEntityRepository implements OrganizationEntityPort {
             }
             return true;
         } catch (error) {
-            console.error("Delete organization by ID error:", error);
+            if (error instanceof ApiError) {
+                throw error;
+            }
             throw new ApiError(
                 502,
                 "Failed to delete organization by ID",
@@ -89,7 +95,9 @@ export class OrganizationEntityRepository implements OrganizationEntityPort {
                 order: {name: "ASC"},
             });
         } catch (error) {
-            console.error("Find all organizations error:", error);
+            if (error instanceof ApiError) {
+                throw error;
+            }
             throw new ApiError(
                 502,
                 "Failed to retrieve organizations",
@@ -109,7 +117,9 @@ export class OrganizationEntityRepository implements OrganizationEntityPort {
                 where: {name},
             });
         } catch (error) {
-            console.error("Find organization by name error:", error);
+            if (error instanceof ApiError) {
+                throw error;
+            }
             throw new ApiError(
                 502,
                 "Failed to find organization by name",
@@ -139,7 +149,9 @@ export class OrganizationEntityRepository implements OrganizationEntityPort {
             organization.type = type ?? organization.type;
             return await this.organizationRepository.save(organization);
         } catch (error) {
-            console.error("Updating organization by id error:", error);
+            if (error instanceof ApiError) {
+                throw error;
+            }
             throw new ApiError(
                 502,
                 "Failed to update organization by id",

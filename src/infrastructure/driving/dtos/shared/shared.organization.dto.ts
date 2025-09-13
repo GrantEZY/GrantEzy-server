@@ -1,4 +1,4 @@
-import {IsEnum, IsString, IsUUID} from "class-validator";
+import {IsEnum, IsOptional, IsString, IsUUID} from "class-validator";
 import {ApiProperty} from "@nestjs/swagger";
 import {OrganisationType} from "../../../../core/domain/constants/organization.constants";
 export class CreateOrganizationDTO {
@@ -30,6 +30,7 @@ export class UpdateOrganizationDTO {
         example: "Helping Hands",
     })
     @IsString()
+    @IsOptional()
     name?: string;
 
     @ApiProperty({
@@ -37,5 +38,6 @@ export class UpdateOrganizationDTO {
         example: "IIITS",
     })
     @IsEnum(OrganisationType)
+    @IsOptional()
     type?: OrganisationType;
 }

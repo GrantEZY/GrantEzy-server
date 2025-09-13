@@ -21,7 +21,7 @@ export class Organization {
     @Column({type: "enum", enum: OrganisationType})
     type: OrganisationType;
 
-    @Column({unique: true})
+    @Column({unique: true, nullable: true})
     slug: string;
 
     @CreateDateColumn()
