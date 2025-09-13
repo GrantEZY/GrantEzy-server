@@ -16,11 +16,15 @@ import {ConfigModule} from "@nestjs/config";
 import {PROGRAM_AGGREGATE_PORT} from "./repository/program/program.aggregate.port";
 import {ProgramAggregateRepository} from "../../infrastructure/driven/database/repositories/program.aggregate.repository";
 import {Program} from "../../core/domain/aggregates/program.aggregate";
-
+import {EMAIL_SERVICE_PORT} from "./email/email.service.port";
+import {EmailService} from "../../infrastructure/driven/email/email.service";
+import {OrganizationEntityRepository} from "../../infrastructure/driven/database/repositories/organization.entity.repository";
+import {ORGANIZATION_ENTITY_PORT} from "./repository/organization/organization.entity.port";
+import {Organization} from "../../core/domain/entities/organization.entity";
 @Global()
 @Module({
     imports: [
-        TypeOrmModule.forFeature([User, Person, Program]),
+        TypeOrmModule.forFeature([User, Person, Program, Organization]),
         JwtModule.register({}),
         ConfigModule,
     ],
@@ -30,7 +34,21 @@ import {Program} from "../../core/domain/aggregates/program.aggregate";
         {provide: JWT_PORT, useClass: JwtRepository},
         {provide: CACHE_REPOSITORY_PORT, useClass: CacheRepository},
         {provide: PROGRAM_AGGREGATE_PORT, useClass: ProgramAggregateRepository},
+        {provide: EMAIL_SERVICE_PORT, useClass: EmailService},
+        {
+            provide: ORGANIZATION_ENTITY_PORT,
+            useClass: OrganizationEntityRepository,
+        },
     ],
-    exports: [USER_AGGREGATE_PORT, PASSWORD_HASHER_PORT, JWT_PORT, JwtModule],
+    exports: [
+        USER_AGGREGATE_PORT,
+        PASSWORD_HASHER_PORT,
+        JWT_PORT,
+        JwtModule,
+        EMAIL_SERVICE_PORT,
+        CACHE_REPOSITORY_PORT,
+        PROGRAM_AGGREGATE_PORT,
+        ORGANIZATION_ENTITY_PORT,
+    ],
 })
 export class OutputPortModule {}

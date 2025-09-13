@@ -30,7 +30,7 @@ export const LoginSwagger = {
             status: 200,
             message: "Login Successful",
             res: {
-                accessToken: "accesstoken for other routes",
+                accessToken: "Accesstoken for other routes",
                 email: "tylerdurden@gmail.com",
                 role: "normal",
                 id: "uuid",
