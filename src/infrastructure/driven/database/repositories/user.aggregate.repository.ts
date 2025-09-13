@@ -202,6 +202,7 @@ export class UserAggregateRepository implements UserAggregatePort {
         numberOfUsers: number
     ): Promise<{users: User[]; totalNumberOfUsers: number}> {
         try {
+            console.log("Filter in repo", filter);
             const users = await this.userRepository.find({
                 where: filter,
                 skip: (page - 1) * numberOfUsers,

@@ -47,7 +47,7 @@ export class AdminService {
         try {
             const {users, totalNumberOfUsers} =
                 await this.userAggregateRepository.getUsers(
-                    filterData.filter ?? {},
+                    filterData.filter?.otherFilters ?? {},
                     filterData.page,
                     filterData.numberOfResults
                 );

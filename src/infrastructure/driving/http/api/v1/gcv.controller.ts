@@ -34,9 +34,9 @@ export class GCVController implements GCVControllerPort {
         }
     }
 
+    @Get("/get-gcv-members")
     @ApiResponse(GET_GCV_MEMBERS.SUCCESS)
     @ApiResponse(GET_GCV_MEMBERS.NO_USERS_PRESENT)
-    @Get("/get-gcv-members")
     async getAllMembers(
         @Res() response: Response,
         @Query() query: GetAllGCVUsersDTO
@@ -49,9 +49,9 @@ export class GCVController implements GCVControllerPort {
         }
     }
 
+    @Patch("/update-gcv-role")
     @ApiResponse(UPDATE_GCV_USER_ROLE.SUCCESS)
     @ApiResponse(UPDATE_GCV_USER_ROLE.ALREADY_ROLE_LINKED)
-    @Patch("/update-gcv-role")
     async updateGCVMemberRole(
         @Body() body: UpdateGCVUserRoleDTO,
         @Res() response: Response

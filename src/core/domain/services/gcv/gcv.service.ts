@@ -79,7 +79,7 @@ export class GCVService {
 
             const {users, totalNumberOfUsers} =
                 await this.userAggregateRepository.getUsers(
-                    filterData.filter, //eslint-disable-line
+                    filterData.filter.otherFilters, //eslint-disable-line
                     page, //eslint-disable-line
                     numberOfResults // eslint-disable-line
                 );
