@@ -25,6 +25,10 @@ import {
     UPDATE_USER_ROLE,
     DELETE_USER,
 } from "../../../../../config/swagger/docs/admin.swagger";
+import {
+    CreateOrganizationDTO,
+    UpdateOrganizationDTO,
+} from "../../../dtos/shared/shared.organization.dto";
 @ApiTags("Admin")
 @Controller("admin")
 export class AdminController implements AdminControllerPort {
@@ -83,6 +87,58 @@ export class AdminController implements AdminControllerPort {
     ) {
         try {
             const result = await this.adminService.deleteUser(userDetails);
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Post("/add-organization")
+    async addOrganization(
+        @Body() body: CreateOrganizationDTO,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const result = await this.adminService.addOrganization(body);
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Get("/get-organizations")
+    async getAllOrganizations(@Res() response: Response): Promise<Response> {
+        try {
+            const result = await this.adminService.getOrganizations();
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Delete("/delete-organization")
+    async deleteOrganization(
+        @Res() response: Response,
+        @Body() organizationDetails: {id: string}
+    ): Promise<Response> {
+        try {
+            const result = await this.adminService.deleteOrganization(
+                organizationDetails.id
+            );
+            return response.status(200).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Patch("/update-organization")
+    async updateOrganization(
+        @Res() response: Response,
+        @Body() organizationDetails: UpdateOrganizationDTO
+    ): Promise<Response> {
+        try {
+            const result =
+                await this.adminService.updateOrganization(organizationDetails);
             return response.status(result.status).json(result);
         } catch (error) {
             return this.handleError(error, response);

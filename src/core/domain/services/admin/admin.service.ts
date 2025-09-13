@@ -15,10 +15,21 @@ import {
     UpdateUserDataResponse,
     DeleteUserDataResponse,
 } from "../../../../infrastructure/driven/response-dtos/shared.response-dto";
-import {GetUsersDataResponse} from "../../../../infrastructure/driven/response-dtos/admin.response-dto";
+import {
+    AddOrganizationDataResponse,
+    DeleteOrganizationDataResponse,
+    GetOrganizationsDataResponse,
+    GetUsersDataResponse,
+    UpdateOrganizationDataResponse,
+} from "../../../../infrastructure/driven/response-dtos/admin.response-dto";
 
 import {UserSharedService} from "../shared/user/shared.user.service";
 import {UpdateRole} from "../../../../infrastructure/driving/dtos/shared/shared.user.dto";
+import {
+    CreateOrganizationDTO,
+    UpdateOrganizationDTO,
+} from "../../../../infrastructure/driving/dtos/shared/shared.organization.dto";
+import {SharedOrganizationService} from "../shared/organization/shared.organization.service";
 @Injectable()
 /**
  * This is the service for admin endpoints
@@ -27,7 +38,8 @@ export class AdminService {
     constructor(
         @Inject(USER_AGGREGATE_PORT)
         private readonly userAggregateRepository: UserAggregatePort,
-        private readonly userSharedService: UserSharedService
+        private readonly userSharedService: UserSharedService,
+        private readonly sharedOrganizationService: SharedOrganizationService
     ) {}
     async getAllUsers(
         filterData: GetAllUsersDTO
@@ -135,7 +147,77 @@ export class AdminService {
         }
     }
 
-    handleError(error: unknown): never {
+    async addOrganization(
+        organizationDetails: CreateOrganizationDTO
+    ): Promise<AddOrganizationDataResponse> {
+        try {
+            const organization =
+                await this.sharedOrganizationService.createOrganization(
+                    organizationDetails
+                );
+            return {
+                status: 201,
+                message: "Organization created successfully",
+                res: {
+                    id: organization.id,
+                    name: organization.name,
+                    type: organization.type,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async getOrganizations(): Promise<GetOrganizationsDataResponse> {
+        try {
+            const organizations =
+                await this.sharedOrganizationService.getAllOrganizations();
+            return {
+                status: 200,
+                message: "Organizations fetched successfully",
+                res: {organizations},
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async deleteOrganization(
+        id: string
+    ): Promise<DeleteOrganizationDataResponse> {
+        try {
+            await this.sharedOrganizationService.deleteOrganization(id);
+            return {
+                status: 200,
+                message: "Organization deleted successfully",
+                res: {success: true},
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async updateOrganization(
+        organizationDetails: UpdateOrganizationDTO
+    ): Promise<UpdateOrganizationDataResponse> {
+        try {
+            const organization =
+                await this.sharedOrganizationService.updateOrganization(
+                    organizationDetails
+                );
+            const {id, name, type} = organization;
+            return {
+                status: 200,
+                message: "Organization updated successfully",
+                res: {id, name, type},
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    private handleError(error: unknown): never {
         if (error instanceof ApiError) {
             throw error;
         }

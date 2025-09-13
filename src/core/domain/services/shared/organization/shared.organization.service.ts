@@ -103,7 +103,7 @@ export class SharedOrganizationService {
 
     async updateOrganization(
         updateOrganizationDetails: UpdateOrganizationDTO
-    ): Promise<Organization | null> {
+    ): Promise<Organization> {
         try {
             const organization =
                 await this.organizationEntityRepository.updateOrganization(
