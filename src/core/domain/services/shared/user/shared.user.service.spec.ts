@@ -47,8 +47,6 @@ describe("SharedUserService", () => {
     it("Add User: Successfully add user", async () => {
         const user = ADD_USER;
 
-        userAggregateRepository.findByEmail.mockResolvedValue(null);
-
         const passwordHash = "mocked_hashed_password";
         passwordHasher.hash.mockResolvedValue(passwordHash);
 
@@ -66,30 +64,10 @@ describe("SharedUserService", () => {
         });
     });
 
-    it("Add User: User Already Found", async () => {
-        try {
-            const user = ADD_USER;
-            userAggregateRepository.findByEmail.mockResolvedValue(
-                saved_user as any
-            );
-            await userSharedService.addUser(user);
-        } catch (error) {
-            expect(error).toBeInstanceOf(ApiError);
-            expect((error as ApiError).status).toBe(400);
-            expect((error as ApiError).message).toBe("User Already Found");
-        }
-    });
-
     it("Delete User : Successful deletion", async () => {
-        const userDetails = {email: "tylerdurden@gmail.com"};
-
-        userAggregateRepository.findByEmail.mockResolvedValue(
-            saved_user as any
-        );
-
         userAggregateRepository.deleteUser.mockResolvedValue(true);
 
-        const result = await userSharedService.deleteUser(userDetails);
+        const result = await userSharedService.deleteUser(saved_user.personId);
 
         expect(result).toEqual({
             status: 200,
@@ -98,20 +76,6 @@ describe("SharedUserService", () => {
                 status: true,
             },
         });
-    });
-
-    it("Delete User : User Not Found", async () => {
-        try {
-            const userDetails = {email: "tylerdurden@gmail.com"};
-
-            userAggregateRepository.findByEmail.mockResolvedValue(null);
-
-            await userSharedService.deleteUser(userDetails);
-        } catch (error) {
-            expect(error).toBeInstanceOf(ApiError);
-            expect((error as ApiError).status).toBe(400);
-            expect((error as ApiError).message).toBe("User Not Found");
-        }
     });
 
     it("Add User Role : Successful updation of role", async () => {
@@ -128,7 +92,8 @@ describe("SharedUserService", () => {
         userAggregateRepository.updateUserRole.mockResolvedValue(true);
 
         const result = await userSharedService.updateUserRole(
-            userDetails as any
+            userDetails as any,
+            saved_user as any
         );
 
         expect(result).toEqual({
@@ -139,24 +104,6 @@ describe("SharedUserService", () => {
                 role: userDetails.role,
             },
         });
-    });
-
-    it("Add User Role : User Not Found", async () => {
-        try {
-            const userDetails = {
-                email: "tylerdurden@gmail.com",
-                type: "ADD_ROLE",
-                role: "ADMIN",
-            };
-
-            userAggregateRepository.findByEmail.mockResolvedValue(null);
-
-            await userSharedService.updateUserRole(userDetails as any);
-        } catch (error) {
-            expect(error).toBeInstanceOf(ApiError);
-            expect((error as ApiError).status).toBe(400);
-            expect((error as ApiError).message).toBe("User Not Found");
-        }
     });
 
     it("Add User Role : User Already has the role", async () => {
@@ -170,7 +117,10 @@ describe("SharedUserService", () => {
             userAggregateRepository.findByEmail.mockResolvedValue(
                 saved_user as any
             );
-            await userSharedService.updateUserRole(userDetails as any);
+            await userSharedService.updateUserRole(
+                userDetails as any,
+                saved_user as any
+            );
         } catch (error) {
             expect(error).toBeInstanceOf(ApiError);
             expect((error as ApiError).status).toBe(401);
@@ -193,7 +143,10 @@ describe("SharedUserService", () => {
             );
             userAggregateRepository.updateUserRole.mockResolvedValue(false);
 
-            await userSharedService.updateUserRole(userDetails as any);
+            await userSharedService.updateUserRole(
+                userDetails as any,
+                saved_user as any
+            );
         } catch (error) {
             expect(error).toBeInstanceOf(ApiError);
             expect((error as ApiError).status).toBe(500);
@@ -218,7 +171,8 @@ describe("SharedUserService", () => {
         userAggregateRepository.updateUserRole.mockResolvedValue(true);
 
         const result = await userSharedService.updateUserRole(
-            userDetails as any
+            userDetails as any,
+            saved_user as any
         );
 
         expect(result).toEqual({
@@ -245,7 +199,10 @@ describe("SharedUserService", () => {
 
             userAggregateRepository.updateUserRole.mockResolvedValue(true);
 
-            await userSharedService.updateUserRole(userDetails as any);
+            await userSharedService.updateUserRole(
+                userDetails as any,
+                saved_user as any
+            );
         } catch (error) {
             expect(error).toBeInstanceOf(ApiError);
             expect((error as ApiError).status).toBe(400);
@@ -269,7 +226,10 @@ describe("SharedUserService", () => {
 
             userAggregateRepository.updateUserRole.mockResolvedValue(true);
 
-            await userSharedService.updateUserRole(userDetails as any);
+            await userSharedService.updateUserRole(
+                userDetails as any,
+                saved_user as any
+            );
         } catch (error) {
             expect(error).toBeInstanceOf(ApiError);
             expect((error as ApiError).status).toBe(401);

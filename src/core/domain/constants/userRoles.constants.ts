@@ -1,3 +1,7 @@
+/**
+ * This file contains the roles of user
+ */
+
 export enum UserRoles {
     ADMIN = "ADMIN",
     DIRECTOR = "DIRECTOR",

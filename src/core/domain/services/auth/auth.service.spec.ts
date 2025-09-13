@@ -211,8 +211,12 @@ describe("AuthService", () => {
     it("Refresh : Token Mismatch Error", async () => {
         try {
             const user = {
-                id: "111-23434-234345234-353456",
-                token_version: "2",
+                userData: {
+                    payload: {
+                        id: "111-23434-234345234-353456",
+                        token_version: "2",
+                    },
+                },
             };
             userAggregateRepository.findById.mockResolvedValue(
                 SAVED_USER as any

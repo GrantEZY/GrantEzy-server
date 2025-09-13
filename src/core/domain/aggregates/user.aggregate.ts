@@ -8,6 +8,11 @@ import {
     UpdateDateColumn,
     CreateDateColumn,
     PrimaryColumn,
+    OneToMany,
+    ManyToMany,
+    BeforeInsert,
+    BeforeUpdate,
+    Index,
 } from "typeorm";
 
 import {Person} from "../entities/person.entity";
@@ -17,10 +22,12 @@ import {UserRoles} from "../constants/userRoles.constants";
 import {UserCommitmentStatus} from "../constants/commitment.constants";
 import {Audit} from "../value-objects/audit.object";
 import {Experience} from "../value-objects/experience.object";
+import {GrantApplication} from "./grantapplication.aggregate";
+import {slugify} from "../../../shared/helpers/slug.generator";
 
 @Entity({name: "users"})
 export class User {
-    @PrimaryColumn()
+    @PrimaryColumn({type: "uuid"})
     personId: string;
 
     @OneToOne(() => Person, {cascade: true, eager: true})
@@ -68,6 +75,13 @@ export class User {
     })
     audit: Audit | null;
 
+    @Column({unique: true, nullable: true})
+    slug: string;
+
+    @Index()
+    @Column({type: "boolean", default: false})
+    isGCVmember: boolean;
+
     @Column({
         type: "jsonb",
         nullable: true,
@@ -96,9 +110,31 @@ export class User {
     @Column({default: 0})
     tokenVersion: number;
 
+    @OneToMany(() => GrantApplication, (application) => application.applicant, {
+        cascade: false,
+    })
+    myApplications: GrantApplication[];
+
+    @ManyToMany(
+        () => GrantApplication,
+        (application) => application.teammates,
+        {
+            cascade: false,
+        }
+    )
+    linkedApplications: GrantApplication[];
+
     @CreateDateColumn()
     createdAt: Date;
 
     @UpdateDateColumn()
     updatedAt: Date;
+
+    @BeforeInsert()
+    @BeforeUpdate()
+    generateSlug() {
+        if (this.person?.firstName && this.personId) {
+            this.slug = slugify(this.person.firstName, this.personId);
+        }
+    }
 }

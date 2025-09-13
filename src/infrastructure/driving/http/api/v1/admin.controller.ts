@@ -10,7 +10,7 @@ import {
 } from "@nestjs/common";
 import {ApiTags, ApiResponse, ApiProperty} from "@nestjs/swagger";
 import {Response} from "express";
-import {AdminControllerInterfacePort} from "../../../../../ports/inputs/controllers/admin.controller.port";
+import {AdminControllerPort} from "../../../../../ports/inputs/controllers/admin.controller.port";
 import ApiError from "../../../../../shared/errors/api.error";
 import {AdminService} from "../../../../../core/domain/services/admin/admin.service";
 import {GetAllUsersDTO} from "../../../dtos/admin.dto";
@@ -24,10 +24,15 @@ import {
     ADD_USERS,
     UPDATE_USER_ROLE,
     DELETE_USER,
+    ORGANIZATION_RESPONSES,
 } from "../../../../../config/swagger/docs/admin.swagger";
+import {
+    CreateOrganizationDTO,
+    UpdateOrganizationDTO,
+} from "../../../dtos/shared/shared.organization.dto";
 @ApiTags("Admin")
 @Controller("admin")
-export class AdminController implements AdminControllerInterfacePort {
+export class AdminController implements AdminControllerPort {
     constructor(private readonly adminService: AdminService) {}
 
     @Get("/get-users")
@@ -48,6 +53,7 @@ export class AdminController implements AdminControllerInterfacePort {
     @Post("/add-user")
     @ApiProperty(ADD_USERS.SUCCESS)
     @ApiProperty(ADD_USERS.USER_ALREADY_PRESENT)
+    @ApiProperty(ADD_USERS.ERROR_IN_ADDING_ROLE)
     async addUser(@Body() body: AddUserDTO, @Res() response: Response) {
         try {
             const result = await this.adminService.addUser(body);
@@ -82,6 +88,65 @@ export class AdminController implements AdminControllerInterfacePort {
     ) {
         try {
             const result = await this.adminService.deleteUser(userDetails);
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Post("/add-organization")
+    @ApiResponse(ORGANIZATION_RESPONSES.CREATE.SUCCESS)
+    @ApiResponse(ORGANIZATION_RESPONSES.CREATE.ORGANISATION_ALREADY_FOUND)
+    async addOrganization(
+        @Body() body: CreateOrganizationDTO,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const result = await this.adminService.addOrganization(body);
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Get("/get-organizations")
+    @ApiResponse(ORGANIZATION_RESPONSES.GET_ALL.SUCCESS)
+    async getAllOrganizations(@Res() response: Response): Promise<Response> {
+        try {
+            const result = await this.adminService.getOrganizations();
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Delete("/delete-organization")
+    @ApiResponse(ORGANIZATION_RESPONSES.DELETE.SUCCESS)
+    @ApiResponse(ORGANIZATION_RESPONSES.DELETE.NOT_FOUND)
+    async deleteOrganization(
+        @Res() response: Response,
+        @Body() organizationDetails: {id: string}
+    ): Promise<Response> {
+        try {
+            const result = await this.adminService.deleteOrganization(
+                organizationDetails.id
+            );
+            return response.status(200).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Patch("/update-organization")
+    @ApiResponse(ORGANIZATION_RESPONSES.UPDATE.SUCCESS)
+    @ApiResponse(ORGANIZATION_RESPONSES.UPDATE.NOT_FOUND)
+    async updateOrganization(
+        @Res() response: Response,
+        @Body() organizationDetails: UpdateOrganizationDTO
+    ): Promise<Response> {
+        try {
+            const result =
+                await this.adminService.updateOrganization(organizationDetails);
             return response.status(result.status).json(result);
         } catch (error) {
             return this.handleError(error, response);

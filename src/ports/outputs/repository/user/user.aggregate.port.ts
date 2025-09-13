@@ -5,8 +5,11 @@ import {UserRoles} from "../../../../core/domain/constants/userRoles.constants";
 
 export interface UserAggregatePort {
     save(user: Partial<UserAggregateDTO>): Promise<User>;
-    findById(id: string): Promise<User | null>;
-    findByEmail(email: string): Promise<User | null>;
+    findById(id: string, isPasswordRequired: boolean): Promise<User | null>;
+    findByEmail(
+        email: string,
+        isPasswordRequired: boolean
+    ): Promise<User | null>;
     setRThash(hash: string | null, id: string): Promise<boolean>;
     getUsers(
         filter: FindOptionsWhere<User>,

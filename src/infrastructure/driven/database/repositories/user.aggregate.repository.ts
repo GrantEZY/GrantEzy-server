@@ -34,7 +34,7 @@ export class UserAggregateRepository implements UserAggregatePort {
             });
 
             await this.personRepository.save(person);
-
+            const isGCVmember = this.updateGCVMemberStatus([user.role]);
             const newUser = this.userRepository.create({
                 person: person,
                 contact: contact,
@@ -42,6 +42,7 @@ export class UserAggregateRepository implements UserAggregatePort {
                 audit: null,
                 experiences: null,
                 role: [user.role],
+                isGCVmember,
             });
             return await this.userRepository.save(newUser);
         } catch (error) {
@@ -55,9 +56,25 @@ export class UserAggregateRepository implements UserAggregatePort {
      * @param id - The unique identifier of the user to be retrieved.
      * @returns The user entity if found, otherwise null.
      */
-    async findById(id: string): Promise<User | null> {
+    async findById(
+        id: string,
+        isPasswordRequired = false
+    ): Promise<User | null> {
         try {
-            return await this.userRepository.findOne({where: {personId: id}});
+            let user: User | null;
+            if (isPasswordRequired) {
+                user = await this.userRepository
+                    .createQueryBuilder("user")
+                    .leftJoinAndSelect("user.person", "person")
+                    .addSelect("person.password_hash")
+                    .where("user.personId = :id", {id})
+                    .getOne();
+            } else {
+                user = await this.userRepository.findOne({
+                    where: {personId: id},
+                });
+            }
+            return user;
         } catch (error) {
             console.error("Find user by ID error:", error);
             throw new ApiError(
@@ -73,14 +90,21 @@ export class UserAggregateRepository implements UserAggregatePort {
      * @param email - The email address of the user to be retrieved.
      * @returns The user entity if found, otherwise null.
      */
-    async findByEmail(email: string): Promise<User | null> {
+    async findByEmail(
+        email: string,
+        isPasswordRequired = false
+    ): Promise<User | null> {
         try {
-            const user = await this.userRepository
+            let query = this.userRepository
                 .createQueryBuilder("user")
                 .leftJoinAndSelect("user.person", "person")
-                .where("user.contact ->> 'email' = :email", {email})
-                .getOne();
+                .where("user.contact ->> 'email' = :email", {email});
 
+            if (isPasswordRequired) {
+                query = query.addSelect("person.password_hash");
+            }
+
+            const user = await query.getOne();
             return user;
         } catch (error) {
             console.error(error);
@@ -133,10 +157,12 @@ export class UserAggregateRepository implements UserAggregatePort {
      */
     async updateUserRole(id: string, roles: UserRoles[]): Promise<boolean> {
         try {
+            const isGCVmember = this.updateGCVMemberStatus(roles);
             await this.userRepository.update(
                 {personId: id},
                 {
                     role: roles,
+                    isGCVmember: isGCVmember,
                 }
             );
             return true;
@@ -147,6 +173,18 @@ export class UserAggregateRepository implements UserAggregatePort {
                 "Failed to set User RT hash",
                 "Database Error"
             );
+        }
+    }
+
+    private updateGCVMemberStatus(roles: UserRoles[]): boolean {
+        if (
+            roles.includes(UserRoles.DIRECTOR) ||
+            roles.includes(UserRoles.COMMITTEE_MEMBER) ||
+            roles.includes(UserRoles.FINANCE)
+        ) {
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -164,6 +202,7 @@ export class UserAggregateRepository implements UserAggregatePort {
         numberOfUsers: number
     ): Promise<{users: User[]; totalNumberOfUsers: number}> {
         try {
+            console.log("Filter in repo", filter);
             const users = await this.userRepository.find({
                 where: filter,
                 skip: (page - 1) * numberOfUsers,

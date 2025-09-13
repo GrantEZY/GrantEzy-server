@@ -11,9 +11,9 @@ export class Person {
     @Column({type: "varchar", length: 60})
     lastName: string;
 
-    @Column({type: "varchar", nullable: true})
+    @Column({type: "varchar", nullable: true, select: false})
     rt_hash: string | null;
 
-    @Column({type: "varchar"})
+    @Column({type: "varchar", select: false})
     password_hash: string;
 }

@@ -40,14 +40,27 @@ export const ADD_USERS = {
         },
     },
     USER_ALREADY_PRESENT: {
-        status: 400,
-        description: "User Already Found",
+        status: 200,
+        description: "User Already Found And Role Added",
         example: {
-            status: 400,
-            message: "User Already Found",
-            res: null,
+            status: 200,
+            message: "User Already Found And Role Added",
+            res: {
+              id:"uuid",
+              email: "tylerdurden@gmail.com",
+            },
         },
     },
+    ERROR_IN_ADDING_ROLE: {
+        status: 400,
+        description: "Error in Adding Role to Existing User",
+        example: {
+            status: 400,
+            message: "Error in Adding Role to Existing User",
+            res: null,
+        },
+    },  
+
 };
 
 export const UPDATE_USER_ROLE = {
@@ -95,4 +108,69 @@ export const DELETE_USER = {
             res: null,
         },
     },
+};
+
+export const ORGANIZATION_RESPONSES = {
+  CREATE: {
+    SUCCESS: {
+      status: 200,
+      description: "Organization created successfully",
+      res: {
+        id: "uuid",
+        name: "Organisation Name",
+        type: "IIT",
+      },
+    },
+    ORGANISATION_ALREADY_FOUND: {
+      status: 400,
+      description: "Organization with this name already exists",
+      res: null,
+    },
+  },
+
+  GET_ALL: {
+    SUCCESS: {
+      status: 200,
+      description: "Organizations fetched successfully",
+      res: {
+        organizations: [
+          {
+            id: "uuid",
+            name: "Organisation Name",
+            type: "IIT",
+          },
+        ],
+      },
+    },
+  },
+
+  DELETE: {
+    SUCCESS: {
+      status: 200,
+      description: "Organization deleted successfully",
+      res: { success: true },
+    },
+    NOT_FOUND: {
+      status: 404,
+      description: "Organization not found",
+      res: null,
+    },
+  },
+
+  UPDATE: {
+    SUCCESS: {
+      status: 200,
+      description: "Organization updated successfully",
+      res: {
+        id: "uuid",
+        name: "Organisation Name",
+        type: "IIT",
+      },
+    },
+    NOT_FOUND: {
+      status: 404,
+      description: "Organization not found",
+      res: null,
+    },
+  },
 };
