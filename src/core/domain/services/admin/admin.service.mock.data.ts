@@ -1,3 +1,5 @@
+import {OrganisationType} from "../../constants/organization.constants";
+
 const USERS_ARRAY = [
     {
         personId: "user-123",
@@ -208,4 +210,30 @@ const SAVED_USER = {
     updatedAt: "2024-01-10T15:30:00.000Z",
 };
 
-export {USERS_ARRAY, GET_USERS_FETCH, SAVED_USER};
+const SAVED_ORGANIZATION = {
+    id: "org-123",
+    name: "Test Organization",
+    type: OrganisationType.IIIT,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+};
+
+const EXISTING_ORGANIZATIONS = [
+    {...SAVED_ORGANIZATION, id: "org-123"},
+    {...SAVED_ORGANIZATION, id: "org-456", name: "Another Org"},
+    {...SAVED_ORGANIZATION, id: "org-789", name: "Third Org"},
+];
+
+const OrganizationData = {
+    name: "Test Organization",
+    type: OrganisationType.IIIT,
+};
+
+export {
+    USERS_ARRAY,
+    GET_USERS_FETCH,
+    SAVED_USER,
+    SAVED_ORGANIZATION,
+    EXISTING_ORGANIZATIONS,
+    OrganizationData,
+};

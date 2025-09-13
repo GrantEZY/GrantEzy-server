@@ -13,7 +13,9 @@ import {
     GET_GCV_MEMBERS,
     ADD_GCV_USERS,
     UPDATE_GCV_USER_ROLE,
+    PROGRAM_RESPONSES,
 } from "../../../../../config/swagger/docs/gcv.swagger";
+import {CreateProgramDTO} from "../../../dtos/gcv.dto";
 @ApiTags("GCV-Only")
 @Controller("gcv")
 export class GCVController implements GCVControllerPort {
@@ -59,6 +61,22 @@ export class GCVController implements GCVControllerPort {
         try {
             const result = await this.gcvService.updateGCVUserRole(body);
 
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Post("/create-program")
+    @ApiResponse(PROGRAM_RESPONSES.CREATE.SUCCESS)
+    @ApiResponse(PROGRAM_RESPONSES.CREATE.TRYING_TO_CREATE_ALREADY_EXISTING_ORG)
+    @ApiResponse(PROGRAM_RESPONSES.CREATE.ORGANIZATION_NOT_FOUND)
+    async createProgram(
+        @Body() body: CreateProgramDTO,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const result = await this.gcvService.createProgram(body);
             return response.status(result.status).json(result);
         } catch (error) {
             return this.handleError(error, response);

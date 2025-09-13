@@ -24,6 +24,7 @@ import {
     ADD_USERS,
     UPDATE_USER_ROLE,
     DELETE_USER,
+    ORGANIZATION_RESPONSES,
 } from "../../../../../config/swagger/docs/admin.swagger";
 import {
     CreateOrganizationDTO,
@@ -94,6 +95,8 @@ export class AdminController implements AdminControllerPort {
     }
 
     @Post("/add-organization")
+    @ApiResponse(ORGANIZATION_RESPONSES.CREATE.SUCCESS)
+    @ApiResponse(ORGANIZATION_RESPONSES.CREATE.ORGANISATION_ALREADY_FOUND)
     async addOrganization(
         @Body() body: CreateOrganizationDTO,
         @Res() response: Response
@@ -107,6 +110,7 @@ export class AdminController implements AdminControllerPort {
     }
 
     @Get("/get-organizations")
+    @ApiResponse(ORGANIZATION_RESPONSES.GET_ALL.SUCCESS)
     async getAllOrganizations(@Res() response: Response): Promise<Response> {
         try {
             const result = await this.adminService.getOrganizations();
@@ -117,6 +121,8 @@ export class AdminController implements AdminControllerPort {
     }
 
     @Delete("/delete-organization")
+    @ApiResponse(ORGANIZATION_RESPONSES.DELETE.SUCCESS)
+    @ApiResponse(ORGANIZATION_RESPONSES.DELETE.NOT_FOUND)
     async deleteOrganization(
         @Res() response: Response,
         @Body() organizationDetails: {id: string}
@@ -132,6 +138,8 @@ export class AdminController implements AdminControllerPort {
     }
 
     @Patch("/update-organization")
+    @ApiResponse(ORGANIZATION_RESPONSES.UPDATE.SUCCESS)
+    @ApiResponse(ORGANIZATION_RESPONSES.UPDATE.NOT_FOUND)
     async updateOrganization(
         @Res() response: Response,
         @Body() organizationDetails: UpdateOrganizationDTO

@@ -46,7 +46,7 @@ export class SharedOrganizationService {
         }
     }
 
-    async getOrganizationById(id: string): Promise<Organization | null> {
+    async getOrganizationById(id: string): Promise<Organization> {
         try {
             const organization =
                 await this.organizationEntityRepository.findById(id);
@@ -66,12 +66,12 @@ export class SharedOrganizationService {
         }
     }
 
-    async getOrganizationByName(name: string): Promise<Organization | null> {
+    async getOrganizationByName(name: string): Promise<Organization> {
         try {
             const organization =
                 await this.organizationEntityRepository.findByName(name);
             if (!organization) {
-                throw new ApiError(404, "Organization not found", "Not Found");
+                throw new ApiError(400, "Organization not found", "Not Found");
             }
             return organization;
         } catch (error) {

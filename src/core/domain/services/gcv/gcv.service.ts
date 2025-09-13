@@ -1,5 +1,6 @@
 import {Injectable, Inject} from "@nestjs/common";
 import {
+    CreateProgramDTO,
     GCVMemberAddDTO,
     GetAllGCVUsersDTO,
     UpdateGCVUserRoleDTO,
@@ -12,9 +13,16 @@ import {UserRoles} from "../../constants/userRoles.constants";
 import ApiError from "../../../../shared/errors/api.error";
 import {
     AddGCVUserDataResponse,
+    CreateProgramResponse,
     GetGCVUsersDataResponse,
     UpdateUserDataResponse,
 } from "../../../../infrastructure/driven/response-dtos/gcv.response-dto";
+import {SharedOrganizationService} from "../shared/organization/shared.organization.service";
+import {Organization} from "../../entities/organization.entity";
+import {
+    ProgramAggregatePort,
+    PROGRAM_AGGREGATE_PORT,
+} from "../../../../ports/outputs/repository/program/program.aggregate.port";
 
 @Injectable()
 /**
@@ -24,7 +32,10 @@ export class GCVService {
     constructor(
         @Inject(USER_AGGREGATE_PORT)
         private readonly userAggregateRepository: UserAggregatePort,
-        private readonly userSharedService: UserSharedService
+        @Inject(PROGRAM_AGGREGATE_PORT)
+        private readonly programAggregateRepository: ProgramAggregatePort,
+        private readonly userSharedService: UserSharedService,
+        private readonly sharedOrganizationService: SharedOrganizationService
     ) {}
 
     async addGCVMember(
@@ -123,6 +134,53 @@ export class GCVService {
                 role: UserRoles.COMMITTEE_MEMBER,
             };
             return await this.userSharedService.updateUserRole(data, user);
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async createProgram(
+        program: CreateProgramDTO
+    ): Promise<CreateProgramResponse> {
+        try {
+            const {organization} = program;
+            const {isNew} = organization;
+            let linkedOrganization: Organization;
+            if (isNew && organization.name && organization.type) {
+                linkedOrganization =
+                    await this.sharedOrganizationService.createOrganization({
+                        name: organization.name,
+                        type: organization.type,
+                    });
+            } else {
+                linkedOrganization =
+                    await this.sharedOrganizationService.getOrganizationByName(
+                        organization.name
+                    );
+            }
+
+            const programDetails = {
+                details: program.details,
+                duration: program.duration,
+                status: program.status,
+                budget: program.budget,
+                minTRL: program.minTRL,
+                maxTRL: program.maxTRL,
+            };
+
+            const createdProgram = await this.programAggregateRepository.save(
+                programDetails,
+                linkedOrganization.id
+            );
+            return {
+                status: 201,
+                message: "Program Created Successfully",
+                res: {
+                    organizationId: linkedOrganization.id,
+                    name: programDetails.details.name,
+                    id: createdProgram.id,
+                },
+            };
         } catch (error) {
             this.handleError(error);
         }

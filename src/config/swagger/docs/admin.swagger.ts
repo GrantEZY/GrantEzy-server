@@ -109,3 +109,68 @@ export const DELETE_USER = {
         },
     },
 };
+
+export const ORGANIZATION_RESPONSES = {
+  CREATE: {
+    SUCCESS: {
+      status: 200,
+      description: "Organization created successfully",
+      res: {
+        id: "uuid",
+        name: "Organisation Name",
+        type: "IIT",
+      },
+    },
+    ORGANISATION_ALREADY_FOUND: {
+      status: 400,
+      description: "Organization with this name already exists",
+      res: null,
+    },
+  },
+
+  GET_ALL: {
+    SUCCESS: {
+      status: 200,
+      description: "Organizations fetched successfully",
+      res: {
+        organizations: [
+          {
+            id: "uuid",
+            name: "Organisation Name",
+            type: "IIT",
+          },
+        ],
+      },
+    },
+  },
+
+  DELETE: {
+    SUCCESS: {
+      status: 200,
+      description: "Organization deleted successfully",
+      res: { success: true },
+    },
+    NOT_FOUND: {
+      status: 404,
+      description: "Organization not found",
+      res: null,
+    },
+  },
+
+  UPDATE: {
+    SUCCESS: {
+      status: 200,
+      description: "Organization updated successfully",
+      res: {
+        id: "uuid",
+        name: "Organisation Name",
+        type: "IIT",
+      },
+    },
+    NOT_FOUND: {
+      status: 404,
+      description: "Organization not found",
+      res: null,
+    },
+  },
+};

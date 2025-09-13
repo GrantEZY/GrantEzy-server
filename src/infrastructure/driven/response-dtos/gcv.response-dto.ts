@@ -15,9 +15,15 @@ class UpdateUserResponseData {
     id: string;
     role: UserRoles;
 }
-
+class CreateProgramData {
+    organizationId: string;
+    name: string;
+    id: string;
+}
 export class UpdateUserDataResponse extends ApiResponse(
     UpdateUserResponseData
 ) {}
+
 export class GetGCVUsersDataResponse extends ApiResponse(GetUsersData) {}
 export class AddGCVUserDataResponse extends ApiResponse(AddUserResponseData) {}
+export class CreateProgramResponse extends ApiResponse(CreateProgramData) {}

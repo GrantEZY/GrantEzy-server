@@ -120,7 +120,7 @@ describe("SharedOrganizationService", () => {
                 await service.getOrganizationByName("Non Existent Org");
             } catch (error) {
                 expect(error).toBeInstanceOf(ApiError);
-                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).status).toBe(400);
                 expect((error as ApiError).message).toBe(
                     "Organization not found"
                 );

@@ -1,8 +1,12 @@
 import {Program} from "../../../../core/domain/aggregates/program.aggregate";
 import {FindOptionsWhere} from "typeorm";
+import {CreateProgramDTO} from "../../../../infrastructure/driving/dtos/gcv.dto";
 
 export interface ProgramAggregatePort {
-    save(program: Partial<Program>): Promise<Program>;
+    save(
+        program: Partial<CreateProgramDTO>,
+        organizationId: string
+    ): Promise<Program>;
     findById(id: string): Promise<Program | null>;
     getPrograms(
         filter: FindOptionsWhere<Program>,

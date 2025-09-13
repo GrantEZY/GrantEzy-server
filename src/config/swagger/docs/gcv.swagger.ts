@@ -77,3 +77,28 @@ export const UPDATE_GCV_USER_ROLE = {
         },
     },
 };
+
+export const PROGRAM_RESPONSES = {
+  CREATE: {
+    SUCCESS: {
+      status: 201,
+      description: "Program created successfully",
+      res: {
+        organizationId: "uuid",
+        name: "AI Innovation Program",
+        id: "uuid",
+      },
+    },
+    ORGANIZATION_NOT_FOUND: {
+      status: 400,
+      description: "Organization not found",
+      res: null,
+    },
+    TRYING_TO_CREATE_ALREADY_EXISTING_ORG: {
+      status: 404,
+      description: "Organization with this name already exists",
+      res: null,
+    },
+  },
+};
+

@@ -2,13 +2,13 @@ import {
     Column,
     Entity,
     PrimaryGeneratedColumn,
-    OneToOne,
     JoinColumn,
     CreateDateColumn,
     UpdateDateColumn,
     OneToMany,
     BeforeInsert,
     BeforeUpdate,
+    ManyToOne,
 } from "typeorm";
 import {Organization} from "../entities/organization.entity";
 import {ProgramDetails} from "../value-objects/program.details.object";
@@ -26,7 +26,7 @@ export class Program {
     @Column()
     organizationId: string;
 
-    @OneToOne(() => Organization, {
+    @ManyToOne(() => Organization, {
         onDelete: "SET NULL",
         cascade: false,
         eager: true,

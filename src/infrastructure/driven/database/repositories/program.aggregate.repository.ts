@@ -4,6 +4,10 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {Repository, FindOptionsWhere} from "typeorm";
 import {Program} from "../../../../core/domain/aggregates/program.aggregate";
 import ApiError from "../../../../shared/errors/api.error";
+import {CreateProgramDTO} from "../../../driving/dtos/gcv.dto";
+import {ProgramDetails} from "../../../../core/domain/value-objects/program.details.object";
+import {Duration} from "../../../../core/domain/value-objects/duration.object";
+import {Money} from "../../../../core/domain/value-objects/project.metrics.object";
 
 @Injectable()
 /**
@@ -21,9 +25,28 @@ export class ProgramAggregateRepository implements ProgramAggregatePort {
      * @returns The saved or updated program entity.
      * @throws ApiError if there is an issue during the save operation.
      */
-    async save(program: Partial<Program>): Promise<Program> {
+    async save(
+        program: CreateProgramDTO,
+        organizationId: string
+    ): Promise<Program> {
         try {
-            const newProgram = this.programRepository.create(program);
+            const {details, status, minTRL, maxTRL, budget, duration} = program;
+            const newProgram = this.programRepository.create({
+                organizationId,
+                details: new ProgramDetails(
+                    details.name,
+                    details.description,
+                    details.category
+                ),
+                status,
+                minTRL,
+                maxTRL,
+                budget: new Money(budget.amount, budget.currency),
+                duration: new Duration(
+                    duration.startDate,
+                    duration.endDate ?? null
+                ),
+            });
             return await this.programRepository.save(newProgram);
         } catch (error) {
             console.error("Save program error:", error);
