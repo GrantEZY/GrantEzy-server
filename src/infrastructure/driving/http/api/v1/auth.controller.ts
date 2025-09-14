@@ -24,7 +24,10 @@ import {
     LocalLoginResponseData,
     PassportResponseData,
 } from "../../../../driven/response-dtos/auth.response-dto";
-import {JwtData} from "../../../../../shared/types/jwt.types";
+import {
+    AccessTokenJwt,
+    RefreshTokenJwt,
+} from "../../../../../shared/types/jwt.types";
 import {User} from "../../../../../core/domain/aggregates/user.aggregate";
 import {UserRoles} from "../../../../../core/domain/constants/userRoles.constants";
 import {Public} from "../../../../../shared/decorators/public.decorator";
@@ -100,10 +103,13 @@ export class AuthController implements AuthControllerPort {
 
     @ApiResponse(LogoutSwagger.SUCCESS)
     @Post("/local/logout")
-    async logout(@Res() response: Response, @CurrentUser() user: JwtData) {
+    async logout(
+        @Res() response: Response,
+        @CurrentUser() user: AccessTokenJwt
+    ) {
         try {
             this.removeCookie(response, "jwtToken");
-            const id = user.id;
+            const id = user.userData.payload.id;
             const result = await this.authUseCase.logout(
                 id as unknown as string
             );
@@ -134,18 +140,17 @@ export class AuthController implements AuthControllerPort {
     @ApiResponse(RefreshSwagger.TOKEN_MISMATCH)
     @ApiResponse(RefreshSwagger.USER_NOT_FOUND)
     async refresh(
-        response: Response,
-        @CurrentUser() user: JwtData
+        @Res() response: Response,
+        @CurrentUser() user: RefreshTokenJwt
     ): Promise<Response> {
         try {
             const result = await this.authUseCase.refresh(user);
-
             return response.status(result.status).json({
                 status: result.status,
                 message: result.message,
                 res: {
-                    userData: user,
-                    accessToken: result.res,
+                    userData: user.userData.payload,
+                    accessToken: result.res?.accessToken,
                 },
             });
         } catch (error) {
@@ -168,6 +173,8 @@ export class AuthController implements AuthControllerPort {
     }
 
     handleError(error: unknown, response: Response) {
+        console.error("AuthController error:", error);
+
         if (error instanceof ApiError) {
             return response.status(error.status).json({
                 status: error.status,
@@ -175,9 +182,22 @@ export class AuthController implements AuthControllerPort {
                 res: null,
             });
         }
+
+        if (typeof error === "object" && error !== null && "status" in error) {
+            const event = error as {status?: number; message?: string};
+            return response.status(event.status ?? 500).json({
+                status: event.status ?? 500,
+                message: event.message ?? "Internal Server Error",
+                res: null,
+            });
+        }
+
         return response.status(500).json({
             status: 500,
-            message: "Internal Server Error",
+            message:
+                error instanceof Error
+                    ? error.message
+                    : "Internal Server Error",
             res: null,
         });
     }

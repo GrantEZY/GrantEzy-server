@@ -23,6 +23,7 @@ async function initServer() {
     const reflector = new Reflector();
     app.useGlobalGuards(new AtGuard(reflector));
     app.enableShutdownHooks();
+
     app.use(helmet());
     app.use(cookieParser());
 

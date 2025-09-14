@@ -48,6 +48,7 @@ export default tseslint.config(
             "@typescript-eslint/no-unnecessary-condition": "off",
             "@typescript-eslint/no-unsafe-assignment": "off",
             "@typescript-eslint/no-unsafe-member-access": "off",
+            "@typescript-eslint/no-unsafe-argument": "off",
 
             // naming convention rules
             "@typescript-eslint/naming-convention": [

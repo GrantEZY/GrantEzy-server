@@ -15,9 +15,21 @@ import {
     UpdateUserDataResponse,
     DeleteUserDataResponse,
 } from "../../../../infrastructure/driven/response-dtos/shared.response-dto";
-import {GetUsersDataResponse} from "../../../../infrastructure/driven/response-dtos/admin.response-dto";
+import {
+    AddOrganizationDataResponse,
+    DeleteOrganizationDataResponse,
+    GetOrganizationsDataResponse,
+    GetUsersDataResponse,
+    UpdateOrganizationDataResponse,
+} from "../../../../infrastructure/driven/response-dtos/admin.response-dto";
 
 import {UserSharedService} from "../shared/user/shared.user.service";
+import {UpdateRole} from "../../../../infrastructure/driving/dtos/shared/shared.user.dto";
+import {
+    CreateOrganizationDTO,
+    UpdateOrganizationDTO,
+} from "../../../../infrastructure/driving/dtos/shared/shared.organization.dto";
+import {SharedOrganizationService} from "../shared/organization/shared.organization.service";
 @Injectable()
 /**
  * This is the service for admin endpoints
@@ -26,7 +38,8 @@ export class AdminService {
     constructor(
         @Inject(USER_AGGREGATE_PORT)
         private readonly userAggregateRepository: UserAggregatePort,
-        private readonly userSharedService: UserSharedService
+        private readonly userSharedService: UserSharedService,
+        private readonly sharedOrganizationService: SharedOrganizationService
     ) {}
     async getAllUsers(
         filterData: GetAllUsersDTO
@@ -34,7 +47,7 @@ export class AdminService {
         try {
             const {users, totalNumberOfUsers} =
                 await this.userAggregateRepository.getUsers(
-                    filterData.filter ?? {},
+                    filterData.filter?.otherFilters ?? {},
                     filterData.page,
                     filterData.numberOfResults
                 );
@@ -61,6 +74,37 @@ export class AdminService {
 
     async addUser(userData: AddUserDTO): Promise<AddUserDataResponse> {
         try {
+            const {email, role} = userData;
+            const user = await this.userAggregateRepository.findByEmail(
+                email,
+                false
+            );
+            const addRole = UpdateRole.ADD_ROLE;
+            if (user) {
+                const {email: userEmail} = user.contact;
+
+                const updatedUser = await this.userSharedService.updateUserRole(
+                    {email: userEmail, type: addRole, role},
+                    user
+                );
+
+                const {status} = updatedUser;
+                if (status == 200) {
+                    return {
+                        status: 200,
+                        message: "User Role Added",
+                        res: {
+                            id: user.personId,
+                            email,
+                        },
+                    };
+                } else {
+                    return {
+                        status: 400,
+                        message: "Error in Adding Role to Existing User",
+                    };
+                }
+            }
             return await this.userSharedService.addUser(userData);
         } catch (error) {
             this.handleError(error);
@@ -71,7 +115,15 @@ export class AdminService {
         userData: UpdateUserRoleDTO
     ): Promise<UpdateUserDataResponse> {
         try {
-            return await this.userSharedService.updateUserRole(userData);
+            const {email} = userData;
+            const user = await this.userAggregateRepository.findByEmail(
+                email,
+                false
+            );
+            if (!user) {
+                throw new ApiError(400, "User Not Found", "User conflict");
+            }
+            return await this.userSharedService.updateUserRole(userData, user);
         } catch (error) {
             this.handleError(error);
         }
@@ -81,13 +133,91 @@ export class AdminService {
         userDetails: DeleteUserDTO
     ): Promise<DeleteUserDataResponse> {
         try {
-            return await this.userSharedService.deleteUser(userDetails);
+            const {email} = userDetails;
+            const user = await this.userAggregateRepository.findByEmail(
+                email,
+                false
+            );
+            if (!user) {
+                throw new ApiError(400, "User Not Found", "User conflict");
+            }
+            return await this.userSharedService.deleteUser(user.personId);
         } catch (error) {
             this.handleError(error);
         }
     }
 
-    handleError(error: unknown): never {
+    async addOrganization(
+        organizationDetails: CreateOrganizationDTO
+    ): Promise<AddOrganizationDataResponse> {
+        try {
+            const organization =
+                await this.sharedOrganizationService.createOrganization(
+                    organizationDetails
+                );
+            return {
+                status: 201,
+                message: "Organization created successfully",
+                res: {
+                    id: organization.id,
+                    name: organization.name,
+                    type: organization.type,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async getOrganizations(): Promise<GetOrganizationsDataResponse> {
+        try {
+            const organizations =
+                await this.sharedOrganizationService.getAllOrganizations();
+            return {
+                status: 200,
+                message: "Organizations fetched successfully",
+                res: {organizations},
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async deleteOrganization(
+        id: string
+    ): Promise<DeleteOrganizationDataResponse> {
+        try {
+            await this.sharedOrganizationService.deleteOrganization(id);
+            return {
+                status: 200,
+                message: "Organization deleted successfully",
+                res: {success: true},
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async updateOrganization(
+        organizationDetails: UpdateOrganizationDTO
+    ): Promise<UpdateOrganizationDataResponse> {
+        try {
+            const organization =
+                await this.sharedOrganizationService.updateOrganization(
+                    organizationDetails
+                );
+            const {id, name, type} = organization;
+            return {
+                status: 200,
+                message: "Organization updated successfully",
+                res: {id, name, type},
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    private handleError(error: unknown): never {
         if (error instanceof ApiError) {
             throw error;
         }
