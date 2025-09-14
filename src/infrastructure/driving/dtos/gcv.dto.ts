@@ -10,6 +10,7 @@ import {
     IsString,
     IsDate,
     IsNumber,
+    IsUUID,
 } from "class-validator";
 import {ApiProperty, ApiPropertyOptional} from "@nestjs/swagger";
 import {UserRoles} from "../../../core/domain/constants/userRoles.constants";
@@ -18,6 +19,7 @@ import {UpdateRole} from "./shared/shared.user.dto";
 import {TRL} from "../../../core/domain/constants/trl.constants";
 import {ProgramStatus} from "../../../core/domain/constants/status.constants";
 import {OrganisationType} from "../../../core/domain/constants/organization.constants";
+import {PartialType} from "@nestjs/swagger";
 
 export class UserFilterDto {
     @IsOptional()
@@ -132,6 +134,7 @@ export class OrganizationDetails {
         enum: OrganisationType,
         example: "IIIT",
     })
+    @IsOptional()
     type?: OrganisationType;
 
     @ApiProperty({
@@ -140,6 +143,16 @@ export class OrganizationDetails {
     })
     isNew: boolean;
 }
+
+export class UpdateProgramDetailsDTO extends PartialType(ProgramDetailsDTO) {}
+
+export class UpdateDurationDTO extends PartialType(DurationDTO) {}
+
+export class UpdateMoneyDTO extends PartialType(MoneyDTO) {}
+
+export class UpdateOrganizationDetailsDTO extends PartialType(
+    OrganizationDetails
+) {}
 
 // -------- Input DTOs --------
 
@@ -178,36 +191,38 @@ export class CreateProgramDTO {
 }
 
 export class UpdateProgramDTO {
-    @ApiPropertyOptional({type: ProgramDetailsDTO})
+    @ApiProperty({description: "UUID of the program need to updated"})
+    @IsUUID()
+    id: string;
+
     @IsOptional()
     @ValidateNested()
-    @Type(() => ProgramDetailsDTO)
-    details?: ProgramDetailsDTO;
+    @Type(() => UpdateProgramDetailsDTO)
+    details?: UpdateProgramDetailsDTO;
 
-    @ApiPropertyOptional({type: DurationDTO})
     @IsOptional()
     @ValidateNested()
-    @Type(() => DurationDTO)
-    duration?: DurationDTO;
+    @Type(() => UpdateDurationDTO)
+    duration?: UpdateDurationDTO;
 
-    @ApiPropertyOptional({enum: ProgramStatus})
-    @IsOptional()
-    @IsEnum(ProgramStatus)
-    status?: ProgramStatus;
-
-    @ApiPropertyOptional({type: MoneyDTO})
     @IsOptional()
     @ValidateNested()
-    @Type(() => MoneyDTO)
-    budget?: MoneyDTO;
+    @Type(() => UpdateMoneyDTO)
+    budget?: UpdateMoneyDTO;
 
-    @ApiPropertyOptional({enum: TRL})
+    @ApiProperty({enum: TRL})
     @IsOptional()
     @IsEnum(TRL)
-    minTRL?: TRL;
+    minTRL: TRL;
 
-    @ApiPropertyOptional({enum: TRL})
+    @ApiProperty({enum: TRL})
     @IsOptional()
     @IsEnum(TRL)
-    maxTRL?: TRL;
+    maxTRL: TRL;
+}
+
+export class DeleteProgramDTO {
+    @ApiProperty({description: "UUID of the program need to deleted"})
+    @IsUUID()
+    id: string;
 }

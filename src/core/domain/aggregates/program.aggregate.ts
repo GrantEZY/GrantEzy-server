@@ -93,7 +93,7 @@ export class Program {
     @Column({unique: true, nullable: true})
     slug: string;
 
-    @Column()
+    @Column({nullable: true})
     managerId: string;
 
     @OneToOne(() => User, {
