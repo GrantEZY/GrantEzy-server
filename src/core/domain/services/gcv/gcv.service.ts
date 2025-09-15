@@ -275,7 +275,7 @@ export class GCVService {
             }
             throw new ApiError(
                 400,
-                "Error in deleting Program ",
+                "Error in deleting Program",
                 "Program Error"
             );
         } catch (error) {
@@ -310,7 +310,7 @@ export class GCVService {
             if (isLinked) {
                 throw new ApiError(
                     409,
-                    "Manager already has a program ",
+                    "Manager already has a program",
                     "Conflict Error"
                 );
             }

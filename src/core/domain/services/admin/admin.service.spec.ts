@@ -459,7 +459,7 @@ describe.only("AdminService", () => {
             });
         });
 
-        it("Conflict Error While Updation", async () => {
+        it("Conflict Error While deletion", async () => {
             try {
                 (
                     sharedOrganisationService.deleteOrganization as jest.Mock
