@@ -1,5 +1,14 @@
 import {PartialType, ApiProperty} from "@nestjs/swagger";
-import {IsOptional, ValidateNested, IsEnum, IsUUID} from "class-validator";
+import {
+    IsOptional,
+    ValidateNested,
+    IsEnum,
+    IsUUID,
+    IsObject,
+    IsInt,
+    IsPositive,
+    Min,
+} from "class-validator";
 import {Type} from "class-transformer";
 import {
     ProgramDetailsDTO,
@@ -47,4 +56,39 @@ export class UpdateProgramDTO {
     @IsOptional()
     @IsEnum(TRL)
     maxTRL: TRL;
+}
+
+export class ProgramFilterDto {
+    @IsOptional()
+    @IsObject()
+    otherFilters?: Record<string, any>; // eslint-disable-line
+}
+
+export class GetAllProgramDTO {
+    @IsInt()
+    @IsPositive()
+    @Type(() => Number)
+    @ApiProperty({
+        description: "Page Number for pagination",
+        example: 1,
+    })
+    page: number;
+
+    @ApiProperty({
+        description: "Number Of Results per page for pagination",
+        example: 1,
+    })
+    @IsInt()
+    @Min(1)
+    @Type(() => Number)
+    numberOfResults: number;
+
+    @ApiProperty({
+        description: "Filter Details for pagination",
+        example: {organizationName: "IIITS"},
+    })
+    @IsOptional()
+    @ValidateNested()
+    @Type(() => ProgramFilterDto)
+    filter?: ProgramFilterDto;
 }

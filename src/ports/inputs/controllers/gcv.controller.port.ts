@@ -8,7 +8,10 @@ import {
 } from "../../../infrastructure/driving/dtos/gcv.dto";
 import {Response} from "express";
 import {CreateProgramDTO} from "../../../infrastructure/driving/dtos/gcv.dto";
-import {UpdateProgramDTO} from "../../../infrastructure/driving/dtos/shared/shared.program.dto";
+import {
+    GetAllProgramDTO,
+    UpdateProgramDTO,
+} from "../../../infrastructure/driving/dtos/shared/shared.program.dto";
 
 export interface GCVControllerPort {
     getAllMembers(
@@ -23,6 +26,11 @@ export interface GCVControllerPort {
     ): Promise<Response>;
     createProgram(
         body: CreateProgramDTO,
+        response: Response
+    ): Promise<Response>;
+
+    getAllPrograms(
+        query: GetAllProgramDTO,
         response: Response
     ): Promise<Response>;
 

@@ -17,7 +17,7 @@ find . -name ".env*" -type f | while read -r env_file; do
   fi
 done
 
-# Sort and remove duplicates
+  # Sort and remove duplicates
 sort -u "$tmp_file" -o "$tmp_file"
 
 # Only update .env.example if contents differ

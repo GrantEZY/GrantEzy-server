@@ -10,7 +10,6 @@ import {Duration} from "../../../../core/domain/value-objects/duration.object";
 import {Money} from "../../../../core/domain/value-objects/project.metrics.object";
 import {UpdateProgramDTO} from "../../../driving/dtos/shared/shared.program.dto";
 import {ProgramStatus} from "../../../../core/domain/constants/status.constants";
-
 @Injectable()
 /**
  * Repository class for managing Program aggregate operations.
@@ -89,11 +88,11 @@ export class ProgramAggregateRepository implements ProgramAggregatePort {
         try {
             const existingProgram = await this.programRepository
                 .createQueryBuilder("program")
-                .leftJoinAndSelect("program.organization", "org")
+                .leftJoin("program.organization", "org")
                 .where("program.details ->> 'name' = :programName", {
-                    name,
+                    programName: name,
                 })
-                .andWhere("org.name = :orgName", {organizationName})
+                .andWhere("org.name = :orgName", {orgName: organizationName})
                 .getOne();
 
             return existingProgram;

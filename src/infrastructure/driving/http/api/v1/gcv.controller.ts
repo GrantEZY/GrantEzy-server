@@ -29,6 +29,7 @@ import {
 } from "../../../../../config/swagger/docs/gcv.swagger";
 import {CreateProgramDTO} from "../../../dtos/gcv.dto";
 import {UpdateProgramDTO} from "../../../dtos/shared/shared.program.dto";
+import {GetAllProgramDTO} from "../../../dtos/shared/shared.program.dto";
 @ApiTags("GCV-Only")
 @Controller("gcv")
 export class GCVController implements GCVControllerPort {
@@ -96,6 +97,19 @@ export class GCVController implements GCVControllerPort {
         }
     }
 
+    @Get("/get-programs")
+    async getAllPrograms(
+        @Query() query: GetAllProgramDTO,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const result = await this.gcvService.getPrograms(query);
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
     @Patch("/update-program")
     async updateProgram(
         @Body() body: UpdateProgramDTO,
@@ -111,8 +125,8 @@ export class GCVController implements GCVControllerPort {
 
     @Delete("/delete-program")
     async deleteProgram(
-        body: DeleteProgramDTO,
-        response: Response
+        @Body() body: DeleteProgramDTO,
+        @Res() response: Response
     ): Promise<Response> {
         try {
             const result = await this.gcvService.deleteProgram(body);
@@ -141,7 +155,7 @@ export class GCVController implements GCVControllerPort {
         @Res() response: Response
     ): Promise<Response> {
         try {
-            const result = await this.gcvService.UpdateProgramManager(body);
+            const result = await this.gcvService.addProgramManager(body);
             return response.status(result.status).json(result);
         } catch (error) {
             return this.handleError(error, response);

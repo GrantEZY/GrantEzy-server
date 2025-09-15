@@ -6,7 +6,6 @@ import {
     GCVMemberAddDTO,
     GetAllGCVUsersDTO,
     UpdateGCVUserRoleDTO,
-    UpdateProgramManagerDTO,
 } from "../../../../infrastructure/driving/dtos/gcv.dto";
 import {USER_AGGREGATE_PORT} from "../../../../ports/outputs/repository/user/user.aggregate.port";
 import {UserAggregatePort} from "../../../../ports/outputs/repository/user/user.aggregate.port";
@@ -19,8 +18,8 @@ import {
     AddProgramManagerResponse,
     CreateProgramResponse,
     DeletProgramResponse,
+    GetAllProgramsResponse,
     GetGCVUsersDataResponse,
-    UpdateProgramManagerResponse,
     UpdateProgramResponse,
     UpdateUserDataResponse,
 } from "../../../../infrastructure/driven/response-dtos/gcv.response-dto";
@@ -30,7 +29,10 @@ import {
     ProgramAggregatePort,
     PROGRAM_AGGREGATE_PORT,
 } from "../../../../ports/outputs/repository/program/program.aggregate.port";
-import {UpdateProgramDTO} from "../../../../infrastructure/driving/dtos/shared/shared.program.dto";
+import {
+    GetAllProgramDTO,
+    UpdateProgramDTO,
+} from "../../../../infrastructure/driving/dtos/shared/shared.program.dto";
 import {SharedProgramService} from "../shared/program/shared.program.service";
 
 @Injectable()
@@ -100,9 +102,9 @@ export class GCVService {
 
             const {users, totalNumberOfUsers} =
                 await this.userAggregateRepository.getUsers(
-                    filterData.filter.otherFilters, //eslint-disable-line
-                    page, //eslint-disable-line
-                    numberOfResults // eslint-disable-line
+                    filterData.filter.otherFilters,
+                    page,
+                    numberOfResults
                 );
 
             if (users.length === 0) {
@@ -209,6 +211,25 @@ export class GCVService {
         }
     }
 
+    async getPrograms(
+        getProgramFilter: GetAllProgramDTO
+    ): Promise<GetAllProgramsResponse> {
+        try {
+            const {programs, totalNumberOfPrograms} =
+                await this.sharedProgramService.getPrograms(getProgramFilter);
+            return {
+                status: 200,
+                message: "Programs filtered as per filter",
+                res: {
+                    programs,
+                    numberOfPrograms: totalNumberOfPrograms,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
     async updateProgram(
         updatedDetails: UpdateProgramDTO
     ): Promise<UpdateProgramResponse> {
@@ -236,6 +257,11 @@ export class GCVService {
     ): Promise<DeletProgramResponse> {
         try {
             const {id} = deleteProgramDetails;
+
+            const program = await this.programAggregateRepository.findById(id);
+            if (!program) {
+                throw new ApiError(404, " Program Not Found ", "Program Error");
+            }
             const isDeleted =
                 await this.programAggregateRepository.deleteProgram(id);
             if (isDeleted) {
@@ -266,14 +292,17 @@ export class GCVService {
                 email,
                 false
             );
+
             if (!manager) {
                 throw new ApiError(404, "User not found", "User Conflict");
             }
             const program =
                 await this.programAggregateRepository.findById(programId);
+
             if (!program) {
                 throw new ApiError(404, "Program Not Found", "Conflict Error");
             }
+
             const isLinked =
                 await this.programAggregateRepository.getProgramByManagerId(
                     manager.personId
@@ -283,6 +312,33 @@ export class GCVService {
                     409,
                     "Manager already has a program ",
                     "Conflict Error"
+                );
+            }
+            const previousManagerId = program?.managerId;
+
+            if (previousManagerId) {
+                const previousManager =
+                    await this.userAggregateRepository.findById(
+                        previousManagerId,
+                        false
+                    );
+
+                const previousManagerUpdatedRoles =
+                    previousManager?.role.filter(
+                        (role) => role != UserRoles.PROGRAM_MANAGER
+                    );
+
+                await this.userAggregateRepository.updateUserRole(
+                    previousManagerId,
+                    previousManagerUpdatedRoles ?? [UserRoles.NORMAL_USER]
+                );
+            }
+
+            if (!manager.role.includes(UserRoles.PROGRAM_MANAGER)) {
+                manager.role.push(UserRoles.PROGRAM_MANAGER);
+                await this.userAggregateRepository.updateUserRole(
+                    manager.personId,
+                    manager.role
                 );
             }
             const isAdded =
@@ -303,61 +359,6 @@ export class GCVService {
                 throw new ApiError(
                     400,
                     "Error in Adding Manager",
-                    "Internal Error"
-                );
-            }
-        } catch (error) {
-            this.handleError(error);
-        }
-    }
-
-    async UpdateProgramManager(
-        programMangerDetails: UpdateProgramManagerDTO
-    ): Promise<UpdateProgramManagerResponse> {
-        try {
-            const {id: programId, email} = programMangerDetails;
-            const manager = await this.userAggregateRepository.findByEmail(
-                email,
-                false
-            );
-            if (!manager) {
-                throw new ApiError(404, "User not found", "User Conflict");
-            }
-
-            const program =
-                await this.programAggregateRepository.findById(programId);
-            if (!program) {
-                throw new ApiError(404, "Program Not Found", "Conflict Error");
-            }
-            const isLinked =
-                await this.programAggregateRepository.getProgramByManagerId(
-                    manager.personId
-                );
-            if (isLinked) {
-                throw new ApiError(
-                    409,
-                    "Manager already has a program ",
-                    "Conflict Error"
-                );
-            }
-            const isAdded =
-                await this.programAggregateRepository.addProgramManager(
-                    manager.personId,
-                    program
-                );
-            if (isAdded) {
-                return {
-                    status: 200,
-                    message: "Program Manager Updated Successfully",
-                    res: {
-                        managerId: manager.personId,
-                        programId,
-                    },
-                };
-            } else {
-                throw new ApiError(
-                    400,
-                    "Error in Updating Manager",
                     "Internal Error"
                 );
             }

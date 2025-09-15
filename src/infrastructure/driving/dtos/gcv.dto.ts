@@ -188,7 +188,6 @@ export class AddProgramManagerDTO {
     id: string;
 
     @ApiProperty({description: "Email of the manager"})
-    @IsUUID()
     email: string;
 }
 
@@ -200,6 +199,5 @@ export class UpdateProgramManagerDTO {
     id: string;
 
     @ApiProperty({description: "Email of the manager"})
-    @IsUUID()
     email: string;
 }

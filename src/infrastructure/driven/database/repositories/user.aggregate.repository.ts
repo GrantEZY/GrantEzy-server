@@ -167,7 +167,7 @@ export class UserAggregateRepository implements UserAggregatePort {
             );
             return true;
         } catch (error) {
-            console.error("Error in setting RThash", error);
+            console.error("Error in updating roles", error);
             throw new ApiError(
                 502,
                 "Failed to set User RT hash",
@@ -202,7 +202,6 @@ export class UserAggregateRepository implements UserAggregatePort {
         numberOfUsers: number
     ): Promise<{users: User[]; totalNumberOfUsers: number}> {
         try {
-            console.log("Filter in repo", filter);
             const users = await this.userRepository.find({
                 where: filter,
                 skip: (page - 1) * numberOfUsers,
