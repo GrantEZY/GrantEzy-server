@@ -8,6 +8,7 @@ import {Program} from "../../../aggregates/program.aggregate";
 import {
     UpdateProgramDTO,
     GetAllProgramDTO,
+    UpdateCycleDTO,
 } from "../../../../../infrastructure/driving/dtos/shared/shared.program.dto";
 import {GetProgramCyclesDTO} from "../../../../../infrastructure/driving/dtos/pm.dto";
 import {Cycle} from "../../../aggregates/cycle.aggregate";
@@ -99,6 +100,32 @@ export class SharedProgramService {
             return await this.cycleAggregateRepository.findCycleByslug(
                 cycleSlug
             );
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async updateCycleDetails(updateCycle: UpdateCycleDTO): Promise<Cycle> {
+        try {
+            const {id} = updateCycle;
+
+            const cycle = await this.cycleAggregateRepository.findById(id);
+
+            if (!cycle) {
+                throw new ApiError(
+                    400,
+                    "Program Cycle Not Found",
+                    "Conflict Error"
+                );
+            }
+
+            const updatedCycle =
+                await this.cycleAggregateRepository.updateCycle(
+                    cycle,
+                    updateCycle
+                );
+
+            return updatedCycle;
         } catch (error) {
             this.handleError(error);
         }

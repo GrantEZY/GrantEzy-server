@@ -154,5 +154,75 @@ describe("Shared Program Service", () => {
                 });
             });
         });
+
+        describe("Update Cycle Details", () => {
+            it("Update Details successful", async () => {
+                cycleAggregateRepository.findById.mockResolvedValue(
+                    inputCycle as any
+                );
+
+                cycleAggregateRepository.updateCycle.mockResolvedValue({
+                    ...inputCycle,
+                    budget: {amount: 10000, currency: "USD"},
+                    duration: {
+                        ...inputCycle.duration,
+                        endDate: new Date("2025-09-30"),
+                    },
+                } as any);
+
+                const updateDetails = {
+                    id: inputCycle.id ?? "cycle-id",
+                    budget: {
+                        amount: 10000,
+                        currency: "USD",
+                    },
+                    duration: {
+                        endDate: new Date("2025-09-30"),
+                    },
+                };
+
+                const result = await sharedProgramService.updateCycleDetails(
+                    updateDetails as any
+                );
+
+                expect(cycleAggregateRepository.findById).toHaveBeenCalledWith(
+                    inputCycle.id
+                );
+                expect(
+                    cycleAggregateRepository.updateCycle
+                ).toHaveBeenCalledWith(inputCycle, updateDetails);
+
+                expect(result).toEqual(
+                    expect.objectContaining({
+                        id: inputCycle.id,
+                        budget: {amount: 10000, currency: "USD"},
+                    })
+                );
+            });
+
+            it("Cycle Not found", async () => {
+                try {
+                    cycleAggregateRepository.findById.mockResolvedValue(null);
+
+                    const updateDetails = {
+                        budget: {
+                            amount: 10000,
+                        },
+                        duration: {
+                            endDate: new Date(),
+                        },
+                    };
+                    await sharedProgramService.updateCycleDetails(
+                        updateDetails as any
+                    );
+                } catch (error) {
+                    expect(error).toBeInstanceOf(ApiError);
+                    expect((error as ApiError).status).toBe(400);
+                    expect((error as ApiError).message).toBe(
+                        "Program Cycle Not Found"
+                    );
+                }
+            });
+        });
     });
 });

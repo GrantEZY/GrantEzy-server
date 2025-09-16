@@ -1,4 +1,4 @@
-import {PartialType, ApiProperty} from "@nestjs/swagger";
+import {PartialType, ApiProperty, ApiPropertyOptional} from "@nestjs/swagger";
 import {
     IsOptional,
     ValidateNested,
@@ -16,6 +16,7 @@ import {
     MoneyDTO,
     OrganizationDetails,
 } from "../gcv.dto";
+import {ProgramRoundDTO, TRLCriteriaDTO, ScoringCriteriaDTO} from "../pm.dto";
 import {TRL} from "../../../../core/domain/constants/trl.constants";
 
 export class UpdateProgramDetailsDTO extends PartialType(ProgramDetailsDTO) {}
@@ -24,6 +25,11 @@ export class UpdateDurationDTO extends PartialType(DurationDTO) {}
 
 export class UpdateMoneyDTO extends PartialType(MoneyDTO) {}
 
+export class UpdateProgramRoundDTO extends PartialType(ProgramRoundDTO) {}
+
+export class UpdatedScoringCriteriaDTO extends PartialType(
+    ScoringCriteriaDTO
+) {}
 export class UpdateOrganizationDetailsDTO extends PartialType(
     OrganizationDetails
 ) {}
@@ -32,30 +38,76 @@ export class UpdateProgramDTO {
     @IsUUID()
     id: string;
 
+    @ApiPropertyOptional({type: () => UpdateProgramDetailsDTO})
     @IsOptional()
     @ValidateNested()
     @Type(() => UpdateProgramDetailsDTO)
     details?: UpdateProgramDetailsDTO;
 
+    @ApiPropertyOptional({type: () => UpdateDurationDTO})
     @IsOptional()
     @ValidateNested()
     @Type(() => UpdateDurationDTO)
     duration?: UpdateDurationDTO;
 
+    @ApiPropertyOptional({type: () => UpdateMoneyDTO})
     @IsOptional()
     @ValidateNested()
     @Type(() => UpdateMoneyDTO)
     budget?: UpdateMoneyDTO;
 
-    @ApiProperty({enum: TRL})
+    @ApiPropertyOptional({enum: Object.values(TRL), enumName: "TRL"})
     @IsOptional()
     @IsEnum(TRL)
     minTRL?: TRL;
 
-    @ApiProperty({enum: TRL})
+    @ApiPropertyOptional({enum: Object.values(TRL), enumName: "TRL"})
     @IsOptional()
     @IsEnum(TRL)
     maxTRL?: TRL;
+}
+
+export class UpdateCycleDTO {
+    @ApiProperty({description: "UUID of the cycle need to updated"})
+    @IsUUID()
+    id: string;
+
+    @ApiPropertyOptional({type: () => UpdateDurationDTO})
+    @IsOptional()
+    @ValidateNested()
+    @Type(() => UpdateDurationDTO)
+    duration?: UpdateDurationDTO;
+
+    @ApiPropertyOptional({type: () => UpdateMoneyDTO})
+    @IsOptional()
+    @ValidateNested()
+    @Type(() => UpdateMoneyDTO)
+    budget?: UpdateMoneyDTO;
+
+    @ApiPropertyOptional({type: () => UpdateProgramRoundDTO})
+    @IsOptional()
+    @ValidateNested()
+    @Type(() => UpdateProgramRoundDTO)
+    round?: UpdateProgramRoundDTO;
+
+    @ApiPropertyOptional({
+        description: "TRL Criteria mapped to each TRL",
+        type: Object,
+        example: {
+            TRL_1: {
+                requirements: ["Understand basic concepts"],
+                evidence: ["Initial research document"],
+                metrics: ["Basic readiness score"],
+            },
+            TRL_2: {
+                requirements: ["Proof of concept created"],
+                evidence: ["Prototype"],
+                metrics: ["Performance metric"],
+            },
+        },
+    })
+    @IsObject()
+    trlCriteria?: Record<TRL, TRLCriteriaDTO>;
 }
 
 export class ProgramFilterDto {

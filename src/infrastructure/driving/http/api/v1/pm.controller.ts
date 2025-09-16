@@ -1,5 +1,14 @@
-import {Body, Controller, Delete, Get, Post, Query, Res} from "@nestjs/common";
-import {ApiTags} from "@nestjs/swagger";
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Patch,
+    Post,
+    Query,
+    Res,
+} from "@nestjs/common";
+import {ApiResponse, ApiTags} from "@nestjs/swagger";
 import {Response} from "express";
 import {ProgramManagerService} from "../../../../../core/domain/services/program-manager/pm.service";
 import {ProgramManagerControllerPort} from "../../../../../ports/inputs/controllers/pm.controller.port";
@@ -9,6 +18,8 @@ import {
     GetProgramCyclesDTO,
 } from "../../../dtos/pm.dto";
 import ApiError from "../../../../../shared/errors/api.error";
+import {UpdateCycleDTO} from "../../../dtos/shared/shared.program.dto";
+import {CYCLE_RESPONSES} from "../../../../../config/swagger/docs/pm.swagger";
 @ApiTags("ProgramManager")
 @Controller("pm")
 export class ProgramManagerController implements ProgramManagerControllerPort {
@@ -17,6 +28,9 @@ export class ProgramManagerController implements ProgramManagerControllerPort {
     ) {}
 
     @Post("/create-cycle")
+    @ApiResponse(CYCLE_RESPONSES.CREATE.SUCCESS)
+    @ApiResponse(CYCLE_RESPONSES.CREATE.PROGRAM_NOT_FOUND)
+    @ApiResponse(CYCLE_RESPONSES.CREATE.BUDGET_EXCEEDS)
     async createCycle(
         @Body() createCycleDTO: CreateCycleDTO,
         response: Response
@@ -31,6 +45,7 @@ export class ProgramManagerController implements ProgramManagerControllerPort {
     }
 
     @Get("/get-program-cycles")
+    @ApiResponse(CYCLE_RESPONSES.PROGRAM_CYCLES_READ.SUCCESS)
     async getProgramCycles(
         @Query() getProgramCycle: GetProgramCyclesDTO,
         @Res() response: Response
@@ -46,7 +61,26 @@ export class ProgramManagerController implements ProgramManagerControllerPort {
         }
     }
 
+    @Patch("/update-cycle-details")
+    @ApiResponse(CYCLE_RESPONSES.UPDATE.SUCCESS)
+    @ApiResponse(CYCLE_RESPONSES.UPDATE.CYCLE_NOT_FOUND)
+    async updateCycleDetails(
+        @Body() updateCycleDetails: UpdateCycleDTO,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const result =
+                await this.programManagerService.updateCycle(
+                    updateCycleDetails
+                );
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
     @Delete("/delete-program-cycle")
+    @ApiResponse(CYCLE_RESPONSES.DELETE.SUCCESS)
+    @ApiResponse(CYCLE_RESPONSES.DELETE.CYCLE_NOT_FOUND)
     async deleteCycle(
         deleteCycle: DeleteCycleDTO,
         response: Response

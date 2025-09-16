@@ -14,6 +14,7 @@ import {Money} from "../../../../core/domain/value-objects/project.metrics.objec
 import {ProgramRound} from "../../../../core/domain/value-objects/program.round.object";
 import {TRL} from "../../../../core/domain/constants/trl.constants";
 import {TRLCriteria} from "../../../../core/domain/value-objects/trlcriteria.object";
+import {UpdateCycleDTO} from "../../../driving/dtos/shared/shared.program.dto";
 @Injectable()
 /**
  * Repository class for managing Cycle aggregate operations.
@@ -185,6 +186,67 @@ export class CycleAggregateRepository implements CycleAggregatePort {
             throw new ApiError(
                 502,
                 "Find Cycle Database Error",
+                "Database Error"
+            );
+        }
+    }
+
+    /**
+     *
+     * @param oldCycle prev details of the previous cycle
+     * @param updateDetails the details to be updated
+     * @returns If success returns updatedCycle
+     */
+    async updateCycle(
+        oldCycle: Cycle,
+        updateDetails: UpdateCycleDTO
+    ): Promise<Cycle> {
+        try {
+            const {trlCriteria, budget, duration, round} = oldCycle;
+
+            if (budget) {
+                oldCycle.budget = new Money(
+                    budget.amount ?? oldCycle.budget.amount,
+                    budget.currency ?? oldCycle.budget.currency
+                );
+            }
+
+            if (duration) {
+                oldCycle.duration = new Duration(
+                    duration.startDate ?? oldCycle.duration.startDate,
+                    duration.endDate ?? oldCycle.duration.endDate
+                );
+            }
+            if (round) {
+                oldCycle.round = new ProgramRound(
+                    round.year ?? oldCycle.round.year,
+                    round.type ?? oldCycle.round.type
+                );
+            }
+
+            if (trlCriteria) {
+                Object.keys(trlCriteria).forEach((key) => {
+                    const k = key as TRL;
+                    const value = trlCriteria[k];
+                    const criteria = new TRLCriteria(
+                        value.requirements,
+                        value.evidence,
+                        value.metrics
+                    );
+                    oldCycle.trlCriteria[k] = criteria;
+                });
+            }
+
+            const cycle: Cycle = await this.cycleRepository.save(updateDetails);
+
+            return cycle;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Update Cycle Database Error",
                 "Database Error"
             );
         }

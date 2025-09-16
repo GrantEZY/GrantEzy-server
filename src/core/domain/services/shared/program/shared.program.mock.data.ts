@@ -53,6 +53,7 @@ const NEW_PROGRAM_DATA = {
 };
 
 const inputCycle = {
+    id: "cycle-id",
     programId: "4b7d1f33-0f2e-4b7a-91e3-5f58f3c9d4ab",
     round: {
         year: 2025,

@@ -25,6 +25,7 @@ import {
     UPDATE_USER_ROLE,
     DELETE_USER,
     ORGANIZATION_RESPONSES,
+    USER_PROFILE,
 } from "../../../../../config/swagger/docs/admin.swagger";
 import {
     CreateOrganizationDTO,
@@ -95,6 +96,7 @@ export class AdminController implements AdminControllerPort {
     }
 
     @Get("/get-user-profile")
+    @ApiResponse(USER_PROFILE.SUCCESS)
     async getUserProfile(
         @Query() query: GetUserProfileDTO,
         @Res() response: Response

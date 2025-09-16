@@ -15,8 +15,14 @@ export class DeleteCycleData {
     status: boolean;
 }
 
+export class UpdateCycleData {
+    id: string;
+    status: boolean;
+}
+
 export class CreateCycleResponse extends ApiResponse(CreateCycleData) {}
 export class GetProgramCyclesResponse extends ApiResponse(
     GetProgramCyclesData
 ) {}
 export class DeleteCycleResponse extends ApiResponse(DeleteCycleData) {}
+export class UpdateCycleResponse extends ApiResponse(UpdateCycleData) {}

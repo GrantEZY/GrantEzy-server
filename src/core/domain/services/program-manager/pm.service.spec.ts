@@ -187,13 +187,41 @@ describe("Program Manager Service", () => {
                     cycleId: "asdfsd-id",
                 });
             } catch (error) {
-                console.log(error);
                 expect(error).toBeInstanceOf(ApiError);
                 expect((error as ApiError).status).toBe(400);
                 expect((error as ApiError).message).toBe(
                     "Error in deleting cycle"
                 );
             }
+        });
+    });
+
+    describe("Update Cycle Details", () => {
+        it("Update Cycle - success", async () => {
+            const mockUpdatedCycle = {id: "cycle-123"};
+
+            sharedProgramService.updateCycleDetails = jest
+                .fn()
+                .mockResolvedValue(mockUpdatedCycle);
+
+            const updateDetails = {id: "cycle-123", budget: {amount: 5000}};
+
+            const result = await programManagerService.updateCycle(
+                updateDetails as any
+            );
+
+            expect(
+                sharedProgramService.updateCycleDetails
+            ).toHaveBeenCalledWith(updateDetails);
+
+            expect(result).toEqual({
+                status: 200,
+                message: "Cycle  Details Updated",
+                res: {
+                    id: "cycle-123",
+                    status: true,
+                },
+            });
         });
     });
 });

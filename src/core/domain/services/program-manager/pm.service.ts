@@ -15,11 +15,13 @@ import {
     CreateCycleResponse,
     DeleteCycleResponse,
     GetProgramCyclesResponse,
+    UpdateCycleResponse,
 } from "../../../../infrastructure/driven/response-dtos/pm.response-dto";
 import {
     ProgramAggregatePort,
     PROGRAM_AGGREGATE_PORT,
 } from "../../../../ports/outputs/repository/program/program.aggregate.port";
+import {UpdateCycleDTO} from "../../../../infrastructure/driving/dtos/shared/shared.program.dto";
 @Injectable()
 export class ProgramManagerService {
     constructor(
@@ -86,6 +88,28 @@ export class ProgramManagerService {
                 res: {
                     cycles,
                     totalNumberOfCycles,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async updateCycle(
+        updateCycleInfo: UpdateCycleDTO
+    ): Promise<UpdateCycleResponse> {
+        try {
+            const updatedCycle =
+                await this.sharedProgramService.updateCycleDetails(
+                    updateCycleInfo
+                );
+
+            return {
+                status: 200,
+                message: "Cycle  Details Updated",
+                res: {
+                    id: updatedCycle.id,
+                    status: true,
                 },
             };
         } catch (error) {
