@@ -8,6 +8,8 @@ import {Person} from "../../../../core/domain/entities/person.entity";
 import ApiError from "../../../../shared/errors/api.error";
 import {UserAggregatePort} from "../../../../ports/outputs/repository/user/user.aggregate.port";
 import {UserRoles} from "../../../../core/domain/constants/userRoles.constants";
+import {slugify} from "../../../../shared/helpers/slug.generator";
+import {v4 as uuid} from "uuid";
 @Injectable()
 export class UserAggregateRepository implements UserAggregatePort {
     constructor(
@@ -34,12 +36,15 @@ export class UserAggregateRepository implements UserAggregatePort {
             });
 
             await this.personRepository.save(person);
+            const id = uuid(); // eslint-disable-line
+            const slug = slugify(id);
             const isGCVmember = this.updateGCVMemberStatus([user.role]);
             const newUser = this.userRepository.create({
                 person: person,
                 contact: contact,
                 commitment: user.commitment,
                 audit: null,
+                slug,
                 experiences: null,
                 role: [user.role],
                 isGCVmember,

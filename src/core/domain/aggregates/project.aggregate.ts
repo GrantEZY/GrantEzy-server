@@ -6,8 +6,6 @@ import {
     UpdateDateColumn,
     OneToOne,
     JoinColumn,
-    BeforeInsert,
-    BeforeUpdate,
 } from "typeorm";
 import {ProjectStatus} from "../constants/status.constants";
 import {Money} from "../value-objects/project.metrics.object";
@@ -15,7 +13,6 @@ import {Duration} from "../value-objects/duration.object";
 import {ProjectProgress} from "../value-objects/project.progress.object";
 import {ProjectMetrics} from "../value-objects/project.metrics.object";
 import {User} from "./user.aggregate";
-import {slugify} from "../../../shared/helpers/slug.generator";
 
 @Entity({name: "projects"})
 export class Project {
@@ -108,12 +105,4 @@ export class Project {
 
     @UpdateDateColumn()
     updatedAt: Date;
-
-    @BeforeInsert()
-    @BeforeUpdate()
-    generateSlug() {
-        if (this.id) {
-            this.slug = slugify(this.id, this.id);
-        }
-    }
 }

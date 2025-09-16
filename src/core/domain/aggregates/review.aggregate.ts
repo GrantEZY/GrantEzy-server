@@ -4,8 +4,6 @@ import {
     Column,
     CreateDateColumn,
     UpdateDateColumn,
-    BeforeInsert,
-    BeforeUpdate,
     ManyToOne,
     JoinColumn,
     Index,
@@ -17,7 +15,6 @@ import {ReviewStatus} from "../constants/status.constants";
 
 import {GrantApplication} from "./grantapplication.aggregate";
 import {User} from "./user.aggregate";
-import {slugify} from "../../../shared/helpers/slug.generator";
 import {Money} from "../value-objects/project.metrics.object";
 import {Scores} from "../value-objects/review.scores.object";
 
@@ -85,12 +82,4 @@ export class Review {
 
     @UpdateDateColumn()
     updatedAt: Date;
-
-    @BeforeInsert()
-    @BeforeUpdate()
-    generateSlug() {
-        if (this.id) {
-            this.slug = slugify(this.id, this.id);
-        }
-    }
 }

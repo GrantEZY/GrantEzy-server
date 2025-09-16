@@ -1,14 +1,5 @@
-function slugify(name: string, id: string): string {
-    return (
-        name
-            .toLowerCase()
-            .trim()
-            .replace(/[^a-z0-9\s-]/g, "")
-            .replace(/\s+/g, "-")
-            .replace(/-+/g, "-") +
-        "-" +
-        id
-    );
+function slugify(id: string): string {
+    return id.toLowerCase().replace(/-/g, "");
 }
 
 export {slugify};

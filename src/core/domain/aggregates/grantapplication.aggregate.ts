@@ -8,8 +8,6 @@ import {
     UpdateDateColumn,
     ManyToMany,
     JoinTable,
-    BeforeInsert,
-    BeforeUpdate,
     OneToMany,
 } from "typeorm";
 import {User} from "./user.aggregate";
@@ -26,7 +24,6 @@ import {
 } from "../value-objects/revenue.info.object";
 import {Risk} from "../value-objects/risk.object";
 import {ProjectMilestone} from "../value-objects/project.status.object";
-import {slugify} from "../../../shared/helpers/slug.generator";
 import {Review} from "./review.aggregate";
 
 @Entity({name: "grant-applications"})
@@ -228,12 +225,4 @@ export class GrantApplication {
 
     @UpdateDateColumn()
     updatedAt: Date;
-
-    @BeforeInsert()
-    @BeforeUpdate()
-    generateSlug() {
-        if (this.basicDetails.title && this.id) {
-            this.slug = slugify(this.basicDetails.title, this.id);
-        }
-    }
 }

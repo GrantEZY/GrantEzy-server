@@ -92,3 +92,30 @@ export class GetAllProgramDTO {
     @Type(() => ProgramFilterDto)
     filter?: ProgramFilterDto;
 }
+
+export class GetProgramCyclesDTO {
+    @ApiProperty({
+        description: "UUID of the associated program",
+        example: "4b7d1f33-0f2e-4b7a-91e3-5f58f3c9d4ab",
+    })
+    @IsUUID()
+    programId: string;
+
+    @IsInt()
+    @IsPositive()
+    @Type(() => Number)
+    @ApiProperty({
+        description: "Page Number for pagination",
+        example: 1,
+    })
+    page: number;
+
+    @ApiProperty({
+        description: "Number Of Results per page for pagination",
+        example: 1,
+    })
+    @IsInt()
+    @Min(1)
+    @Type(() => Number)
+    numberOfResults: number;
+}

@@ -10,8 +10,6 @@ import {
     PrimaryColumn,
     OneToMany,
     ManyToMany,
-    BeforeInsert,
-    BeforeUpdate,
     Index,
 } from "typeorm";
 
@@ -23,7 +21,6 @@ import {UserCommitmentStatus} from "../constants/commitment.constants";
 import {Audit} from "../value-objects/audit.object";
 import {Experience} from "../value-objects/experience.object";
 import {GrantApplication} from "./grantapplication.aggregate";
-import {slugify} from "../../../shared/helpers/slug.generator";
 
 @Entity({name: "users"})
 export class User {
@@ -129,12 +126,4 @@ export class User {
 
     @UpdateDateColumn()
     updatedAt: Date;
-
-    @BeforeInsert()
-    @BeforeUpdate()
-    generateSlug() {
-        if (this.person?.firstName && this.personId) {
-            this.slug = slugify(this.person.firstName, this.personId);
-        }
-    }
 }

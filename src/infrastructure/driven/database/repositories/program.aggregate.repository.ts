@@ -10,6 +10,8 @@ import {Duration} from "../../../../core/domain/value-objects/duration.object";
 import {Money} from "../../../../core/domain/value-objects/project.metrics.object";
 import {UpdateProgramDTO} from "../../../driving/dtos/shared/shared.program.dto";
 import {ProgramStatus} from "../../../../core/domain/constants/status.constants";
+import {v4 as uuid} from "uuid";
+import {slugify} from "../../../../shared/helpers/slug.generator";
 @Injectable()
 /**
  * Repository class for managing Program aggregate operations.
@@ -33,6 +35,8 @@ export class ProgramAggregateRepository implements ProgramAggregatePort {
         try {
             const programStatus = ProgramStatus.IN_ACTIVE;
             const {details, minTRL, maxTRL, budget, duration} = program;
+            const id = uuid(); // eslint-disable-line
+            const slug = slugify(id);
             const newProgram = this.programRepository.create({
                 organizationId,
                 details: new ProgramDetails(
@@ -40,6 +44,7 @@ export class ProgramAggregateRepository implements ProgramAggregatePort {
                     details.description,
                     details.category
                 ),
+                slug,
                 status: programStatus,
                 minTRL,
                 maxTRL,

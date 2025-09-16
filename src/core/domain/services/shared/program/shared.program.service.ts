@@ -9,12 +9,21 @@ import {
     UpdateProgramDTO,
     GetAllProgramDTO,
 } from "../../../../../infrastructure/driving/dtos/shared/shared.program.dto";
+import {GetProgramCyclesDTO} from "../../../../../infrastructure/driving/dtos/pm.dto";
+import {Cycle} from "../../../aggregates/cycle.aggregate";
+import {
+    CycleAggregatePort,
+    CYCLE_AGGREGATE_PORT,
+} from "../../../../../ports/outputs/repository/cycle/cycle.aggregate.port";
 
 @Injectable()
 export class SharedProgramService {
     constructor(
         @Inject(PROGRAM_AGGREGATE_PORT)
-        private readonly programAggregateRepository: ProgramAggregatePort
+        private readonly programAggregateRepository: ProgramAggregatePort,
+
+        @Inject(CYCLE_AGGREGATE_PORT)
+        private readonly cycleAggregateRepository: CycleAggregatePort
     ) {}
 
     async UpdateProgramDetails(
@@ -61,6 +70,35 @@ export class SharedProgramService {
                     numberOfResults
                 );
             return {programs, totalNumberOfPrograms};
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async getProgramCycles(
+        getProgramData: GetProgramCyclesDTO
+    ): Promise<{cycles: Cycle[]; totalNumberOfCycles: number}> {
+        try {
+            const {cycles, totalNumberOfCycles} =
+                await this.cycleAggregateRepository.findProgramCycles(
+                    getProgramData.programId,
+                    getProgramData.page,
+                    getProgramData.numberOfResults
+                );
+            return {
+                cycles,
+                totalNumberOfCycles,
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async getProgramCycleDetails(cycleSlug: string): Promise<Cycle | null> {
+        try {
+            return await this.cycleAggregateRepository.findCycleByslug(
+                cycleSlug
+            );
         } catch (error) {
             this.handleError(error);
         }

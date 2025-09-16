@@ -4,11 +4,8 @@ import {
     PrimaryGeneratedColumn,
     CreateDateColumn,
     UpdateDateColumn,
-    BeforeInsert,
-    BeforeUpdate,
 } from "typeorm";
 import {OrganisationType} from "../constants/organization.constants";
-import {slugify} from "../../../shared/helpers/slug.generator";
 
 @Entity("organizations")
 export class Organization {
@@ -29,12 +26,4 @@ export class Organization {
 
     @UpdateDateColumn()
     updatedAt: Date;
-
-    @BeforeInsert()
-    @BeforeUpdate()
-    generateSlug() {
-        if (this.name && this.id) {
-            this.slug = slugify(this.name, this.id);
-        }
-    }
 }
