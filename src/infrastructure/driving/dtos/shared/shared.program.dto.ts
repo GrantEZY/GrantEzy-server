@@ -50,12 +50,12 @@ export class UpdateProgramDTO {
     @ApiProperty({enum: TRL})
     @IsOptional()
     @IsEnum(TRL)
-    minTRL: TRL;
+    minTRL?: TRL;
 
     @ApiProperty({enum: TRL})
     @IsOptional()
     @IsEnum(TRL)
-    maxTRL: TRL;
+    maxTRL?: TRL;
 }
 
 export class ProgramFilterDto {

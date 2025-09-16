@@ -16,12 +16,17 @@ import {
     DeleteCycleResponse,
     GetProgramCyclesResponse,
 } from "../../../../infrastructure/driven/response-dtos/pm.response-dto";
-
+import {
+    ProgramAggregatePort,
+    PROGRAM_AGGREGATE_PORT,
+} from "../../../../ports/outputs/repository/program/program.aggregate.port";
 @Injectable()
 export class ProgramManagerService {
     constructor(
         @Inject(CYCLE_AGGREGATE_PORT)
         private readonly cycleAggregateRepository: CycleAggregatePort,
+        @Inject(PROGRAM_AGGREGATE_PORT)
+        private readonly programAggregateRepository: ProgramAggregatePort,
         private readonly sharedProgramService: SharedProgramService
     ) {}
 
@@ -29,13 +34,37 @@ export class ProgramManagerService {
         createCycle: CreateCycleDTO
     ): Promise<CreateCycleResponse> {
         try {
-            const cycle = await this.cycleAggregateRepository.save(createCycle);
+            const {programId, budget} = createCycle;
 
+            const program =
+                await this.programAggregateRepository.findById(programId);
+
+            if (!program) {
+                throw new ApiError(404, "Program Not Found", "Program Error");
+            }
+            const {amount, currency} = program.budget;
+            if (amount < budget.amount) {
+                throw new ApiError(
+                    400,
+                    "Quoted Budget exceeds the available limit for the program",
+                    "Conflict Error"
+                );
+            }
+            const updatedProgram =
+                await this.sharedProgramService.UpdateProgramDetails({
+                    id: program.id,
+                    budget: {
+                        amount: amount - budget.amount,
+                        currency,
+                    },
+                });
+
+            const cycle = await this.cycleAggregateRepository.save(createCycle);
             return {
                 status: 201,
                 message: "Cycle Created for Program",
                 res: {
-                    programId: createCycle.programId,
+                    programId: updatedProgram.id,
                     cycleId: cycle.id,
                 },
             };

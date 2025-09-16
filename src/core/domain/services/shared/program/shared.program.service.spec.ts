@@ -6,16 +6,21 @@ import {
 import {SharedProgramService} from "./shared.program.service";
 import {createMock} from "@golevelup/ts-jest";
 import {
+    CYCLES_ARRAY,
+    inputCycle,
     NEW_PROGRAM_DATA,
     PROGRAMS_ARRAY,
     SAVED_PROGRAM,
 } from "./shared.program.mock.data";
 import ApiError from "../../../../../shared/errors/api.error";
-
+import {
+    CycleAggregatePort,
+    CYCLE_AGGREGATE_PORT,
+} from "../../../../../ports/outputs/repository/cycle/cycle.aggregate.port";
 describe("Shared Program Service", () => {
     let programAggregateRepository: jest.Mocked<ProgramAggregatePort>;
     let sharedProgramService: SharedProgramService;
-
+    let cycleAggregateRepository: jest.Mocked<CycleAggregatePort>;
     beforeAll(async () => {
         const moduleReference: TestingModule = await Test.createTestingModule({
             providers: [
@@ -24,6 +29,10 @@ describe("Shared Program Service", () => {
                     provide: PROGRAM_AGGREGATE_PORT,
                     useValue: createMock<ProgramAggregatePort>(),
                 },
+                {
+                    provide: CYCLE_AGGREGATE_PORT,
+                    useValue: createMock<CycleAggregatePort>(),
+                },
             ],
         }).compile();
 
@@ -31,6 +40,9 @@ describe("Shared Program Service", () => {
             PROGRAM_AGGREGATE_PORT
         ) as jest.Mocked<ProgramAggregatePort>;
         sharedProgramService = moduleReference.get(SharedProgramService);
+        cycleAggregateRepository = moduleReference.get(
+            CYCLE_AGGREGATE_PORT
+        ) as jest.Mocked<CycleAggregatePort>;
     });
 
     describe("Get All Programs", () => {
@@ -104,6 +116,43 @@ describe("Shared Program Service", () => {
             } as any);
 
             expect(programAggregateRepository.updateProgram).toHaveBeenCalled();
+        });
+
+        describe("Get Program Cycle Details", () => {
+            it("return cycle based on slug ", async () => {
+                const cycleSlug = "cycle slug";
+
+                cycleAggregateRepository.findCycleByslug.mockResolvedValue(
+                    inputCycle as any
+                );
+
+                const result =
+                    await sharedProgramService.getProgramCycleDetails(
+                        cycleSlug
+                    );
+
+                expect(result).toEqual(inputCycle);
+            });
+        });
+
+        describe("Program Cycles", () => {
+            it("get Program Details", async () => {
+                cycleAggregateRepository.findProgramCycles.mockResolvedValue({
+                    cycles: CYCLES_ARRAY as any,
+                    totalNumberOfCycles: 2,
+                });
+
+                const result = await sharedProgramService.getProgramCycles({
+                    programId: "prog-id",
+                    page: 1,
+                    numberOfResults: 10,
+                });
+
+                expect(result).toEqual({
+                    cycles: CYCLES_ARRAY,
+                    totalNumberOfCycles: 2,
+                });
+            });
         });
     });
 });
