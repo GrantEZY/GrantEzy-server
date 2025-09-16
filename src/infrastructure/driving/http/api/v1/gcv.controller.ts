@@ -98,6 +98,7 @@ export class GCVController implements GCVControllerPort {
     }
 
     @Get("/get-programs")
+    @ApiResponse(PROGRAM_RESPONSES.FETCH.SUCCESS)
     async getAllPrograms(
         @Query() query: GetAllProgramDTO,
         @Res() response: Response
@@ -111,6 +112,9 @@ export class GCVController implements GCVControllerPort {
     }
 
     @Patch("/update-program")
+    @ApiResponse(PROGRAM_RESPONSES.UPDATE.SUCCESS)
+    @ApiResponse(PROGRAM_RESPONSES.UPDATE.NOT_FOUND)
+    @ApiResponse(PROGRAM_RESPONSES.UPDATE.NAME_ALREADY_TAKEN)
     async updateProgram(
         @Body() body: UpdateProgramDTO,
         @Res() response: Response
@@ -124,6 +128,9 @@ export class GCVController implements GCVControllerPort {
     }
 
     @Delete("/delete-program")
+    @ApiResponse(PROGRAM_RESPONSES.DELETE.SUCCESS)
+    @ApiResponse(PROGRAM_RESPONSES.DELETE.NOT_FOUND)
+    @ApiResponse(PROGRAM_RESPONSES.DELETE.FAILURE)
     async deleteProgram(
         @Body() body: DeleteProgramDTO,
         @Res() response: Response
@@ -137,6 +144,11 @@ export class GCVController implements GCVControllerPort {
     }
 
     @Post("/add-program-manager")
+    @ApiResponse(PROGRAM_RESPONSES.ADD_MANAGER.SUCCESS)
+    @ApiResponse(PROGRAM_RESPONSES.ADD_MANAGER.MANAGER_ALREADY_LINKED)
+    @ApiResponse(PROGRAM_RESPONSES.ADD_MANAGER.PROGRAM_NOT_FOUND)
+    @ApiResponse(PROGRAM_RESPONSES.ADD_MANAGER.FAILURE)
+    @ApiResponse(PROGRAM_RESPONSES.ADD_MANAGER.USER_NOT_FOUND)
     async addProgramManager(
         @Body() body: AddProgramManagerDTO,
         @Res() response: Response
@@ -150,6 +162,8 @@ export class GCVController implements GCVControllerPort {
     }
 
     @Patch("/update-program-manager")
+    @ApiResponse(PROGRAM_RESPONSES.UPDATE_MANAGER.SUCCESS)
+    @ApiResponse(PROGRAM_RESPONSES.UPDATE_MANAGER.FAILURE)
     async updateProgramManager(
         @Body() body: UpdateProgramManagerDTO,
         @Res() response: Response
