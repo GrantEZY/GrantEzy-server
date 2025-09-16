@@ -16,7 +16,7 @@ export class ProgramManagerController implements ProgramManagerControllerPort {
         private readonly programManagerService: ProgramManagerService
     ) {}
 
-    @Post("create-cycle")
+    @Post("/create-cycle")
     async createCycle(
         @Body() createCycleDTO: CreateCycleDTO,
         response: Response
@@ -30,7 +30,7 @@ export class ProgramManagerController implements ProgramManagerControllerPort {
         }
     }
 
-    @Get("get-program-cycles")
+    @Get("/get-program-cycles")
     async getProgramCycles(
         @Query() getProgramCycle: GetProgramCyclesDTO,
         @Res() response: Response

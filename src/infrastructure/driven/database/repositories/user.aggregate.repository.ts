@@ -51,7 +51,9 @@ export class UserAggregateRepository implements UserAggregatePort {
             });
             return await this.userRepository.save(newUser);
         } catch (error) {
-            console.error("Save user error:", error);
+            if (error instanceof ApiError) {
+                throw error;
+            }
             throw new ApiError(502, "Failed to save user", "Database Error");
         }
     }
@@ -81,7 +83,9 @@ export class UserAggregateRepository implements UserAggregatePort {
             }
             return user;
         } catch (error) {
-            console.error("Find user by ID error:", error);
+            if (error instanceof ApiError) {
+                throw error;
+            }
             throw new ApiError(
                 502,
                 "Failed to find user by ID",
@@ -112,10 +116,45 @@ export class UserAggregateRepository implements UserAggregatePort {
             const user = await query.getOne();
             return user;
         } catch (error) {
-            console.error(error);
+            if (error instanceof ApiError) {
+                throw error;
+            }
             throw new ApiError(
                 502,
                 "Failed to find user by email",
+                "Database Error"
+            );
+        }
+    }
+
+    /**
+     *
+     * @param slug user slug for finding the user
+     * @param isPasswordRequired whether password is required with fetch
+     * @returns user if found else null
+     */
+    async findBySlug(
+        slug: string,
+        isPasswordRequired = false
+    ): Promise<User | null> {
+        try {
+            let query = this.userRepository
+                .createQueryBuilder("user")
+                .where("user.slug = :slug", {slug});
+
+            if (isPasswordRequired) {
+                query = query.addSelect("person.password_hash");
+            }
+
+            const user = await query.getOne();
+            return user;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Failed to find user by slug",
                 "Database Error"
             );
         }
@@ -172,7 +211,9 @@ export class UserAggregateRepository implements UserAggregatePort {
             );
             return true;
         } catch (error) {
-            console.error("Error in updating roles", error);
+            if (error instanceof ApiError) {
+                throw error;
+            }
             throw new ApiError(
                 502,
                 "Failed to set User RT hash",
@@ -225,7 +266,9 @@ export class UserAggregateRepository implements UserAggregatePort {
                 totalNumberOfUsers,
             };
         } catch (error) {
-            console.error("Error in fetching Users", error);
+            if (error instanceof ApiError) {
+                throw error;
+            }
             throw new ApiError(
                 502,
                 "User Details Fetching Error",
@@ -252,7 +295,9 @@ export class UserAggregateRepository implements UserAggregatePort {
                 return false;
             }
         } catch (error) {
-            console.error("Error in deleting Users", error);
+            if (error instanceof ApiError) {
+                throw error;
+            }
             throw new ApiError(
                 502,
                 "User Details deleting Error",

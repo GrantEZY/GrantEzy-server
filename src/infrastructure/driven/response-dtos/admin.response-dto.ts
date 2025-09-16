@@ -11,7 +11,9 @@ class GetUsersData {
 export class AddUserData {
     user: User;
 }
-
+export class GetUserProfileData {
+    user: User;
+}
 export class AddOrganizationData {
     id: string;
     name: string;
@@ -46,4 +48,8 @@ export class DeleteOrganizationDataResponse extends ApiResponse(
 
 export class UpdateOrganizationDataResponse extends ApiResponse(
     UpdateOrganizationData
+) {}
+
+export class GetUserProfileDataResponse extends ApiResponse(
+    GetUserProfileData
 ) {}

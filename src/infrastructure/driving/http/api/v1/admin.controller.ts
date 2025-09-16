@@ -13,7 +13,7 @@ import {Response} from "express";
 import {AdminControllerPort} from "../../../../../ports/inputs/controllers/admin.controller.port";
 import ApiError from "../../../../../shared/errors/api.error";
 import {AdminService} from "../../../../../core/domain/services/admin/admin.service";
-import {GetAllUsersDTO} from "../../../dtos/admin.dto";
+import {GetAllUsersDTO, GetUserProfileDTO} from "../../../dtos/admin.dto";
 import {
     AddUserDTO,
     DeleteUserDTO,
@@ -88,6 +88,19 @@ export class AdminController implements AdminControllerPort {
     ) {
         try {
             const result = await this.adminService.deleteUser(userDetails);
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Get("/get-user-profile")
+    async getUserProfile(
+        @Query() query: GetUserProfileDTO,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const result = await this.adminService.getUserProfile(query);
             return response.status(result.status).json(result);
         } catch (error) {
             return this.handleError(error, response);

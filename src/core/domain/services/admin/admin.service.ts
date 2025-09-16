@@ -4,7 +4,10 @@ import {
     USER_AGGREGATE_PORT,
     UserAggregatePort,
 } from "../../../../ports/outputs/repository/user/user.aggregate.port";
-import {GetAllUsersDTO} from "../../../../infrastructure/driving/dtos/admin.dto";
+import {
+    GetAllUsersDTO,
+    GetUserProfileDTO,
+} from "../../../../infrastructure/driving/dtos/admin.dto";
 import {
     AddUserDTO,
     DeleteUserDTO,
@@ -19,6 +22,7 @@ import {
     AddOrganizationDataResponse,
     DeleteOrganizationDataResponse,
     GetOrganizationsDataResponse,
+    GetUserProfileDataResponse,
     GetUsersDataResponse,
     UpdateOrganizationDataResponse,
 } from "../../../../infrastructure/driven/response-dtos/admin.response-dto";
@@ -142,6 +146,30 @@ export class AdminService {
                 throw new ApiError(400, "User Not Found", "User conflict");
             }
             return await this.userSharedService.deleteUser(user.personId);
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async getUserProfile(
+        userSlugData: GetUserProfileDTO
+    ): Promise<GetUserProfileDataResponse> {
+        try {
+            const {userSlug} = userSlugData;
+            const user = await this.userAggregateRepository.findBySlug(
+                userSlug,
+                false
+            );
+
+            if (!user) {
+                throw new ApiError(400, "User Not Found", "User conflict");
+            }
+
+            return {
+                status: 200,
+                message: "User Profile Data Fetched",
+                res: {user},
+            };
         } catch (error) {
             this.handleError(error);
         }
