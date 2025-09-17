@@ -33,7 +33,7 @@ export class ProgramManagerController implements ProgramManagerControllerPort {
     @ApiResponse(CYCLE_RESPONSES.CREATE.BUDGET_EXCEEDS)
     async createCycle(
         @Body() createCycleDTO: CreateCycleDTO,
-        response: Response
+        @Res() response: Response
     ): Promise<Response> {
         try {
             const result =
@@ -82,8 +82,8 @@ export class ProgramManagerController implements ProgramManagerControllerPort {
     @ApiResponse(CYCLE_RESPONSES.DELETE.SUCCESS)
     @ApiResponse(CYCLE_RESPONSES.DELETE.CYCLE_NOT_FOUND)
     async deleteCycle(
-        deleteCycle: DeleteCycleDTO,
-        response: Response
+        @Body() deleteCycle: DeleteCycleDTO,
+        @Res() response: Response
     ): Promise<Response> {
         try {
             const result =

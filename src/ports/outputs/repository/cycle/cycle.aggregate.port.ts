@@ -9,6 +9,10 @@ export interface CycleAggregatePort {
         page: number,
         totanumberOfResults: number
     ): Promise<{cycles: Cycle[]; totalNumberOfCycles: number}>;
+    getProgramCycleWithRound(
+        programId: string,
+        round: {year: number; type: string}
+    ): Promise<Cycle | null>;
     findCycleByslug(slug: string): Promise<Cycle | null>;
     deleteCycle(id: string): Promise<boolean>;
     updateCycle(oldCycle: Cycle, updateDetails: UpdateCycleDTO): Promise<Cycle>;

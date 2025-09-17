@@ -36,13 +36,27 @@ export class ProgramManagerService {
         createCycle: CreateCycleDTO
     ): Promise<CreateCycleResponse> {
         try {
-            const {programId, budget} = createCycle;
+            const {programId, budget, round} = createCycle;
 
             const program =
                 await this.programAggregateRepository.findById(programId);
 
             if (!program) {
                 throw new ApiError(404, "Program Not Found", "Program Error");
+            }
+
+            const isAlreadyCycle =
+                await this.cycleAggregateRepository.getProgramCycleWithRound(
+                    program.id,
+                    round
+                );
+
+            if (isAlreadyCycle) {
+                throw new ApiError(
+                    409,
+                    "Program has a same cycle with round",
+                    "Conflict Error"
+                );
             }
             const {amount, currency} = program.budget;
             if (amount < budget.amount) {

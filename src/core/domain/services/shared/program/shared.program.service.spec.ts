@@ -17,6 +17,7 @@ import {
     CycleAggregatePort,
     CYCLE_AGGREGATE_PORT,
 } from "../../../../../ports/outputs/repository/cycle/cycle.aggregate.port";
+import {dummyCycle} from "../../program-manager/pm.service.mock.data";
 describe("Shared Program Service", () => {
     let programAggregateRepository: jest.Mocked<ProgramAggregatePort>;
     let sharedProgramService: SharedProgramService;
@@ -170,6 +171,10 @@ describe("Shared Program Service", () => {
                     },
                 } as any);
 
+                cycleAggregateRepository.getProgramCycleWithRound.mockResolvedValue(
+                    null as any
+                );
+
                 const updateDetails = {
                     id: inputCycle.id ?? "cycle-id",
                     budget: {
@@ -222,6 +227,38 @@ describe("Shared Program Service", () => {
                         "Program Cycle Not Found"
                     );
                 }
+            });
+
+            it("Program Already has a cycle in that round", async () => {
+                try {
+                    try {
+                        cycleAggregateRepository.findById.mockResolvedValue(
+                            dummyCycle as any
+                        );
+
+                        cycleAggregateRepository.getProgramCycleWithRound.mockResolvedValue(
+                            dummyCycle as any
+                        );
+
+                        const updateDetails = {
+                            budget: {
+                                amount: 10000,
+                            },
+                            duration: {
+                                endDate: new Date(),
+                            },
+                        };
+                        await sharedProgramService.updateCycleDetails(
+                            updateDetails as any
+                        );
+                    } catch (error) {
+                        expect(error).toBeInstanceOf(ApiError);
+                        expect((error as ApiError).status).toBe(409);
+                        expect((error as ApiError).message).toBe(
+                            "Program has a same cycle with round"
+                        );
+                    }
+                } catch (error) {}
             });
         });
     });

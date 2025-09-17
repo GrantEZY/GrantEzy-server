@@ -67,6 +67,11 @@ describe("Program Manager Service", () => {
             sharedProgramService.UpdateProgramDetails.mockResolvedValue(
                 SAVED_PROGRAM as any
             );
+
+            cycleAggregaterepository.getProgramCycleWithRound.mockResolvedValue(
+                null
+            );
+
             cycleAggregaterepository.save.mockResolvedValue(dummyCycle as any);
             inputCycle.budget.amount = 1;
             const result = await programManagerService.createCycle(
@@ -95,12 +100,32 @@ describe("Program Manager Service", () => {
             }
         });
 
+        it("Program has already a cycle in the round", async () => {
+            try {
+                programAggregaterepository.findById.mockResolvedValue(
+                    SAVED_PROGRAM as any
+                );
+                cycleAggregaterepository.getProgramCycleWithRound.mockResolvedValue(
+                    dummyCycle as any
+                );
+                inputCycle.budget.amount = 10000000000000;
+                await programManagerService.createCycle(inputCycle as any);
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(409);
+                expect((error as ApiError).message).toBe(
+                    "Program has a same cycle with round"
+                );
+            }
+        });
         it("Quoted Budget more than allowed limit", async () => {
             try {
                 programAggregaterepository.findById.mockResolvedValue(
                     SAVED_PROGRAM as any
                 );
-
+                cycleAggregaterepository.getProgramCycleWithRound.mockResolvedValue(
+                    null
+                );
                 inputCycle.budget.amount = 10000000000000;
                 await programManagerService.createCycle(inputCycle as any);
             } catch (error) {

@@ -107,7 +107,7 @@ export class SharedProgramService {
 
     async updateCycleDetails(updateCycle: UpdateCycleDTO): Promise<Cycle> {
         try {
-            const {id} = updateCycle;
+            const {id, round} = updateCycle;
 
             const cycle = await this.cycleAggregateRepository.findById(id);
 
@@ -117,6 +117,21 @@ export class SharedProgramService {
                     "Program Cycle Not Found",
                     "Conflict Error"
                 );
+            }
+            if (round) {
+                const isAlreadyCycle =
+                    await this.cycleAggregateRepository.getProgramCycleWithRound(
+                        cycle.programId,
+                        round as {year: number; type: string}
+                    );
+
+                if (isAlreadyCycle) {
+                    throw new ApiError(
+                        409,
+                        "Program has a same cycle with round",
+                        "Conflict Error"
+                    );
+                }
             }
 
             const updatedCycle =

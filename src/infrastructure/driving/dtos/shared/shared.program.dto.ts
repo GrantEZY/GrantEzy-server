@@ -78,12 +78,6 @@ export class UpdateCycleDTO {
     @Type(() => UpdateDurationDTO)
     duration?: UpdateDurationDTO;
 
-    @ApiPropertyOptional({type: () => UpdateMoneyDTO})
-    @IsOptional()
-    @ValidateNested()
-    @Type(() => UpdateMoneyDTO)
-    budget?: UpdateMoneyDTO;
-
     @ApiPropertyOptional({type: () => UpdateProgramRoundDTO})
     @IsOptional()
     @ValidateNested()

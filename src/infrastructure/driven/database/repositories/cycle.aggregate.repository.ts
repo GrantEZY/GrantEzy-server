@@ -152,6 +152,34 @@ export class CycleAggregateRepository implements CycleAggregatePort {
         }
     }
 
+    async getProgramCycleWithRound(
+        programId: string,
+        round: ProgramRound
+    ): Promise<Cycle | null> {
+        try {
+            const {year, type} = round;
+
+            const query = this.cycleRepository
+                .createQueryBuilder("cycle")
+                .where("cycle.programId = :programId", {programId})
+                .andWhere("cycle.round ->> 'year' = :year", {
+                    year: year.toString(),
+                })
+                .andWhere("cycle.round ->> 'type' = :type", {type});
+
+            return await query.getOne();
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Find Cycle Database Error",
+                "Database Error"
+            );
+        }
+    }
+
     /**
      *
      * @param programId programId of the program for which cycles to be fetched
@@ -202,14 +230,7 @@ export class CycleAggregateRepository implements CycleAggregatePort {
         updateDetails: UpdateCycleDTO
     ): Promise<Cycle> {
         try {
-            const {trlCriteria, budget, duration, round} = oldCycle;
-
-            if (budget) {
-                oldCycle.budget = new Money(
-                    budget.amount ?? oldCycle.budget.amount,
-                    budget.currency ?? oldCycle.budget.currency
-                );
-            }
+            const {trlCriteria, duration, round} = updateDetails;
 
             if (duration) {
                 oldCycle.duration = new Duration(
@@ -237,7 +258,7 @@ export class CycleAggregateRepository implements CycleAggregatePort {
                 });
             }
 
-            const cycle: Cycle = await this.cycleRepository.save(updateDetails);
+            const cycle: Cycle = await this.cycleRepository.save(oldCycle);
 
             return cycle;
         } catch (error) {
