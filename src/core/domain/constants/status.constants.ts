@@ -43,3 +43,9 @@ export enum ReviewStatus {
     IN_PROGRESS = "IN_PROGRESS",
     COMPLETED = "COMPLETED",
 }
+
+export enum TeamMateInviteStatus {
+    ACCEPTED = "ACCEPTED",
+    REJECTED = "REJECTED",
+    INVITE_SENT = "INVITE_SENT",
+}

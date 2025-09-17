@@ -10,3 +10,22 @@ export enum EmailNotifications {
     ACCOUNT_DELETION = "Your account has been deleted",
     SUPPORT_RESPONSE = "Response from GrantEzy Support",
 }
+
+export enum NotificationChannel {
+    EMAIL = "EMAIL",
+    SMS = "SMS",
+    INTERNAL = "INTERNAL",
+}
+
+export enum NotificationType {
+    INFO = "INFO",
+    WARNING = "WARNING",
+    ERROR = "ERROR",
+    SUCCESS = "SUCCESS",
+}
+
+export enum NotificationStatus {
+    CREATED = "CREATED",
+    SENT = "SENT",
+    READ = "READ",
+}
