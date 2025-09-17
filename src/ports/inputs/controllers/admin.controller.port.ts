@@ -1,5 +1,8 @@
 import {Response} from "express";
-import {GetAllUsersDTO} from "../../../infrastructure/driving/dtos/admin.dto";
+import {
+    GetAllUsersDTO,
+    GetUserProfileDTO,
+} from "../../../infrastructure/driving/dtos/admin.dto";
 import {
     AddUserDTO,
     DeleteUserDTO,
@@ -14,6 +17,10 @@ export interface AdminControllerPort {
     getAllUsers(response: Response, query: GetAllUsersDTO): Promise<Response>;
     handleError(error: unknown, response: Response): Response;
     addUser(body: AddUserDTO, response: Response): Promise<Response>;
+    getUserProfile(
+        query: GetUserProfileDTO,
+        response: Response
+    ): Promise<Response>;
     addOrganization(
         body: CreateOrganizationDTO,
         response: Response

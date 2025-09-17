@@ -11,6 +11,7 @@ import {
     SAVED_ORGANIZATION,
     NEW_PROGRAM_DATA,
     SAVED_PROGRAM,
+    PROGRAMS_ARRAY,
 } from "./gcv.service.mock.data";
 import ApiError from "../../../../shared/errors/api.error";
 import {SharedOrganizationService} from "../shared/organization/shared.organization.service";
@@ -18,13 +19,17 @@ import {
     ProgramAggregatePort,
     PROGRAM_AGGREGATE_PORT,
 } from "../../../../ports/outputs/repository/program/program.aggregate.port";
+import {SharedProgramService} from "../shared/program/shared.program.service";
+import {UserRoles} from "../../constants/userRoles.constants";
 
 describe("GCV Service", () => {
     let gcvService: GCVService;
     let sharedOrganisationService: SharedOrganizationService;
-    let userSharedService: UserSharedService;
+    let userSharedService: jest.Mocked<UserSharedService>;
     let userAggregateRepository: jest.Mocked<UserAggregatePort>;
     let programAggregateRepository: jest.Mocked<ProgramAggregatePort>;
+    let sharedProgramService: jest.Mocked<SharedProgramService>;
+
     beforeEach(async () => {
         const moduleReference: TestingModule = await Test.createTestingModule({
             providers: [
@@ -41,13 +46,17 @@ describe("GCV Service", () => {
                     provide: PROGRAM_AGGREGATE_PORT,
                     useValue: createMock<ProgramAggregatePort>(),
                 },
-
                 {
                     provide: UserSharedService,
                     useValue: createMock<UserSharedService>(),
                 },
+                {
+                    provide: SharedProgramService,
+                    useValue: createMock<SharedProgramService>(),
+                },
             ],
         }).compile();
+
         userSharedService = moduleReference.get(
             UserSharedService
         ) as jest.Mocked<UserSharedService>;
@@ -60,7 +69,10 @@ describe("GCV Service", () => {
         );
         programAggregateRepository = moduleReference.get(
             PROGRAM_AGGREGATE_PORT
-        );
+        ) as jest.Mocked<ProgramAggregatePort>;
+        sharedProgramService = moduleReference.get(
+            SharedProgramService
+        ) as jest.Mocked<SharedProgramService>;
     });
 
     it("To be Defined", () => {
@@ -69,9 +81,7 @@ describe("GCV Service", () => {
 
     describe("ADD GCV Users", () => {
         it('Add GCV Member: Should add role "COMMITTEE_MEMBER" to existing user', async () => {
-            const userData = {
-                email: "john.doe@example.com",
-            };
+            const userData = {email: "john.doe@example.com"};
 
             userAggregateRepository.findByEmail.mockResolvedValue(
                 SAVED_USER as any
@@ -98,9 +108,7 @@ describe("GCV Service", () => {
         });
 
         it('Add GCV Member: Should add role "COMMITTEE_MEMBER" to non-existing user', async () => {
-            const userData = {
-                email: "john.doe@example.com",
-            };
+            const userData = {email: "john.doe@example.com"};
 
             userAggregateRepository.findByEmail.mockResolvedValue(null);
             (userSharedService.addUser as jest.Mock).mockResolvedValue({
@@ -131,10 +139,7 @@ describe("GCV Service", () => {
 
     describe("GET ALL GCV Users", () => {
         it("Get All GCV Members: Should return list of GCV members when no filter provided", async () => {
-            const filterData = {
-                page: 1,
-                numberOfResults: 10,
-            };
+            const filterData = {page: 1, numberOfResults: 10};
             const mockUsers = [SAVED_USER];
 
             userAggregateRepository.getUsers.mockResolvedValue({
@@ -146,7 +151,6 @@ describe("GCV Service", () => {
 
             expect(userAggregateRepository.getUsers).toHaveBeenCalledWith(
                 {isGCVmember: true},
-
                 1,
                 10
             );
@@ -162,11 +166,7 @@ describe("GCV Service", () => {
 
         it("Get All GCV Members: Should return list of GCV members when filter provided", async () => {
             const filterData = {
-                filter: {
-                    otherFilters: {
-                        role: "ADMIN",
-                    },
-                },
+                filter: {otherFilters: {role: "ADMIN"}},
                 page: 1,
                 numberOfResults: 10,
             };
@@ -181,7 +181,6 @@ describe("GCV Service", () => {
 
             expect(userAggregateRepository.getUsers).toHaveBeenCalledWith(
                 {isGCVmember: true, role: "ADMIN"},
-
                 1,
                 10
             );
@@ -237,6 +236,7 @@ describe("GCV Service", () => {
                 },
             });
         });
+
         it("Update User Role: Should throw error when user not found", async () => {
             const userDetails = {email: "john.doe@example.com"};
 
@@ -265,6 +265,8 @@ describe("GCV Service", () => {
                 SAVED_PROGRAM as any
             );
 
+            programAggregateRepository.findByName.mockResolvedValue(null);
+
             const result = await gcvService.createProgram(newProgram as any);
 
             expect(result).toEqual({
@@ -276,6 +278,27 @@ describe("GCV Service", () => {
                     name: SAVED_PROGRAM.details.name,
                 },
             });
+        });
+
+        it("Create Program For already existing Organisation which contains program with same name", async () => {
+            try {
+                const newProgram = NEW_PROGRAM_DATA;
+                (
+                    sharedOrganisationService.getOrganizationByName as jest.Mock
+                ).mockResolvedValue(SAVED_ORGANIZATION);
+
+                programAggregateRepository.findByName.mockResolvedValue(
+                    newProgram as any
+                );
+
+                await gcvService.createProgram(newProgram as any);
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(409);
+                expect((error as ApiError).message).toBe(
+                    "The Organization already has a program with this name"
+                );
+            }
         });
 
         it("Create Program for non-existing organization", async () => {
@@ -331,6 +354,269 @@ describe("GCV Service", () => {
                     "Organization with this name already exists"
                 );
             }
+        });
+    });
+
+    describe("Get Programs", () => {
+        it("get programs with given filter", async () => {
+            (sharedProgramService.getPrograms as jest.Mock).mockResolvedValue({
+                programs: PROGRAMS_ARRAY,
+                totalNumberOfPrograms: 3,
+            });
+
+            const result = await gcvService.getPrograms({
+                page: 1,
+                numberOfResults: 10,
+            });
+            expect(result).toEqual({
+                status: 200,
+                message: "Programs filtered as per filter",
+                res: {
+                    programs: PROGRAMS_ARRAY,
+                    numberOfPrograms: 3,
+                },
+            });
+        });
+    });
+
+    describe("Delete Programs", () => {
+        it("delete programs with given id", async () => {
+            const id = SAVED_PROGRAM.id;
+            (
+                programAggregateRepository.findById as jest.Mock
+            ).mockResolvedValue(SAVED_PROGRAM);
+            (
+                programAggregateRepository.deleteProgram as jest.Mock
+            ).mockResolvedValue(true);
+            const result = await gcvService.deleteProgram({id});
+
+            expect(result).toEqual({
+                status: 200,
+                message: "Program Deleted Successfully",
+                res: {
+                    success: true,
+                },
+            });
+        });
+
+        it("delete non-existent programs ", async () => {
+            try {
+                const id = SAVED_PROGRAM.id;
+                (
+                    programAggregateRepository.findById as jest.Mock
+                ).mockResolvedValue(null);
+
+                await gcvService.deleteProgram({id});
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).message).toBe(" Program Not Found ");
+            }
+        });
+
+        it("delete programs db Error  ", async () => {
+            try {
+                const id = SAVED_PROGRAM.id;
+                (
+                    programAggregateRepository.findById as jest.Mock
+                ).mockResolvedValue(SAVED_PROGRAM);
+                (
+                    programAggregateRepository.deleteProgram as jest.Mock
+                ).mockResolvedValue(false);
+                await gcvService.deleteProgram({id});
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(400);
+                expect((error as ApiError).message).toBe(
+                    "Error in deleting Program"
+                );
+            }
+        });
+    });
+
+    describe("Update Program initiation", () => {
+        it("Update Program Successful", async () => {
+            const programDetails = NEW_PROGRAM_DATA;
+            programDetails.details.name = "New NAME";
+            (
+                sharedProgramService.UpdateProgramDetails as jest.Mock
+            ).mockResolvedValue(SAVED_PROGRAM);
+            const result = await gcvService.updateProgram({
+                id: "program-uuid",
+                ...programDetails,
+            } as any);
+            expect(result).toEqual({
+                status: 200,
+                message: "Program Updated Successfully",
+                res: {
+                    id: SAVED_PROGRAM.id,
+                    status: SAVED_PROGRAM.status,
+                },
+            });
+        });
+
+        it("Update Program UnExpected Error", async () => {
+            try {
+                (
+                    sharedProgramService.UpdateProgramDetails as jest.Mock
+                ).mockImplementation(() => {
+                    throw new ApiError(
+                        404,
+                        " Program Not Found ",
+                        "Program Error"
+                    );
+                });
+                await gcvService.updateProgram({id: "program-uuid"} as any);
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).message).toBe(" Program Not Found ");
+            }
+        });
+    });
+
+    describe("Add Program Manager", () => {
+        it("Manager Not Found", async () => {
+            try {
+                const programManagerDetails = {
+                    id: "program-uuid",
+                    email: "john.doe@example.com",
+                };
+                userAggregateRepository.findByEmail.mockResolvedValue(null);
+                await gcvService.addProgramManager(programManagerDetails);
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).message).toBe("User not found");
+            }
+        });
+
+        it("Program Not Found", async () => {
+            try {
+                const programManagerDetails = {
+                    id: "program-uuid",
+                    email: "john.doe@example.com",
+                };
+                userAggregateRepository.findByEmail.mockResolvedValue(
+                    SAVED_USER as any
+                );
+                programAggregateRepository.findById.mockResolvedValue(null);
+                await gcvService.addProgramManager(programManagerDetails);
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).message).toBe("Program Not Found");
+            }
+        });
+
+        it("Person already linked with another program", async () => {
+            try {
+                const programManagerDetails = {
+                    id: "program-uuid",
+                    email: "john.doe@example.com",
+                };
+                userAggregateRepository.findByEmail.mockResolvedValue(
+                    SAVED_USER as any
+                );
+                programAggregateRepository.findById.mockResolvedValue(
+                    SAVED_PROGRAM as any
+                );
+                programAggregateRepository.getProgramByManagerId.mockResolvedValue(
+                    SAVED_PROGRAM as any
+                );
+                await gcvService.addProgramManager(programManagerDetails);
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(409);
+                expect((error as ApiError).message).toBe(
+                    "Manager already has a program"
+                );
+            }
+        });
+
+        it("Add Program Manager when manager is not yet assigned", async () => {
+            const programManagerDetails = {
+                id: "program-uuid",
+                email: "john.doe@example.com",
+            };
+            userAggregateRepository.findByEmail.mockResolvedValue(
+                SAVED_USER as any
+            );
+            programAggregateRepository.findById.mockResolvedValue(
+                SAVED_PROGRAM as any
+            );
+            programAggregateRepository.getProgramByManagerId.mockResolvedValue(
+                null
+            );
+
+            (SAVED_PROGRAM as any).managerId = null;
+
+            const result = await gcvService.addProgramManager(
+                programManagerDetails
+            );
+            SAVED_USER.role.push(UserRoles.PROGRAM_MANAGER);
+            expect(userAggregateRepository.updateUserRole).toHaveBeenCalledWith(
+                SAVED_USER.personId,
+                SAVED_USER.role
+            );
+            expect(
+                programAggregateRepository.addProgramManager
+            ).toHaveBeenCalledWith(SAVED_USER.personId, SAVED_PROGRAM);
+            expect(result).toEqual({
+                status: 200,
+                message: "Program Manager Added Successfully",
+                res: {
+                    managerId: SAVED_USER.personId,
+                    programId: "program-uuid",
+                },
+            });
+        });
+
+        it("Replace existing program manager with new one (updation)", async () => {
+            const programManagerDetails = {
+                id: "program-uuid",
+                email: "john.doe@example.com",
+            };
+            SAVED_USER.role.pop();
+            userAggregateRepository.findByEmail.mockResolvedValue(
+                SAVED_USER as any
+            );
+            programAggregateRepository.findById.mockResolvedValue(
+                SAVED_PROGRAM as any
+            );
+            programAggregateRepository.getProgramByManagerId.mockResolvedValue(
+                null
+            );
+
+            (SAVED_PROGRAM as any).managerId = "user-id";
+
+            const newUser = {
+                id: "user-id",
+                role: [UserRoles.PROGRAM_MANAGER],
+            } as any;
+            userAggregateRepository.findById.mockResolvedValue(newUser);
+            userAggregateRepository.updateUserRole.mockResolvedValue(true);
+            SAVED_USER.role.pop();
+
+            const result = await gcvService.addProgramManager(
+                programManagerDetails
+            );
+            SAVED_USER.role.push(UserRoles.PROGRAM_MANAGER);
+            expect(userAggregateRepository.updateUserRole).toHaveBeenCalledWith(
+                SAVED_USER.personId,
+                SAVED_USER.role
+            );
+            expect(
+                programAggregateRepository.addProgramManager
+            ).toHaveBeenCalledWith(SAVED_USER.personId, SAVED_PROGRAM);
+            expect(result).toEqual({
+                status: 200,
+                message: "Program Manager Added Successfully",
+                res: {
+                    managerId: SAVED_USER.personId,
+                    programId: "program-uuid",
+                },
+            });
         });
     });
 });

@@ -10,6 +10,10 @@ export interface UserAggregatePort {
         email: string,
         isPasswordRequired: boolean
     ): Promise<User | null>;
+    findBySlug(
+        userSlug: string,
+        isPasswordRequired: boolean
+    ): Promise<User | null>;
     setRThash(hash: string | null, id: string): Promise<boolean>;
     getUsers(
         filter: FindOptionsWhere<User>,

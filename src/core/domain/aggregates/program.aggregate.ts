@@ -6,8 +6,6 @@ import {
     CreateDateColumn,
     UpdateDateColumn,
     OneToMany,
-    BeforeInsert,
-    BeforeUpdate,
     ManyToOne,
     OneToOne,
 } from "typeorm";
@@ -18,7 +16,6 @@ import {ProgramStatus} from "../constants/status.constants";
 import {Money} from "../value-objects/project.metrics.object";
 import {TRL} from "../constants/trl.constants";
 import {Cycle} from "./cycle.aggregate";
-import {slugify} from "../../../shared/helpers/slug.generator";
 import {User} from "./user.aggregate";
 @Entity({name: "programs"})
 export class Program {
@@ -93,7 +90,7 @@ export class Program {
     @Column({unique: true, nullable: true})
     slug: string;
 
-    @Column()
+    @Column({nullable: true})
     managerId: string;
 
     @OneToOne(() => User, {
@@ -109,12 +106,4 @@ export class Program {
 
     @UpdateDateColumn()
     updatedAt: Date;
-
-    @BeforeInsert()
-    @BeforeUpdate()
-    generateSlug() {
-        if (this.details.name && this.id) {
-            this.slug = slugify(this.details.name, this.id);
-        }
-    }
 }

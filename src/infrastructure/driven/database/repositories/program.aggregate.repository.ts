@@ -8,7 +8,10 @@ import {CreateProgramDTO} from "../../../driving/dtos/gcv.dto";
 import {ProgramDetails} from "../../../../core/domain/value-objects/program.details.object";
 import {Duration} from "../../../../core/domain/value-objects/duration.object";
 import {Money} from "../../../../core/domain/value-objects/project.metrics.object";
-
+import {UpdateProgramDTO} from "../../../driving/dtos/shared/shared.program.dto";
+import {ProgramStatus} from "../../../../core/domain/constants/status.constants";
+import {v4 as uuid} from "uuid";
+import {slugify} from "../../../../shared/helpers/slug.generator";
 @Injectable()
 /**
  * Repository class for managing Program aggregate operations.
@@ -30,7 +33,10 @@ export class ProgramAggregateRepository implements ProgramAggregatePort {
         organizationId: string
     ): Promise<Program> {
         try {
-            const {details, status, minTRL, maxTRL, budget, duration} = program;
+            const programStatus = ProgramStatus.IN_ACTIVE;
+            const {details, minTRL, maxTRL, budget, duration} = program;
+            const id = uuid(); // eslint-disable-line
+            const slug = slugify(id);
             const newProgram = this.programRepository.create({
                 organizationId,
                 details: new ProgramDetails(
@@ -38,7 +44,8 @@ export class ProgramAggregateRepository implements ProgramAggregatePort {
                     details.description,
                     details.category
                 ),
-                status,
+                slug,
+                status: programStatus,
                 minTRL,
                 maxTRL,
                 budget: new Money(budget.amount, budget.currency),
@@ -49,7 +56,9 @@ export class ProgramAggregateRepository implements ProgramAggregatePort {
             });
             return await this.programRepository.save(newProgram);
         } catch (error) {
-            console.error("Save program error:", error);
+            if (error instanceof ApiError) {
+                throw error;
+            }
             throw new ApiError(502, "Failed to save program", "Database Error");
         }
     }
@@ -66,7 +75,36 @@ export class ProgramAggregateRepository implements ProgramAggregatePort {
             });
             return program ?? null;
         } catch (error) {
-            console.error("Find program by ID error:", error);
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(502, "Failed to find program", "Database Error");
+        }
+    }
+    /**
+     *
+     * @param name The name of the program to be fetchec
+     * @returns program if found otherwise null
+     */
+    async findByName(
+        name: string,
+        organizationName: string
+    ): Promise<Program | null> {
+        try {
+            const existingProgram = await this.programRepository
+                .createQueryBuilder("program")
+                .leftJoin("program.organization", "org")
+                .where("program.details ->> 'name' = :programName", {
+                    programName: name,
+                })
+                .andWhere("org.name = :orgName", {orgName: organizationName})
+                .getOne();
+
+            return existingProgram;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
             throw new ApiError(502, "Failed to find program", "Database Error");
         }
     }
@@ -86,7 +124,9 @@ export class ProgramAggregateRepository implements ProgramAggregatePort {
                 return false;
             }
         } catch (error) {
-            console.error("Delete program error:", error);
+            if (error instanceof ApiError) {
+                throw error;
+            }
             throw new ApiError(
                 502,
                 "Failed to delete program",
@@ -126,8 +166,114 @@ export class ProgramAggregateRepository implements ProgramAggregatePort {
                 .getCount();
             return {programs, totalNumberOfPrograms};
         } catch (error) {
-            console.error("Get programs error:", error);
-            throw new ApiError(502, "Failed to get programs", "Database Error");
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(502, "Failed to get program", "Database Error");
+        }
+    }
+    /**
+     *
+     * @param updateDetails DTO for updating the program details
+     * @returns updated program
+     * @throws ApiError , if error occured while updating
+     */
+    async updateProgram(
+        updateDetails: UpdateProgramDTO,
+        oldProgramDetails: Program
+    ): Promise<Program> {
+        try {
+            const {details, budget, minTRL, maxTRL, duration} = updateDetails;
+
+            const program = oldProgramDetails;
+
+            if (details) {
+                program.details = new ProgramDetails(
+                    details.name ?? program.details.name,
+                    details.description ?? program.details.description,
+                    details.category ?? program.details.category
+                );
+            }
+
+            if (budget) {
+                program.budget = new Money(
+                    budget.amount ?? program.budget.amount,
+                    budget.currency ?? program.budget.currency
+                );
+            }
+
+            if (duration) {
+                program.duration = new Duration(
+                    duration.startDate ?? program.duration.startDate,
+                    duration.endDate ?? program.duration.endDate
+                );
+            }
+
+            if (minTRL) {
+                program.minTRL = minTRL;
+            }
+            if (maxTRL) {
+                program.maxTRL = maxTRL;
+            }
+
+            return await this.programRepository.save(program);
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Failed to update program",
+                "Database Error"
+            );
+        }
+    }
+
+    /**
+     *
+     * @param managerId The userId of the manager to be linked with the program
+     * @param programId The programId of the program
+     * @returns true if succeeds
+     */
+
+    async addProgramManager(
+        managerId: string,
+        program: Program
+    ): Promise<boolean> {
+        try {
+            program.managerId = managerId;
+            await this.programRepository.save(program);
+            return true;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Failed to update program",
+                "Database Error"
+            );
+        }
+    }
+
+    /**
+     *
+     * @param managerId The userId of the manager
+     * @returns The program if it exists or null if it doesn't
+     */
+    async getProgramByManagerId(managerId: string): Promise<Program | null> {
+        try {
+            const program = await this.programRepository.findOne({
+                where: {
+                    managerId,
+                },
+            });
+            return program ?? null;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(502, "Failed to find program", "Database Error");
         }
     }
 }

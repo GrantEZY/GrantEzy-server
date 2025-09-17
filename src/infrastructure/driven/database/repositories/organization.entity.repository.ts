@@ -8,7 +8,8 @@ import {
     CreateOrganizationDTO,
     UpdateOrganizationDTO,
 } from "../../../driving/dtos/shared/shared.organization.dto";
-
+import {v4 as uuid} from "uuid";
+import {slugify} from "../../../../shared/helpers/slug.generator";
 @Injectable()
 export class OrganizationEntityRepository implements OrganizationEntityPort {
     constructor(
@@ -24,8 +25,13 @@ export class OrganizationEntityRepository implements OrganizationEntityPort {
      */
     async save(organization: CreateOrganizationDTO): Promise<Organization> {
         try {
-            const newOrganization =
-                this.organizationRepository.create(organization);
+            const id = uuid(); // eslint-disable-line
+            const slug = slugify(id);
+            const newOrganization = this.organizationRepository.create({
+                slug,
+                name: organization.name,
+                type: organization.type,
+            });
             return await this.organizationRepository.save(newOrganization);
         } catch (error) {
             if (error instanceof ApiError) {

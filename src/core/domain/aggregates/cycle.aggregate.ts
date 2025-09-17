@@ -10,8 +10,6 @@ import {
     UpdateDateColumn,
     Index,
     OneToMany,
-    BeforeInsert,
-    BeforeUpdate,
 } from "typeorm";
 import {Program} from "./program.aggregate";
 import {ProgramRound} from "../value-objects/program.round.object";
@@ -25,7 +23,6 @@ import {
 } from "../value-objects/scoringscheme.object";
 import {TRL} from "../constants/trl.constants";
 import {GrantApplication} from "./grantapplication.aggregate";
-import {slugify} from "../../../shared/helpers/slug.generator";
 @Entity({name: "programCycles"})
 export class Cycle {
     @PrimaryGeneratedColumn("uuid")
@@ -33,7 +30,7 @@ export class Cycle {
 
     @Index()
     @Column({type: "uuid"})
-    personId: string;
+    programId: string;
 
     @ManyToOne(() => Program, (program: Program) => program.cycles, {
         onDelete: "SET NULL",
@@ -142,12 +139,4 @@ export class Cycle {
 
     @UpdateDateColumn()
     updatedAt: Date;
-
-    @BeforeInsert()
-    @BeforeUpdate()
-    generateSlug() {
-        if (this.program?.details.name && this.id) {
-            this.slug = slugify(this.program.details.name, this.id);
-        }
-    }
 }

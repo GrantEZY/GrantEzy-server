@@ -27,7 +27,7 @@ async function initServer() {
     app.use(helmet());
     app.use(cookieParser());
 
-    //Enable global for DTO's
+    //Enable global for DTO parsing and verification
     app.useGlobalPipes(new ValidationPipe());
 
     app.setGlobalPrefix("api/v1"); // Set v1 API prefix for all the routes

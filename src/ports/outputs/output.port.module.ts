@@ -21,10 +21,13 @@ import {EmailService} from "../../infrastructure/driven/email/email.service";
 import {OrganizationEntityRepository} from "../../infrastructure/driven/database/repositories/organization.entity.repository";
 import {ORGANIZATION_ENTITY_PORT} from "./repository/organization/organization.entity.port";
 import {Organization} from "../../core/domain/entities/organization.entity";
+import {Cycle} from "../../core/domain/aggregates/cycle.aggregate";
+import {CYCLE_AGGREGATE_PORT} from "./repository/cycle/cycle.aggregate.port";
+import {CycleAggregateRepository} from "../../infrastructure/driven/database/repositories/cycle.aggregate.repository";
 @Global()
 @Module({
     imports: [
-        TypeOrmModule.forFeature([User, Person, Program, Organization]),
+        TypeOrmModule.forFeature([User, Person, Program, Organization, Cycle]),
         JwtModule.register({}),
         ConfigModule,
     ],
@@ -39,12 +42,17 @@ import {Organization} from "../../core/domain/entities/organization.entity";
             provide: ORGANIZATION_ENTITY_PORT,
             useClass: OrganizationEntityRepository,
         },
+        {
+            provide: CYCLE_AGGREGATE_PORT,
+            useClass: CycleAggregateRepository,
+        },
     ],
     exports: [
         USER_AGGREGATE_PORT,
         PASSWORD_HASHER_PORT,
         JWT_PORT,
         JwtModule,
+        CYCLE_AGGREGATE_PORT,
         EMAIL_SERVICE_PORT,
         CACHE_REPOSITORY_PORT,
         PROGRAM_AGGREGATE_PORT,

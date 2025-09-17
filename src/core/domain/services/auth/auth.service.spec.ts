@@ -68,200 +68,222 @@ describe("AuthService", () => {
         });
     });
 
-    it("User Email already Exists", async () => {
-        try {
-            const user = REGISTER_USER;
+    describe("Register", () => {
+        it("User Email already Exists", async () => {
+            try {
+                const user = REGISTER_USER;
 
-            userAggregateRepository.findByEmail.mockResolvedValue(user as any);
+                userAggregateRepository.findByEmail.mockResolvedValue(
+                    user as any
+                );
 
-            await authService.register(user);
-        } catch (error) {
-            expect(error).toBeInstanceOf(ApiError);
-            expect((error as ApiError)?.status!).toBe(409);
-            expect((error as ApiError).message).toBe("Email already in use");
-        }
-    });
+                await authService.register(user);
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError)?.status!).toBe(409);
+                expect((error as ApiError).message).toBe(
+                    "Email already in use"
+                );
+            }
+        });
 
-    it("Handle unexpected Error in Register", async () => {
-        try {
-            const user = REGISTER_USER;
+        it("Handle unexpected Error in Register", async () => {
+            try {
+                const user = REGISTER_USER;
 
-            userAggregateRepository.findByEmail.mockImplementation(() => {
-                throw new Error("SomeThing went wrong");
-            });
-            await authService.register(user);
-        } catch (error) {
-            expect(error).toBeInstanceOf(Error);
-        }
-    });
-
-    it("Validate user Successfully", async () => {
-        try {
-            const loginData = LOGIN_DATA;
-            const dbData = SAVED_USER;
-            userAggregateRepository.findByEmail.mockResolvedValue(
-                dbData as any
-            );
-            passwordHasher.compare.mockResolvedValue(true);
-            const result = await authService.validateUser(loginData);
-
-            expect(result).toEqual({
-                status: 200,
-                message: "User validated successfully",
-                res: {
-                    user: dbData,
-                },
-            });
-        } catch (error) {}
-    });
-
-    it("Validation: User Not Found", async () => {
-        try {
-            const loginData = LOGIN_DATA;
-            userAggregateRepository.findByEmail.mockResolvedValue(null);
-            await authService.validateUser(loginData);
-        } catch (error) {
-            expect(error).toBeInstanceOf(ApiError);
-            expect((error as ApiError).status).toBe(401);
-            expect((error as ApiError).message).toBe("User Not Found");
-        }
-    });
-
-    it("Validation : Password Incorrect", async () => {
-        try {
-            const loginData = LOGIN_DATA;
-            const dbData = SAVED_USER;
-
-            userAggregateRepository.findByEmail.mockResolvedValue(
-                dbData as any
-            );
-            passwordHasher.compare.mockImplementation(async () => {
-                return false;
-            });
-            await authService.validateUser(loginData);
-        } catch (error) {
-            expect(error).toBeInstanceOf(ApiError);
-            expect((error as ApiError).status).toBe(402);
-            expect((error as ApiError).message).toBe("Password Is Incorrect");
-        }
-    });
-
-    it("After Login : Signing Tokens", async () => {
-        const user = SAVED_USER;
-        const role = UserRoles.APPLICANT;
-        const tokens = {
-            accessToken: "access-token",
-            refreshToken: "refresh-token",
-        };
-        jwtRepository.signTokens.mockResolvedValue(tokens);
-
-        const result = await authService.login(user as any, role);
-        expect(result.status).toBe(200);
-        expect(result.message).toBe("Login Successful");
-        expect(result.res).toStrictEqual({
-            id: user.personId,
-            email: user.contact.email,
-            role,
-            name: `${user.person.firstName} ${user.person.lastName}`,
-            ...tokens,
+                userAggregateRepository.findByEmail.mockImplementation(() => {
+                    throw new Error("SomeThing went wrong");
+                });
+                await authService.register(user);
+            } catch (error) {
+                expect(error).toBeInstanceOf(Error);
+            }
         });
     });
 
-    it("After Login : Error in signing JWT Tokens", async () => {
-        try {
+    describe("Validation Of User", () => {
+        it("Validate user Successfully", async () => {
+            try {
+                const loginData = LOGIN_DATA;
+                const dbData = SAVED_USER;
+                userAggregateRepository.findByEmail.mockResolvedValue(
+                    dbData as any
+                );
+                passwordHasher.compare.mockResolvedValue(true);
+                const result = await authService.validateUser(loginData);
+
+                expect(result).toEqual({
+                    status: 200,
+                    message: "User validated successfully",
+                    res: {
+                        user: dbData,
+                    },
+                });
+            } catch (error) {}
+        });
+
+        it("Validation: User Not Found", async () => {
+            try {
+                const loginData = LOGIN_DATA;
+                userAggregateRepository.findByEmail.mockResolvedValue(null);
+                await authService.validateUser(loginData);
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(401);
+                expect((error as ApiError).message).toBe("User Not Found");
+            }
+        });
+
+        it("Validation : Password Incorrect", async () => {
+            try {
+                const loginData = LOGIN_DATA;
+                const dbData = SAVED_USER;
+
+                userAggregateRepository.findByEmail.mockResolvedValue(
+                    dbData as any
+                );
+                passwordHasher.compare.mockImplementation(async () => {
+                    return false;
+                });
+                await authService.validateUser(loginData);
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(402);
+                expect((error as ApiError).message).toBe(
+                    "Password Is Incorrect"
+                );
+            }
+        });
+    });
+
+    describe("After Login", () => {
+        it("After Login : Signing Tokens", async () => {
             const user = SAVED_USER;
             const role = UserRoles.APPLICANT;
-            jwtRepository.signTokens.mockImplementation(() => {
-                throw new ApiError(400, "Error In Signing JWTs", "JWT Error");
-            });
-            await authService.login(user as any, role);
-        } catch (error) {
-            expect(error).toBeInstanceOf(ApiError);
-            expect((error as ApiError).status).toBe(400);
-            expect((error as ApiError).message).toBe("Error In Signing JWTs");
-        }
-    });
-
-    it("Refresh : Successful refresh of AccessToken", async () => {
-        try {
-            const user = {
-                id: "111-23434-234345234-353456",
-                token_version: "1",
-            };
-            userAggregateRepository.findById.mockResolvedValue(
-                SAVED_USER as any
-            );
             const tokens = {
                 accessToken: "access-token",
+                refreshToken: "refresh-token",
             };
-            jwtRepository.getAccessToken.mockResolvedValue(tokens);
+            jwtRepository.signTokens.mockResolvedValue(tokens);
 
-            const result = await authService.refresh(user as any);
-
-            expect(result).toBe({
-                status: 200,
-                message: "Access Token Created",
-                res: {
-                    accessToken: tokens.accessToken,
-                },
+            const result = await authService.login(user as any, role);
+            expect(result.status).toBe(200);
+            expect(result.message).toBe("Login Successful");
+            expect(result.res).toStrictEqual({
+                id: user.personId,
+                email: user.contact.email,
+                role,
+                name: `${user.person.firstName} ${user.person.lastName}`,
+                ...tokens,
             });
-        } catch (error) {}
+        });
+
+        it("After Login : Error in signing JWT Tokens", async () => {
+            try {
+                const user = SAVED_USER;
+                const role = UserRoles.APPLICANT;
+                jwtRepository.signTokens.mockImplementation(() => {
+                    throw new ApiError(
+                        400,
+                        "Error In Signing JWTs",
+                        "JWT Error"
+                    );
+                });
+                await authService.login(user as any, role);
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(400);
+                expect((error as ApiError).message).toBe(
+                    "Error In Signing JWTs"
+                );
+            }
+        });
     });
 
-    it("Refresh : Token Mismatch Error", async () => {
-        try {
-            const user = {
-                userData: {
-                    payload: {
-                        id: "111-23434-234345234-353456",
-                        token_version: "2",
+    describe("Refresh", () => {
+        it("Refresh : Successful refresh of AccessToken", async () => {
+            try {
+                const user = {
+                    id: "111-23434-234345234-353456",
+                    token_version: "1",
+                };
+                userAggregateRepository.findById.mockResolvedValue(
+                    SAVED_USER as any
+                );
+                const tokens = {
+                    accessToken: "access-token",
+                };
+                jwtRepository.getAccessToken.mockResolvedValue(tokens);
+
+                const result = await authService.refresh(user as any);
+
+                expect(result).toBe({
+                    status: 200,
+                    message: "Access Token Created",
+                    res: {
+                        accessToken: tokens.accessToken,
                     },
-                },
-            };
-            userAggregateRepository.findById.mockResolvedValue(
-                SAVED_USER as any
-            );
+                });
+            } catch (error) {}
+        });
 
-            await authService.refresh(user as any);
-        } catch (error) {
-            expect(error).toBeInstanceOf(ApiError);
-            expect((error as ApiError).status).toBe(403);
-            expect((error as ApiError).message).toBe("Token mismatch");
-        }
+        it("Refresh : Token Mismatch Error", async () => {
+            try {
+                const user = {
+                    userData: {
+                        payload: {
+                            id: "111-23434-234345234-353456",
+                            token_version: "2",
+                        },
+                    },
+                };
+                userAggregateRepository.findById.mockResolvedValue(
+                    SAVED_USER as any
+                );
+
+                await authService.refresh(user as any);
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe("Token mismatch");
+            }
+        });
     });
 
-    it("Logout : Successful RTHash change", async () => {
-        try {
-            const user = {
-                id: "111-23434-234345234-353456",
-            };
-            userAggregateRepository.setRThash.mockResolvedValue(true);
+    describe("Logout", () => {
+        it("Logout : Successful RTHash change", async () => {
+            try {
+                const user = {
+                    id: "111-23434-234345234-353456",
+                };
+                userAggregateRepository.setRThash.mockResolvedValue(true);
 
-            const result = await authService.logout(user.id);
-            expect(result).toBe({
-                status: 200,
-                message: "Logout Successful",
-                res: {
-                    status: true,
-                },
-            });
-        } catch (error) {}
-    });
+                const result = await authService.logout(user.id);
+                expect(result).toBe({
+                    status: 200,
+                    message: "Logout Successful",
+                    res: {
+                        status: true,
+                    },
+                });
+            } catch (error) {}
+        });
 
-    it("Logout : UnSuccessful RTHash change", async () => {
-        try {
-            const user = {
-                id: "111-23434-234345234-353456",
-            };
-            userAggregateRepository.setRThash.mockResolvedValue(false);
+        it("Logout : UnSuccessful RTHash change", async () => {
+            try {
+                const user = {
+                    id: "111-23434-234345234-353456",
+                };
+                userAggregateRepository.setRThash.mockResolvedValue(false);
 
-            await authService.logout(user.id);
-        } catch (error) {
-            expect(error).toBeInstanceOf(ApiError);
-            expect((error as ApiError).status).toBe(400);
-            expect((error as ApiError).message).toBe(
-                "Error in logging out the User"
-            );
-        }
+                await authService.logout(user.id);
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(400);
+                expect((error as ApiError).message).toBe(
+                    "Error in logging out the User"
+                );
+            }
+        });
     });
 });

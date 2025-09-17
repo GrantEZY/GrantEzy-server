@@ -1,11 +1,23 @@
-import {Controller, Res, Body, Post, Patch, Get, Query} from "@nestjs/common";
+import {
+    Controller,
+    Res,
+    Body,
+    Post,
+    Patch,
+    Get,
+    Query,
+    Delete,
+} from "@nestjs/common";
 import {ApiResponse, ApiTags} from "@nestjs/swagger";
 import {GCVControllerPort} from "../../../../../ports/inputs/controllers/gcv.controller.port";
 import {GCVService} from "../../../../../core/domain/services/gcv/gcv.service";
 import {
+    AddProgramManagerDTO,
+    DeleteProgramDTO,
     GCVMemberAddDTO,
     GetAllGCVUsersDTO,
     UpdateGCVUserRoleDTO,
+    UpdateProgramManagerDTO,
 } from "../../../dtos/gcv.dto";
 import ApiError from "../../../../../shared/errors/api.error";
 import {Response} from "express";
@@ -16,6 +28,8 @@ import {
     PROGRAM_RESPONSES,
 } from "../../../../../config/swagger/docs/gcv.swagger";
 import {CreateProgramDTO} from "../../../dtos/gcv.dto";
+import {UpdateProgramDTO} from "../../../dtos/shared/shared.program.dto";
+import {GetAllProgramDTO} from "../../../dtos/shared/shared.program.dto";
 @ApiTags("GCV-Only")
 @Controller("gcv")
 export class GCVController implements GCVControllerPort {
@@ -77,6 +91,85 @@ export class GCVController implements GCVControllerPort {
     ): Promise<Response> {
         try {
             const result = await this.gcvService.createProgram(body);
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Get("/get-programs")
+    @ApiResponse(PROGRAM_RESPONSES.FETCH.SUCCESS)
+    async getAllPrograms(
+        @Query() query: GetAllProgramDTO,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const result = await this.gcvService.getPrograms(query);
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Patch("/update-program")
+    @ApiResponse(PROGRAM_RESPONSES.UPDATE.SUCCESS)
+    @ApiResponse(PROGRAM_RESPONSES.UPDATE.NOT_FOUND)
+    @ApiResponse(PROGRAM_RESPONSES.UPDATE.NAME_ALREADY_TAKEN)
+    async updateProgram(
+        @Body() body: UpdateProgramDTO,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const result = await this.gcvService.updateProgram(body);
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Delete("/delete-program")
+    @ApiResponse(PROGRAM_RESPONSES.DELETE.SUCCESS)
+    @ApiResponse(PROGRAM_RESPONSES.DELETE.NOT_FOUND)
+    @ApiResponse(PROGRAM_RESPONSES.DELETE.FAILURE)
+    async deleteProgram(
+        @Body() body: DeleteProgramDTO,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const result = await this.gcvService.deleteProgram(body);
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Post("/add-program-manager")
+    @ApiResponse(PROGRAM_RESPONSES.ADD_MANAGER.SUCCESS)
+    @ApiResponse(PROGRAM_RESPONSES.ADD_MANAGER.MANAGER_ALREADY_LINKED)
+    @ApiResponse(PROGRAM_RESPONSES.ADD_MANAGER.PROGRAM_NOT_FOUND)
+    @ApiResponse(PROGRAM_RESPONSES.ADD_MANAGER.FAILURE)
+    @ApiResponse(PROGRAM_RESPONSES.ADD_MANAGER.USER_NOT_FOUND)
+    async addProgramManager(
+        @Body() body: AddProgramManagerDTO,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const result = await this.gcvService.addProgramManager(body);
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Patch("/update-program-manager")
+    @ApiResponse(PROGRAM_RESPONSES.UPDATE_MANAGER.SUCCESS)
+    @ApiResponse(PROGRAM_RESPONSES.UPDATE_MANAGER.FAILURE)
+    async updateProgramManager(
+        @Body() body: UpdateProgramManagerDTO,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const result = await this.gcvService.addProgramManager(body);
             return response.status(result.status).json(result);
         } catch (error) {
             return this.handleError(error, response);

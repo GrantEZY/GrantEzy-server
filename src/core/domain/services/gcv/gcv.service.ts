@@ -1,6 +1,8 @@
 import {Injectable, Inject} from "@nestjs/common";
 import {
+    AddProgramManagerDTO,
     CreateProgramDTO,
+    DeleteProgramDTO,
     GCVMemberAddDTO,
     GetAllGCVUsersDTO,
     UpdateGCVUserRoleDTO,
@@ -13,8 +15,12 @@ import {UserRoles} from "../../constants/userRoles.constants";
 import ApiError from "../../../../shared/errors/api.error";
 import {
     AddGCVUserDataResponse,
+    AddProgramManagerResponse,
     CreateProgramResponse,
+    DeletProgramResponse,
+    GetAllProgramsResponse,
     GetGCVUsersDataResponse,
+    UpdateProgramResponse,
     UpdateUserDataResponse,
 } from "../../../../infrastructure/driven/response-dtos/gcv.response-dto";
 import {SharedOrganizationService} from "../shared/organization/shared.organization.service";
@@ -23,6 +29,11 @@ import {
     ProgramAggregatePort,
     PROGRAM_AGGREGATE_PORT,
 } from "../../../../ports/outputs/repository/program/program.aggregate.port";
+import {
+    GetAllProgramDTO,
+    UpdateProgramDTO,
+} from "../../../../infrastructure/driving/dtos/shared/shared.program.dto";
+import {SharedProgramService} from "../shared/program/shared.program.service";
 
 @Injectable()
 /**
@@ -35,7 +46,8 @@ export class GCVService {
         @Inject(PROGRAM_AGGREGATE_PORT)
         private readonly programAggregateRepository: ProgramAggregatePort,
         private readonly userSharedService: UserSharedService,
-        private readonly sharedOrganizationService: SharedOrganizationService
+        private readonly sharedOrganizationService: SharedOrganizationService,
+        private readonly sharedProgramService: SharedProgramService
     ) {}
 
     async addGCVMember(
@@ -90,9 +102,9 @@ export class GCVService {
 
             const {users, totalNumberOfUsers} =
                 await this.userAggregateRepository.getUsers(
-                    filterData.filter.otherFilters, //eslint-disable-line
-                    page, //eslint-disable-line
-                    numberOfResults // eslint-disable-line
+                    filterData.filter.otherFilters,
+                    page,
+                    numberOfResults
                 );
 
             if (users.length === 0) {
@@ -157,12 +169,25 @@ export class GCVService {
                     await this.sharedOrganizationService.getOrganizationByName(
                         organization.name
                     );
+
+                const ExistingProgram =
+                    await this.programAggregateRepository.findByName(
+                        program.details.name,
+                        organization.name
+                    );
+
+                if (ExistingProgram) {
+                    throw new ApiError(
+                        409,
+                        "The Organization already has a program with this name",
+                        "Conflict Error"
+                    );
+                }
             }
 
             const programDetails = {
                 details: program.details,
                 duration: program.duration,
-                status: program.status,
                 budget: program.budget,
                 minTRL: program.minTRL,
                 maxTRL: program.maxTRL,
@@ -181,6 +206,162 @@ export class GCVService {
                     id: createdProgram.id,
                 },
             };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async getPrograms(
+        getProgramFilter: GetAllProgramDTO
+    ): Promise<GetAllProgramsResponse> {
+        try {
+            const {programs, totalNumberOfPrograms} =
+                await this.sharedProgramService.getPrograms(getProgramFilter);
+            return {
+                status: 200,
+                message: "Programs filtered as per filter",
+                res: {
+                    programs,
+                    numberOfPrograms: totalNumberOfPrograms,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async updateProgram(
+        updatedDetails: UpdateProgramDTO
+    ): Promise<UpdateProgramResponse> {
+        try {
+            const program =
+                await this.sharedProgramService.UpdateProgramDetails(
+                    updatedDetails
+                );
+
+            return {
+                status: 200,
+                message: "Program Updated Successfully",
+                res: {
+                    id: program.id,
+                    status: program.status,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async deleteProgram(
+        deleteProgramDetails: DeleteProgramDTO
+    ): Promise<DeletProgramResponse> {
+        try {
+            const {id} = deleteProgramDetails;
+
+            const program = await this.programAggregateRepository.findById(id);
+            if (!program) {
+                throw new ApiError(404, " Program Not Found ", "Program Error");
+            }
+            const isDeleted =
+                await this.programAggregateRepository.deleteProgram(id);
+            if (isDeleted) {
+                return {
+                    status: 200,
+                    message: "Program Deleted Successfully",
+                    res: {
+                        success: true,
+                    },
+                };
+            }
+            throw new ApiError(
+                400,
+                "Error in deleting Program",
+                "Program Error"
+            );
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async addProgramManager(
+        programMangerDetails: AddProgramManagerDTO
+    ): Promise<AddProgramManagerResponse> {
+        try {
+            const {id: programId, email} = programMangerDetails;
+            const manager = await this.userAggregateRepository.findByEmail(
+                email,
+                false
+            );
+
+            if (!manager) {
+                throw new ApiError(404, "User not found", "User Conflict");
+            }
+            const program =
+                await this.programAggregateRepository.findById(programId);
+
+            if (!program) {
+                throw new ApiError(404, "Program Not Found", "Conflict Error");
+            }
+
+            const isLinked =
+                await this.programAggregateRepository.getProgramByManagerId(
+                    manager.personId
+                );
+            if (isLinked) {
+                throw new ApiError(
+                    409,
+                    "Manager already has a program",
+                    "Conflict Error"
+                );
+            }
+            const previousManagerId = program?.managerId;
+
+            if (previousManagerId) {
+                const previousManager =
+                    await this.userAggregateRepository.findById(
+                        previousManagerId,
+                        false
+                    );
+
+                const previousManagerUpdatedRoles =
+                    previousManager?.role.filter(
+                        (role) => role != UserRoles.PROGRAM_MANAGER
+                    );
+
+                await this.userAggregateRepository.updateUserRole(
+                    previousManagerId,
+                    previousManagerUpdatedRoles ?? [UserRoles.NORMAL_USER]
+                );
+            }
+
+            if (!manager.role.includes(UserRoles.PROGRAM_MANAGER)) {
+                manager.role.push(UserRoles.PROGRAM_MANAGER);
+                await this.userAggregateRepository.updateUserRole(
+                    manager.personId,
+                    manager.role
+                );
+            }
+            const isAdded =
+                await this.programAggregateRepository.addProgramManager(
+                    manager.personId,
+                    program
+                );
+            if (isAdded) {
+                return {
+                    status: 200,
+                    message: "Program Manager Added Successfully",
+                    res: {
+                        managerId: manager.personId,
+                        programId,
+                    },
+                };
+            } else {
+                throw new ApiError(
+                    400,
+                    "Error in Adding Manager",
+                    "Internal Error"
+                );
+            }
         } catch (error) {
             this.handleError(error);
         }

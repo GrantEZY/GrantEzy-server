@@ -95,10 +95,112 @@ export const PROGRAM_RESPONSES = {
       res: null,
     },
     TRYING_TO_CREATE_ALREADY_EXISTING_ORG: {
-      status: 404,
+      status: 409,
       description: "Organization with this name already exists",
       res: null,
     },
   },
+
+  FETCH: {
+    SUCCESS: {
+      status: 200,
+      description: "Programs fetched successfully as per filter",
+      res: {
+        programs: ["ARRAY OF PROGRAMS"],
+        numberOfPrograms: 2,
+      },
+    },
+  },
+
+  UPDATE: {
+    SUCCESS: {
+      status: 200,
+      description: "Program updated successfully",
+      res: {
+        id: "uuid",
+        status: "ACTIVE",
+      },
+    },
+    NOT_FOUND: {
+      status: 404,
+      description: "Program not found",
+      res: null,
+    },
+      NAME_ALREADY_TAKEN: {
+      status: 409,
+      description: "Program name already exist in organization",
+      res: null,
+    },
+  },
+
+  DELETE: {
+    SUCCESS: {
+      status: 200,
+      description: "Program deleted successfully",
+      res: {
+        success: true,
+      },
+    },
+    NOT_FOUND: {
+      status: 404,
+      description: "Program not found",
+      res: null,
+    },
+    FAILURE: {
+      status: 400,
+      description: "Error in deleting Program",
+      res: null,
+    },
+  },
+
+  ADD_MANAGER: {
+    SUCCESS: {
+      status: 200,
+      description: "Program Manager added successfully",
+      res: {
+        managerId: "uuid",
+        programId: "uuid",
+      },
+    },
+    USER_NOT_FOUND: {
+      status: 404,
+      description: "User not found",
+      res: null,
+    },
+    PROGRAM_NOT_FOUND: {
+      status: 404,
+      description: "Program not found",
+      res: null,
+    },
+    MANAGER_ALREADY_LINKED: {
+      status: 409,
+      description: "Manager already has a program",
+      res: null,
+    },
+    FAILURE: {
+      status: 400,
+      description: "Error in adding Program Manager",
+      res: null,
+    },
+  },
+
+  UPDATE_MANAGER: {
+    SUCCESS: {
+      status: 200,
+      description: "Program Manager updated successfully",
+      res: {
+        managerId: "uuid",
+        programId: "uuid",
+      },
+    },
+    FAILURE: {
+      status: 400,
+      description: "Error in updating Program Manager",
+      res: null,
+    },
+  },
 };
+
+
+
 

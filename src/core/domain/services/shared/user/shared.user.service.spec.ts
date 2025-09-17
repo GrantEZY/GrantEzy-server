@@ -44,94 +44,30 @@ describe("SharedUserService", () => {
         expect(userSharedService).toBeDefined();
     });
 
-    it("Add User: Successfully add user", async () => {
-        const user = ADD_USER;
+    describe("Add Invited User", () => {
+        it("Add User: Successfully add user", async () => {
+            const user = ADD_USER;
 
-        const passwordHash = "mocked_hashed_password";
-        passwordHasher.hash.mockResolvedValue(passwordHash);
+            const passwordHash = "mocked_hashed_password";
+            passwordHasher.hash.mockResolvedValue(passwordHash);
 
-        userAggregateRepository.save.mockResolvedValue(saved_user as any);
+            userAggregateRepository.save.mockResolvedValue(saved_user as any);
 
-        const result = await userSharedService.addUser(user);
+            const result = await userSharedService.addUser(user);
 
-        expect(result).toEqual({
-            status: 201,
-            message: "User Added Successfully",
-            res: {
-                id: saved_user.personId,
-                email: saved_user.contact.email,
-            },
+            expect(result).toEqual({
+                status: 201,
+                message: "User Added Successfully",
+                res: {
+                    id: saved_user.personId,
+                    email: saved_user.contact.email,
+                },
+            });
         });
     });
 
-    it("Delete User : Successful deletion", async () => {
-        userAggregateRepository.deleteUser.mockResolvedValue(true);
-
-        const result = await userSharedService.deleteUser(saved_user.personId);
-
-        expect(result).toEqual({
-            status: 200,
-            message: "User Deleted Successfully",
-            res: {
-                status: true,
-            },
-        });
-    });
-
-    it("Add User Role : Successful updation of role", async () => {
-        const userDetails = {
-            email: "tylerdurden@gmail.com",
-            type: "ADD_ROLE",
-            role: "ADMIN",
-        };
-
-        userAggregateRepository.findByEmail.mockResolvedValue(
-            saved_user as any
-        );
-
-        userAggregateRepository.updateUserRole.mockResolvedValue(true);
-
-        const result = await userSharedService.updateUserRole(
-            userDetails as any,
-            saved_user as any
-        );
-
-        expect(result).toEqual({
-            status: 200,
-            message: "User role Updated",
-            res: {
-                id: saved_user.personId,
-                role: userDetails.role,
-            },
-        });
-    });
-
-    it("Add User Role : User Already has the role", async () => {
-        try {
-            const userDetails = {
-                email: "tylerdurden@gmail.com",
-                type: "ADD_ROLE",
-                role: "NORMAL_USER",
-            };
-
-            userAggregateRepository.findByEmail.mockResolvedValue(
-                saved_user as any
-            );
-            await userSharedService.updateUserRole(
-                userDetails as any,
-                saved_user as any
-            );
-        } catch (error) {
-            expect(error).toBeInstanceOf(ApiError);
-            expect((error as ApiError).status).toBe(401);
-            expect((error as ApiError).message).toBe(
-                "User already has the role privileges"
-            );
-        }
-    });
-
-    it("Add User Role : DB Error", async () => {
-        try {
+    describe("Add User Role", () => {
+        it("Add User Role : Successful updation of role", async () => {
             const userDetails = {
                 email: "tylerdurden@gmail.com",
                 type: "ADD_ROLE",
@@ -141,101 +77,175 @@ describe("SharedUserService", () => {
             userAggregateRepository.findByEmail.mockResolvedValue(
                 saved_user as any
             );
-            userAggregateRepository.updateUserRole.mockResolvedValue(false);
 
-            await userSharedService.updateUserRole(
+            userAggregateRepository.updateUserRole.mockResolvedValue(true);
+
+            const result = await userSharedService.updateUserRole(
                 userDetails as any,
                 saved_user as any
             );
-        } catch (error) {
-            expect(error).toBeInstanceOf(ApiError);
-            expect((error as ApiError).status).toBe(500);
-            expect((error as ApiError).message).toBe(
-                "Error in Updating User Role"
-            );
-        }
-    });
 
-    it("Delete User Role : Successful deletion of role", async () => {
-        const userDetails = {
-            email: "tylerdurden@gmail.com",
-            type: "DELETE_ROLE",
-            role: "NORMAL_USER",
-        };
+            expect(result).toEqual({
+                status: 200,
+                message: "User role Updated",
+                res: {
+                    id: saved_user.personId,
+                    role: userDetails.role,
+                },
+            });
+        });
 
-        saved_user.role.push("DIRECTOR" as any);
-        userAggregateRepository.findByEmail.mockResolvedValue(
-            saved_user as any
-        );
+        it("Add User Role : User Already has the role", async () => {
+            try {
+                const userDetails = {
+                    email: "tylerdurden@gmail.com",
+                    type: "ADD_ROLE",
+                    role: "NORMAL_USER",
+                };
 
-        userAggregateRepository.updateUserRole.mockResolvedValue(true);
+                userAggregateRepository.findByEmail.mockResolvedValue(
+                    saved_user as any
+                );
+                await userSharedService.updateUserRole(
+                    userDetails as any,
+                    saved_user as any
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(401);
+                expect((error as ApiError).message).toBe(
+                    "User already has the role privileges"
+                );
+            }
+        });
 
-        const result = await userSharedService.updateUserRole(
-            userDetails as any,
-            saved_user as any
-        );
+        it("Add User Role : DB Error", async () => {
+            try {
+                const userDetails = {
+                    email: "tylerdurden@gmail.com",
+                    type: "ADD_ROLE",
+                    role: "ADMIN",
+                };
 
-        expect(result).toEqual({
-            status: 200,
-            message: "User role Updated",
-            res: {
-                id: saved_user.personId,
-                role: userDetails.role,
-            },
+                userAggregateRepository.findByEmail.mockResolvedValue(
+                    saved_user as any
+                );
+                userAggregateRepository.updateUserRole.mockResolvedValue(false);
+
+                await userSharedService.updateUserRole(
+                    userDetails as any,
+                    saved_user as any
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(500);
+                expect((error as ApiError).message).toBe(
+                    "Error in Updating User Role"
+                );
+            }
         });
     });
 
-    it("Delete User Role : User should have atleast one role", async () => {
-        try {
+    describe("Delete User", () => {
+        it("Delete User : Successful deletion", async () => {
+            userAggregateRepository.deleteUser.mockResolvedValue(true);
+
+            const result = await userSharedService.deleteUser(
+                saved_user.personId
+            );
+
+            expect(result).toEqual({
+                status: 200,
+                message: "User Deleted Successfully",
+                res: {
+                    status: true,
+                },
+            });
+        });
+    });
+
+    describe("Delete User Role", () => {
+        it("Delete User Role : Successful deletion of role", async () => {
             const userDetails = {
                 email: "tylerdurden@gmail.com",
                 type: "DELETE_ROLE",
                 role: "NORMAL_USER",
             };
 
+            saved_user.role.push("DIRECTOR" as any);
             userAggregateRepository.findByEmail.mockResolvedValue(
                 saved_user as any
             );
 
             userAggregateRepository.updateUserRole.mockResolvedValue(true);
 
-            await userSharedService.updateUserRole(
+            const result = await userSharedService.updateUserRole(
                 userDetails as any,
                 saved_user as any
             );
-        } catch (error) {
-            expect(error).toBeInstanceOf(ApiError);
-            expect((error as ApiError).status).toBe(400);
-            expect((error as ApiError).message).toBe(
-                "User Should have at least one Role"
-            );
-        }
-    });
 
-    it("Delete User Role : User should have atleast one role", async () => {
-        try {
-            const userDetails = {
-                email: "tylerdurden@gmail.com",
-                type: "DELETE_ROLE",
-                role: "ADMIN",
-            };
+            expect(result).toEqual({
+                status: 200,
+                message: "User role Updated",
+                res: {
+                    id: saved_user.personId,
+                    role: userDetails.role,
+                },
+            });
+        });
 
-            userAggregateRepository.findByEmail.mockResolvedValue(
-                saved_user as any
-            );
+        it("Delete User Role : User should have atleast one role", async () => {
+            try {
+                const userDetails = {
+                    email: "tylerdurden@gmail.com",
+                    type: "DELETE_ROLE",
+                    role: "NORMAL_USER",
+                };
 
-            userAggregateRepository.updateUserRole.mockResolvedValue(true);
+                userAggregateRepository.findByEmail.mockResolvedValue(
+                    saved_user as any
+                );
 
-            await userSharedService.updateUserRole(
-                userDetails as any,
-                saved_user as any
-            );
-        } catch (error) {
-            expect(error).toBeInstanceOf(ApiError);
-            expect((error as ApiError).status).toBe(401);
-            expect((error as ApiError).message).toBe(
-                "User don't  have the role privileges"
-            );
-        }
+                userAggregateRepository.updateUserRole.mockResolvedValue(true);
+
+                await userSharedService.updateUserRole(
+                    userDetails as any,
+                    saved_user as any
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(400);
+                expect((error as ApiError).message).toBe(
+                    "User Should have at least one Role"
+                );
+            }
+        });
+
+        it("Delete User Role : User should have atleast one role", async () => {
+            try {
+                const userDetails = {
+                    email: "tylerdurden@gmail.com",
+                    type: "DELETE_ROLE",
+                    role: "ADMIN",
+                };
+
+                userAggregateRepository.findByEmail.mockResolvedValue(
+                    saved_user as any
+                );
+
+                userAggregateRepository.updateUserRole.mockResolvedValue(true);
+
+                await userSharedService.updateUserRole(
+                    userDetails as any,
+                    saved_user as any
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(401);
+                expect((error as ApiError).message).toBe(
+                    "User don't  have the role privileges"
+                );
+            }
+        });
     });
 });

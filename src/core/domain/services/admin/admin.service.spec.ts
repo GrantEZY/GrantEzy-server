@@ -331,6 +331,40 @@ describe.only("AdminService", () => {
         });
     });
 
+    describe("Get User Profile", () => {
+        it("Successful retreival of user", async () => {
+            const userSlugData = {userSlug: "slug-1"};
+
+            userAggregateRepository.findBySlug.mockResolvedValue(
+                SAVED_USER as any
+            );
+
+            const result = await adminService.getUserProfile(userSlugData);
+
+            expect(result).toEqual({
+                status: 200,
+                message: "User Profile Data Fetched",
+                res: {
+                    user: SAVED_USER,
+                },
+            });
+        });
+
+        it("User Not Found", async () => {
+            try {
+                const userSlugData = {userSlug: "slug-1"};
+
+                userAggregateRepository.findBySlug.mockResolvedValue(null);
+
+                await adminService.getUserProfile(userSlugData);
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(400);
+                expect((error as ApiError).message).toBe("User Not Found");
+            }
+        });
+    });
+
     describe("Add Organization", () => {
         it("Add Organization", async () => {
             (
@@ -459,7 +493,7 @@ describe.only("AdminService", () => {
             });
         });
 
-        it("Conflict Error While Updation", async () => {
+        it("Conflict Error While deletion", async () => {
             try {
                 (
                     sharedOrganisationService.deleteOrganization as jest.Mock

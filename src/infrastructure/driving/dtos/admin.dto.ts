@@ -6,6 +6,7 @@ import {
     ValidateNested,
     IsObject,
     IsEnum,
+    IsString,
 } from "class-validator";
 import {Type} from "class-transformer";
 import {UserRoles} from "../../../core/domain/constants/userRoles.constants";
@@ -48,4 +49,13 @@ export class GetAllUsersDTO {
     @ValidateNested()
     @Type(() => UserFilterDto)
     filter?: UserFilterDto;
+}
+
+export class GetUserProfileDTO {
+    @IsString()
+    @ApiProperty({
+        description: "User slug to find the user",
+        example: "24598273459sfgsdfgs7899779",
+    })
+    userSlug: string;
 }
