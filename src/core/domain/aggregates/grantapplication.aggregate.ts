@@ -64,13 +64,14 @@ export class GrantApplication {
 
     @Column({
         type: "jsonb",
+        nullable: true,
         transformer: {
             to: (value: Money) => (value ? value.toJSON() : null),
             from: (value: {amount: number; currency: string}) =>
                 value ? new Money(value.amount, value.currency) : null,
         },
     })
-    budget: Money;
+    budget: Money | null;
 
     @Column({
         type: "jsonb",
@@ -98,6 +99,7 @@ export class GrantApplication {
 
     @Column({
         type: "jsonb",
+        nullable: true,
         transformer: {
             to: (value: TechnicalSpec) => (value ? value.toJSON() : null),
             from: (value: {
@@ -114,10 +116,11 @@ export class GrantApplication {
                     : null,
         },
     })
-    technicalSpec: TechnicalSpec;
+    technicalSpec: TechnicalSpec | null;
 
     @Column({
         type: "jsonb",
+        nullable: true,
         transformer: {
             to: (value: MarketInfo) => (value ? value.toJSON() : null),
             from: (value: {
@@ -136,10 +139,11 @@ export class GrantApplication {
                     : null,
         },
     })
-    marketInfo: MarketInfo;
+    marketInfo: MarketInfo | null;
 
     @Column({
         type: "jsonb",
+        nullable: true,
         transformer: {
             to: (value: RevenueModel) => (value ? value.toJSON() : null),
             from: (value: {
@@ -158,7 +162,7 @@ export class GrantApplication {
                     : null,
         },
     })
-    revenueInfo: RevenueModel;
+    revenueInfo: RevenueModel | null;
 
     @Column({
         type: "jsonb",

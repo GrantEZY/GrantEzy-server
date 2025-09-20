@@ -9,6 +9,7 @@ import {OutputPortModule} from "../../ports/outputs/output.port.module";
 import {AdminModule} from "./admin/admin.module";
 import {SharedModule} from "./shared/shared.module";
 import {GCVModule} from "./gcv/gcv.module";
+import {ApplicantModule} from "./applicant/applicant.module";
 import {ProgramManagerModule} from "./progam-manager/pm.module";
 import {QueueConnection} from "../../infrastructure/driven/queue/connection";
 import {QueueFeatureConnection} from "../../infrastructure/driven/queue/connection";
@@ -25,6 +26,7 @@ import {QueueFeatureConnection} from "../../infrastructure/driven/queue/connecti
         AdminModule,
         GCVModule,
         ProgramManagerModule,
+        ApplicantModule,
     ],
     controllers: [AppController],
     providers: [AppService],

@@ -24,10 +24,21 @@ import {Organization} from "../../core/domain/entities/organization.entity";
 import {Cycle} from "../../core/domain/aggregates/cycle.aggregate";
 import {CYCLE_AGGREGATE_PORT} from "./repository/cycle/cycle.aggregate.port";
 import {CycleAggregateRepository} from "../../infrastructure/driven/database/repositories/cycle.aggregate.repository";
+import {GrantApplication} from "../../core/domain/aggregates/grantapplication.aggregate";
+
+import {GrantApplicationRepository} from "../../infrastructure/driven/database/repositories/grantapplication.aggregate.repository";
+import {GRANT_APPLICATION_AGGREGATE_PORT} from "./repository/grantapplication/grantapplication.aggregate.port";
 @Global()
 @Module({
     imports: [
-        TypeOrmModule.forFeature([User, Person, Program, Organization, Cycle]),
+        TypeOrmModule.forFeature([
+            User,
+            Person,
+            Program,
+            Organization,
+            Cycle,
+            GrantApplication,
+        ]),
         JwtModule.register({}),
         ConfigModule,
     ],
@@ -46,6 +57,10 @@ import {CycleAggregateRepository} from "../../infrastructure/driven/database/rep
             provide: CYCLE_AGGREGATE_PORT,
             useClass: CycleAggregateRepository,
         },
+        {
+            provide: GRANT_APPLICATION_AGGREGATE_PORT,
+            useClass: GrantApplicationRepository,
+        },
     ],
     exports: [
         USER_AGGREGATE_PORT,
@@ -57,6 +72,7 @@ import {CycleAggregateRepository} from "../../infrastructure/driven/database/rep
         CACHE_REPOSITORY_PORT,
         PROGRAM_AGGREGATE_PORT,
         ORGANIZATION_ENTITY_PORT,
+        GRANT_APPLICATION_AGGREGATE_PORT,
     ],
 })
 export class OutputPortModule {}
