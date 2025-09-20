@@ -48,7 +48,7 @@ export class ApplicantService {
                     cycle.id
                 );
 
-            if (!existingApplication) {
+            if (existingApplication) {
                 throw new ApiError(
                     409,
                     "User Already have a application registered",

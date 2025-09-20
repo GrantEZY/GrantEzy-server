@@ -35,7 +35,7 @@ export class ApplicantController implements ApplicantControllerPort {
         }
     }
 
-    @Get("get-user-applications")
+    @Get("/get-user-applications")
     @ApiResponse(APPLICATION_RESPONSES.GET_USER_APPLICATIONS.SUCCESS)
     @ApiResponse(APPLICATION_RESPONSES.GET_USER_APPLICATIONS.NO_APPLICATIONS)
     async getUserApplications(
