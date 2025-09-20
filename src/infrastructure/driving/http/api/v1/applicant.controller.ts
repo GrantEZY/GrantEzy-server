@@ -1,10 +1,13 @@
-import {Body, Controller, Post, Res, Get} from "@nestjs/common";
+import {Body, Controller, Post, Res, Get, Delete} from "@nestjs/common";
 import {Response} from "express";
 import ApiError from "../../../../../shared/errors/api.error";
 import {ApplicantControllerPort} from "../../../../../ports/inputs/controllers/applicant.controller.port";
 import {ApplicantService} from "../../../../../core/domain/services/applicant/applicant.service";
 import {AccessTokenJwt} from "../../../../../shared/types/jwt.types";
-import {CreateApplicationControllerDTO} from "../../../dtos/applicant.dto";
+import {
+    CreateApplicationControllerDTO,
+    DeleteApplicationDTO,
+} from "../../../dtos/applicant.dto";
 import {CurrentUser} from "../../../../../shared/decorators/currentuser.decorator";
 import {ApiResponse, ApiTags} from "@nestjs/swagger";
 import {APPLICATION_RESPONSES} from "../../../../../config/swagger/docs/applicant.swagger";
@@ -39,12 +42,35 @@ export class ApplicantController implements ApplicantControllerPort {
     @ApiResponse(APPLICATION_RESPONSES.GET_USER_APPLICATIONS.SUCCESS)
     @ApiResponse(APPLICATION_RESPONSES.GET_USER_APPLICATIONS.NO_APPLICATIONS)
     async getUserApplications(
-        user: AccessTokenJwt,
-        response: Response
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
     ): Promise<Response> {
         try {
             const id = user.userData.payload.id;
             const result = await this.applicantService.getUserApplications(id);
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Delete("/delete-user-application")
+    @ApiResponse(APPLICATION_RESPONSES.DELETE.SUCCESS)
+    @ApiResponse(APPLICATION_RESPONSES.DELETE.NOT_FOUND)
+    @ApiResponse(APPLICATION_RESPONSES.DELETE.FORBIDDEN)
+    @ApiResponse(APPLICATION_RESPONSES.DELETE.IN_REVIEW)
+    async deleteUserApplication(
+        @CurrentUser() user: AccessTokenJwt,
+        @Body() body: DeleteApplicationDTO,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+
+            const result = await this.applicantService.deleteApplication(
+                id,
+                body.applicationId
+            );
             return response.status(result.status).json(result);
         } catch (error) {
             return this.handleError(error, response);

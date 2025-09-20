@@ -100,6 +100,25 @@ export class GrantApplicationRepository
         }
     }
 
+    async deleteApplication(
+        oldApplication: GrantApplication
+    ): Promise<GrantApplication> {
+        try {
+            oldApplication.status = GrantApplicationStatus.DELETED;
+
+            return await this.grantApplicationRepository.save(oldApplication);
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Failed to delete application",
+                "Database Error"
+            );
+        }
+    }
+
     async findUserCycleApplication(
         userId: string,
         cycleId: string

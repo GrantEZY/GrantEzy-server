@@ -1,4 +1,7 @@
-import {CreateApplicationControllerDTO} from "../../../infrastructure/driving/dtos/applicant.dto";
+import {
+    CreateApplicationControllerDTO,
+    DeleteApplicationDTO,
+} from "../../../infrastructure/driving/dtos/applicant.dto";
 import {AccessTokenJwt} from "../../../shared/types/jwt.types";
 import {Response} from "express";
 export interface ApplicantControllerPort {
@@ -13,5 +16,10 @@ export interface ApplicantControllerPort {
         response: Response
     ): Promise<Response>;
 
+    deleteUserApplication(
+        user: AccessTokenJwt,
+        body: DeleteApplicationDTO,
+        response: Response
+    ): Promise<Response>;
     handleError(error: unknown, response: Response): Response;
 }

@@ -16,6 +16,7 @@ import {
     saved_Application,
 } from "./applicant.service.mock.data";
 import ApiError from "../../../../shared/errors/api.error";
+import {GrantApplicationStatus} from "../../constants/status.constants";
 describe("Applicant ", () => {
     let applicationService: ApplicantService;
     let applicationAggregateRepository: jest.Mocked<GrantApplicationAggregatePort>;
@@ -88,7 +89,7 @@ describe("Applicant ", () => {
                 );
             } catch (error) {
                 expect(error).toBeInstanceOf(ApiError);
-                expect((error as ApiError).status).toBe(400);
+                expect((error as ApiError).status).toBe(404);
                 expect((error as ApiError).message).toBe(
                     "Program Cycle Not Found"
                 );
@@ -135,6 +136,92 @@ describe("Applicant ", () => {
                     applications: applicationsArray,
                 },
             });
+        });
+    });
+
+    describe("Delete User Application", () => {
+        it("Successful deletion of the application", async () => {
+            (saved_Application as any).applicantId = "uuid";
+
+            applicationAggregateRepository.findById.mockResolvedValue(
+                saved_Application as any
+            );
+
+            applicationAggregateRepository.deleteApplication.mockResolvedValue(
+                saved_Application as any
+            );
+
+            const result = await applicationService.deleteApplication(
+                "uuid",
+                "applicationId"
+            );
+
+            expect(result).toEqual({
+                status: 200,
+                message: "Application Deleted Successfully",
+                res: {
+                    success: true,
+                    applicationId: saved_Application.id,
+                },
+            });
+        });
+
+        it("Application Not found", async () => {
+            try {
+                applicationAggregateRepository.findById.mockResolvedValue(null);
+                await applicationService.deleteApplication(
+                    "uuid",
+                    "applicationId"
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).message).toBe(
+                    "Application not found"
+                );
+            }
+        });
+
+        it("In review Application cant be deleted", async () => {
+            try {
+                (saved_Application as any).status =
+                    GrantApplicationStatus.IN_REVIEW;
+                applicationAggregateRepository.findById.mockResolvedValue(
+                    saved_Application as any
+                );
+
+                await applicationService.deleteApplication(
+                    "uuid",
+                    "applicationId"
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(400);
+                expect((error as ApiError).message).toBe(
+                    "In review application cant be deleted"
+                );
+            }
+        });
+
+        it("Only Applicant can delete the application", async () => {
+            try {
+                (saved_Application as any).status =
+                    GrantApplicationStatus.DRAFT;
+                applicationAggregateRepository.findById.mockResolvedValue(
+                    saved_Application as any
+                );
+
+                await applicationService.deleteApplication(
+                    "uuid1",
+                    "applicationId"
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe(
+                    "Application can be only deleted by the applicant"
+                );
+            }
         });
     });
 });

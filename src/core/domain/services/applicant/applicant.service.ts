@@ -11,8 +11,10 @@ import {
 } from "../../../../ports/outputs/repository/cycle/cycle.aggregate.port";
 import {
     CreateApplicationResponse,
+    DeleteApplicationResponse,
     GetUserApplicationsResponse,
 } from "../../../../infrastructure/driven/response-dtos/applicant.response-dto";
+import {GrantApplicationStatus} from "../../constants/status.constants";
 @Injectable()
 /**
  * This contains the
@@ -36,7 +38,7 @@ export class ApplicantService {
                 await this.cycleAggregateRepository.findCycleByslug(cycleSlug);
             if (!cycle) {
                 throw new ApiError(
-                    400,
+                    404,
                     "Program Cycle Not Found",
                     "Conflict Error"
                 );
@@ -87,6 +89,58 @@ export class ApplicantService {
                 status: 200,
                 message: "User Applications",
                 res: {applications},
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async deleteApplication(
+        userId: string,
+        applicationId: string
+    ): Promise<DeleteApplicationResponse> {
+        try {
+            const application =
+                await this.applicationAggregateRepository.findById(
+                    applicationId
+                );
+
+            if (!application) {
+                throw new ApiError(
+                    404,
+                    "Application not found",
+                    "Conflict Error"
+                );
+            }
+
+            if (application.status === GrantApplicationStatus.IN_REVIEW) {
+                throw new ApiError(
+                    400,
+                    "In review application cant be deleted",
+                    "Conflict Error"
+                );
+            }
+
+            if (userId !== application.applicantId) {
+                throw new ApiError(
+                    403,
+                    "Application can be only deleted by the applicant",
+                    "Conflict Error"
+                );
+            }
+
+            const deletedApplication =
+                await this.applicationAggregateRepository.deleteApplication(
+                    application
+                );
+
+            return {
+                status: 200,
+                message: "Application Deleted Successfully",
+                res: {
+                    success: true,
+                    applicationId: deletedApplication.id,
+                },
             };
         } catch (error) {
             this.handleError(error);

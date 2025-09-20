@@ -45,7 +45,6 @@ export class CreateApplicationControllerDTO {
         description: "slug of the associated cycle",
         example: "4b7d1f330f2e4b7a91e35f58f3c9d4ab",
     })
-    @IsUUID()
     cycleSlug: string;
 
     @ApiProperty({
@@ -97,4 +96,13 @@ export class CreateApplicationRepoDTO {
     @ValidateNested()
     @Type(() => ProjectBasicInfoDTO)
     basicInfo: ProjectBasicInfoDTO;
+}
+
+export class DeleteApplicationDTO {
+    @ApiProperty({
+        description: "UUID of the associated application",
+        example: "4b7d1f33-0f2e-4b7a-91e3-5f58f3c9d4ab",
+    })
+    @IsUUID()
+    applicationId: string;
 }
