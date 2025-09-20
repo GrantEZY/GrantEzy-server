@@ -118,96 +118,127 @@ describe("Shared Program Service", () => {
 
             expect(programAggregateRepository.updateProgram).toHaveBeenCalled();
         });
+    });
 
-        describe("Get Program Cycle Details", () => {
-            it("return cycle based on slug ", async () => {
-                const cycleSlug = "cycle slug";
+    describe("Get Program Cycle Details through slug", () => {
+        it("return cycle based on slug ", async () => {
+            const cycleSlug = "cycle slug";
 
-                cycleAggregateRepository.findCycleByslug.mockResolvedValue(
-                    inputCycle as any
-                );
+            cycleAggregateRepository.findCycleByslug.mockResolvedValue(
+                inputCycle as any
+            );
 
-                const result =
-                    await sharedProgramService.getProgramCycleDetails(
-                        cycleSlug
-                    );
+            const result =
+                await sharedProgramService.getProgramCycleDetails(cycleSlug);
 
-                expect(result).toEqual(inputCycle);
+            expect(result).toEqual(inputCycle);
+        });
+    });
+
+    describe("Program Cycles", () => {
+        it("get Program's  Cycles with their  Details", async () => {
+            cycleAggregateRepository.findProgramCycles.mockResolvedValue({
+                cycles: CYCLES_ARRAY as any,
+                totalNumberOfCycles: 2,
+            });
+
+            const result = await sharedProgramService.getProgramCycles({
+                programId: "prog-id",
+                page: 1,
+                numberOfResults: 10,
+            });
+
+            expect(result).toEqual({
+                cycles: CYCLES_ARRAY,
+                totalNumberOfCycles: 2,
             });
         });
+    });
 
-        describe("Program Cycles", () => {
-            it("get Program Details", async () => {
-                cycleAggregateRepository.findProgramCycles.mockResolvedValue({
-                    cycles: CYCLES_ARRAY as any,
-                    totalNumberOfCycles: 2,
-                });
+    describe("Update Cycle Details", () => {
+        it("Update Details successful", async () => {
+            cycleAggregateRepository.findById.mockResolvedValue(
+                inputCycle as any
+            );
 
-                const result = await sharedProgramService.getProgramCycles({
-                    programId: "prog-id",
-                    page: 1,
-                    numberOfResults: 10,
-                });
+            cycleAggregateRepository.updateCycle.mockResolvedValue({
+                ...inputCycle,
+                budget: {amount: 10000, currency: "USD"},
+                duration: {
+                    ...inputCycle.duration,
+                    endDate: new Date("2025-09-30"),
+                },
+            } as any);
 
-                expect(result).toEqual({
-                    cycles: CYCLES_ARRAY,
-                    totalNumberOfCycles: 2,
-                });
-            });
-        });
+            cycleAggregateRepository.getProgramCycleWithRound.mockResolvedValue(
+                null as any
+            );
 
-        describe("Update Cycle Details", () => {
-            it("Update Details successful", async () => {
-                cycleAggregateRepository.findById.mockResolvedValue(
-                    inputCycle as any
-                );
+            const updateDetails = {
+                id: inputCycle.id ?? "cycle-id",
+                budget: {
+                    amount: 10000,
+                    currency: "USD",
+                },
+                duration: {
+                    endDate: new Date("2025-09-30"),
+                },
+            };
 
-                cycleAggregateRepository.updateCycle.mockResolvedValue({
-                    ...inputCycle,
+            const result = await sharedProgramService.updateCycleDetails(
+                updateDetails as any
+            );
+
+            expect(cycleAggregateRepository.findById).toHaveBeenCalledWith(
+                inputCycle.id
+            );
+            expect(cycleAggregateRepository.updateCycle).toHaveBeenCalledWith(
+                inputCycle,
+                updateDetails
+            );
+
+            expect(result).toEqual(
+                expect.objectContaining({
+                    id: inputCycle.id,
                     budget: {amount: 10000, currency: "USD"},
-                    duration: {
-                        ...inputCycle.duration,
-                        endDate: new Date("2025-09-30"),
-                    },
-                } as any);
+                })
+            );
+        });
 
-                cycleAggregateRepository.getProgramCycleWithRound.mockResolvedValue(
-                    null as any
-                );
+        it("Cycle Not found", async () => {
+            try {
+                cycleAggregateRepository.findById.mockResolvedValue(null);
 
                 const updateDetails = {
-                    id: inputCycle.id ?? "cycle-id",
                     budget: {
                         amount: 10000,
-                        currency: "USD",
                     },
                     duration: {
-                        endDate: new Date("2025-09-30"),
+                        endDate: new Date(),
                     },
                 };
-
-                const result = await sharedProgramService.updateCycleDetails(
+                await sharedProgramService.updateCycleDetails(
                     updateDetails as any
                 );
-
-                expect(cycleAggregateRepository.findById).toHaveBeenCalledWith(
-                    inputCycle.id
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(400);
+                expect((error as ApiError).message).toBe(
+                    "Program Cycle Not Found"
                 );
-                expect(
-                    cycleAggregateRepository.updateCycle
-                ).toHaveBeenCalledWith(inputCycle, updateDetails);
+            }
+        });
 
-                expect(result).toEqual(
-                    expect.objectContaining({
-                        id: inputCycle.id,
-                        budget: {amount: 10000, currency: "USD"},
-                    })
-                );
-            });
-
-            it("Cycle Not found", async () => {
+        it("Program Already has a cycle in that round", async () => {
+            try {
                 try {
-                    cycleAggregateRepository.findById.mockResolvedValue(null);
+                    cycleAggregateRepository.findById.mockResolvedValue(
+                        dummyCycle as any
+                    );
+
+                    cycleAggregateRepository.getProgramCycleWithRound.mockResolvedValue(
+                        dummyCycle as any
+                    );
 
                     const updateDetails = {
                         budget: {
@@ -222,44 +253,12 @@ describe("Shared Program Service", () => {
                     );
                 } catch (error) {
                     expect(error).toBeInstanceOf(ApiError);
-                    expect((error as ApiError).status).toBe(400);
+                    expect((error as ApiError).status).toBe(409);
                     expect((error as ApiError).message).toBe(
-                        "Program Cycle Not Found"
+                        "Program has a same cycle with round"
                     );
                 }
-            });
-
-            it("Program Already has a cycle in that round", async () => {
-                try {
-                    try {
-                        cycleAggregateRepository.findById.mockResolvedValue(
-                            dummyCycle as any
-                        );
-
-                        cycleAggregateRepository.getProgramCycleWithRound.mockResolvedValue(
-                            dummyCycle as any
-                        );
-
-                        const updateDetails = {
-                            budget: {
-                                amount: 10000,
-                            },
-                            duration: {
-                                endDate: new Date(),
-                            },
-                        };
-                        await sharedProgramService.updateCycleDetails(
-                            updateDetails as any
-                        );
-                    } catch (error) {
-                        expect(error).toBeInstanceOf(ApiError);
-                        expect((error as ApiError).status).toBe(409);
-                        expect((error as ApiError).message).toBe(
-                            "Program has a same cycle with round"
-                        );
-                    }
-                } catch (error) {}
-            });
+            } catch (error) {}
         });
     });
 });

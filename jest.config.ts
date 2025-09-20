@@ -179,7 +179,7 @@ const jestConfig: Config = {
         "^.+\\.tsx?$": [
             "ts-jest",
             {
-                tsconfig: "tsconfig.json",
+                tsconfig: "tsconfig.test.json",
             },
         ],
     },
