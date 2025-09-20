@@ -100,6 +100,34 @@ export class GrantApplicationRepository
         }
     }
 
+    async findUserCycleApplication(
+        userId: string,
+        cycleId: string
+    ): Promise<GrantApplication | null> {
+        try {
+            const application = await this.grantApplicationRepository.findOne({
+                where: {
+                    applicantId: userId,
+                    cycleId,
+                },
+                order: {
+                    createdAt: "DESC",
+                },
+            });
+
+            return application;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Failed to fetch application",
+                "Database Error"
+            );
+        }
+    }
+
     async getUserApplications(userId: string): Promise<GrantApplication[]> {
         try {
             const grantApplications =

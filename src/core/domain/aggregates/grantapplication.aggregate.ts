@@ -8,6 +8,7 @@ import {
     UpdateDateColumn,
     ManyToMany,
     JoinTable,
+    Unique,
     OneToMany,
 } from "typeorm";
 import {User} from "./user.aggregate";
@@ -27,6 +28,7 @@ import {ProjectMilestone} from "../value-objects/project.status.object";
 import {Review} from "./review.aggregate";
 
 @Entity({name: "grant-applications"})
+@Unique(["applicantId", "cycleId"])
 export class GrantApplication {
     @PrimaryGeneratedColumn("uuid")
     id: string;

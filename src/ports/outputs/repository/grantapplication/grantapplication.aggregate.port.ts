@@ -5,6 +5,10 @@ export interface GrantApplicationAggregatePort {
     findById(id: string): Promise<GrantApplication | null>;
     findBySlug(slug: string): Promise<GrantApplication | null>;
     getUserApplications(userId: string): Promise<GrantApplication[]>;
+    findUserCycleApplication(
+        userId: string,
+        cycleId: string
+    ): Promise<GrantApplication | null>;
 }
 
 export const GRANT_APPLICATION_AGGREGATE_PORT = Symbol(
