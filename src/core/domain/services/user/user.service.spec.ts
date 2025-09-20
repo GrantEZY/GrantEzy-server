@@ -6,7 +6,7 @@ import {
     USER_AGGREGATE_PORT,
 } from "../../../../ports/outputs/repository/user/user.aggregate.port";
 import {createMock} from "@golevelup/ts-jest";
-import {SAVED_USER} from "./user.service.mock.data";
+import {SAVED_USER, UPDATED_USER} from "./user.service.mock.data";
 describe("UserService", () => {
     let userService: UserService;
     let userAggregateRepository: jest.Mocked<UserAggregatePort>;
@@ -54,6 +54,44 @@ describe("UserService", () => {
                 userAggregateRepository.findById.mockResolvedValue(null);
 
                 await userService.getAccount("user-123");
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).message).toBe("User Not Found");
+            }
+        });
+    });
+
+    describe("Update User Profile", () => {
+        it("Successful updation of profile", async () => {
+            userAggregateRepository.findById.mockResolvedValue(
+                SAVED_USER as any
+            );
+            userAggregateRepository.updateProfile.mockResolvedValue(
+                UPDATED_USER as any
+            );
+            const result = await userService.updateUserProfile(
+                {firstName: "updatedname", lastName: "updatedLastname"},
+                "user-123"
+            );
+
+            expect(result).toEqual({
+                status: 200,
+                message: "user Profile Updated Properly",
+                res: {
+                    user: UPDATED_USER,
+                },
+            });
+        });
+
+        it("User Not Found", async () => {
+            try {
+                userAggregateRepository.findById.mockResolvedValue(null);
+
+                await userService.updateUserProfile(
+                    {firstName: "updatedname", lastName: "updatedLastname"},
+                    "user-123"
+                );
             } catch (error) {
                 expect(error).toBeInstanceOf(ApiError);
                 expect((error as ApiError).status).toBe(404);
