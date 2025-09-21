@@ -6,7 +6,7 @@ export class ProjectMilestone {
     readonly title: string;
     readonly description: string;
     readonly deliverables: string[];
-    readonly status: ProjectStatus;
+    readonly status?: ProjectStatus;
     readonly dueDate: Date;
     readonly completedDate?: Date; // optional
 
@@ -14,8 +14,8 @@ export class ProjectMilestone {
         title: string,
         description: string,
         deliverables: string[],
-        status: ProjectStatus,
         dueDate: Date,
+        status?: ProjectStatus,
         completedDate?: Date
     ) {
         this.title = title;

@@ -4,11 +4,26 @@ import {GrantApplication} from "../../../../core/domain/aggregates/grantapplicat
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import ApiError from "../../../../shared/errors/api.error";
-import {CreateApplicationRepoDTO} from "../../../driving/dtos/applicant.dto";
+import {
+    AddApplicationRevenueStreamDTO,
+    AddApplicationRisksAndMilestonesDTO,
+    AddBudgetAndTechnicalDetailsDTO,
+    CreateApplicationRepoDTO,
+} from "../../../driving/dtos/applicant.dto";
 import {ProjectBasicInfo} from "../../../../core/domain/value-objects/project.basicinfo.object";
 import {v4 as uuid} from "uuid";
 import {slugify} from "../../../../shared/helpers/slug.generator";
 import {GrantApplicationStatus} from "../../../../core/domain/constants/status.constants";
+import {Money} from "../../../../core/domain/value-objects/project.metrics.object";
+import {TechnicalSpec} from "../../../../core/domain/value-objects/project.technicalspec";
+import {MarketInfo} from "../../../../core/domain/value-objects/marketinfo.object";
+import {
+    RevenueModel,
+    RevenueStream,
+} from "../../../../core/domain/value-objects/revenue.info.object";
+import {Risk} from "../../../../core/domain/value-objects/risk.object";
+import {ProjectMilestone} from "../../../../core/domain/value-objects/project.status.object";
+import {User} from "../../../../core/domain/aggregates/user.aggregate";
 
 @Injectable()
 /**
@@ -56,6 +71,167 @@ export class GrantApplicationRepository
             throw new ApiError(
                 502,
                 "Failed to create application",
+                "Database Error"
+            );
+        }
+    }
+
+    async addApplicationBudgetDetails(
+        application: GrantApplication,
+        budgetDetails: AddBudgetAndTechnicalDetailsDTO
+    ): Promise<GrantApplication> {
+        try {
+            const {budget, technicalSpec, marketInfo} = budgetDetails;
+
+            const ApplicationBudget = new Money(budget.amount, budget.currency);
+
+            const ApplicationTechnicalSpec = new TechnicalSpec(
+                technicalSpec.description,
+                technicalSpec.techStack,
+                technicalSpec.prototype
+            );
+
+            const ApplicationMarketInfo = new MarketInfo(
+                marketInfo.totalAddressableMarket,
+                marketInfo.serviceableMarket,
+                marketInfo.obtainableMarket,
+                marketInfo.competitorAnalysis
+            );
+
+            application.budget = ApplicationBudget;
+            application.technicalSpec = ApplicationTechnicalSpec;
+            application.marketInfo = ApplicationMarketInfo;
+
+            const savedApplication =
+                await this.grantApplicationRepository.save(application);
+
+            return savedApplication;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Failed to add budget details of  application",
+                "Database Error"
+            );
+        }
+    }
+
+    async addApplicationRevenueStream(
+        application: GrantApplication,
+        revenueDetails: AddApplicationRevenueStreamDTO
+    ): Promise<GrantApplication> {
+        try {
+            const {revenueModel} = revenueDetails;
+            const {primaryStream, secondaryStreams, pricing, unitEconomics} =
+                revenueModel;
+            const primaryRevenue = new RevenueStream(
+                primaryStream.type,
+                primaryStream.description,
+                primaryStream.percentage
+            );
+            // eslint-disable-next-line
+            const secondaryRevenues = secondaryStreams.map(
+                (revenue) =>
+                    new RevenueStream(
+                        revenue.type,
+                        revenue.description,
+                        revenue.percentage
+                    )
+            );
+
+            const ApplicationRevenueStream = new RevenueModel(
+                primaryRevenue,
+                secondaryRevenues,
+                pricing,
+                unitEconomics
+            );
+
+            application.revenueInfo = ApplicationRevenueStream;
+            const savedApplication =
+                await this.grantApplicationRepository.save(application);
+
+            return savedApplication;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Failed to add revenue details of  application",
+                "Database Error"
+            );
+        }
+    }
+
+    async addApplicationRisksAndMileStones(
+        application: GrantApplication,
+        risksAndMileStoneDetails: AddApplicationRisksAndMilestonesDTO
+    ): Promise<GrantApplication> {
+        try {
+            const {risks, milestones} = risksAndMileStoneDetails;
+
+            // eslint-disable-next-line
+            const ApplicationRisks = risks.map(
+                (risk) =>
+                    new Risk(risk.description, risk.impact, risk.mitigation)
+            );
+
+            // eslint-disable-next-line
+            const ApplicationMileStones = milestones.map(
+                (milestone) =>
+                    new ProjectMilestone(
+                        milestone.title,
+                        milestone.description,
+                        milestone.deliverables,
+                        milestone.dueDate
+                    )
+            );
+
+            application.risks = ApplicationRisks;
+            application.milestones = ApplicationMileStones;
+
+            const savedApplication =
+                await this.grantApplicationRepository.save(application);
+
+            return savedApplication;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Failed to add risks and milestone details of  application",
+                "Database Error"
+            );
+        }
+    }
+
+    async addApplicationTeammates(
+        application: GrantApplication,
+        teamMateDetails: User[]
+    ): Promise<GrantApplication> {
+        try {
+            if (application.teammates) {
+                teamMateDetails.map((user) => {
+                    application.teammates.push(user);
+                });
+            } else {
+                application.teammates = teamMateDetails;
+            }
+
+            const savedApplication =
+                await this.grantApplicationRepository.save(application);
+
+            return savedApplication;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Failed to add teammate  details of  application",
                 "Database Error"
             );
         }
