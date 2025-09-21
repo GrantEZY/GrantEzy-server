@@ -11,8 +11,11 @@ import {
 import {createMock} from "@golevelup/ts-jest";
 import {
     applicationsArray,
+    budgetAndTechnicalDetails,
     cycleData,
     dummyApplicantData,
+    revenueDetails,
+    riskAndMileStones,
     saved_Application,
 } from "./applicant.service.mock.data";
 import ApiError from "../../../../shared/errors/api.error";
@@ -220,6 +223,181 @@ describe("Applicant ", () => {
                 expect((error as ApiError).status).toBe(403);
                 expect((error as ApiError).message).toBe(
                     "Application can be only deleted by the applicant"
+                );
+            }
+        });
+    });
+
+    describe("Add Application Budget Details", () => {
+        it("Successful Add Budget Details", async () => {
+            applicationAggregateRepository.findById.mockResolvedValue(
+                saved_Application as any
+            );
+            applicationAggregateRepository.addApplicationBudgetDetails.mockResolvedValue(
+                saved_Application as any
+            );
+            const result = await applicationService.addApplicationBudgetDetails(
+                "uuid",
+                budgetAndTechnicalDetails
+            );
+
+            expect(result).toEqual({
+                status: 200,
+                message: "Application details added Successfully",
+                res: {
+                    application: saved_Application,
+                },
+            });
+        });
+
+        it("Application not found", async () => {
+            try {
+                applicationAggregateRepository.findById.mockResolvedValue(null);
+                await applicationService.addApplicationBudgetDetails(
+                    "uuid",
+                    budgetAndTechnicalDetails
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).message).toBe(
+                    "Application  Not Found"
+                );
+            }
+        });
+
+        it("User can't update the application", async () => {
+            try {
+                applicationAggregateRepository.findById.mockResolvedValue(
+                    saved_Application as any
+                );
+
+                await applicationService.addApplicationBudgetDetails(
+                    "uuid1",
+                    budgetAndTechnicalDetails
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe(
+                    "Only the applicant can add further details"
+                );
+            }
+        });
+    });
+
+    describe("Add Revenue Details", () => {
+        it("Successful add application revenue details", async () => {
+            applicationAggregateRepository.findById.mockResolvedValue(
+                saved_Application as any
+            );
+            applicationAggregateRepository.addApplicationRevenueStream.mockResolvedValue(
+                saved_Application as any
+            );
+            const result = await applicationService.addApplicationRevenueStream(
+                "uuid",
+                revenueDetails as any
+            );
+
+            expect(result).toEqual({
+                status: 200,
+                message: "Application details added Successfully",
+                res: {
+                    application: saved_Application,
+                },
+            });
+        });
+
+        it("Application not found", async () => {
+            try {
+                applicationAggregateRepository.findById.mockResolvedValue(null);
+                await applicationService.addApplicationRevenueStream(
+                    "uuid",
+                    revenueDetails as any
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).message).toBe(
+                    "Application  Not Found"
+                );
+            }
+        });
+
+        it("User can't update the application", async () => {
+            try {
+                applicationAggregateRepository.findById.mockResolvedValue(
+                    saved_Application as any
+                );
+
+                await applicationService.addApplicationRevenueStream(
+                    "uuid1",
+                    revenueDetails as any
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe(
+                    "Only the applicant can add further details"
+                );
+            }
+        });
+    });
+
+    describe("Add Risks and MileStones", () => {
+        it("Successful add application risk and milestones", async () => {
+            applicationAggregateRepository.findById.mockResolvedValue(
+                saved_Application as any
+            );
+            applicationAggregateRepository.addApplicationRisksAndMileStones.mockResolvedValue(
+                saved_Application as any
+            );
+
+            const result = await applicationService.AddRisksAndMileStones(
+                "uuid",
+                riskAndMileStones as any
+            );
+
+            expect(result).toEqual({
+                status: 200,
+                message: "Application details added Successfully",
+                res: {
+                    application: saved_Application,
+                },
+            });
+        });
+
+        it("Application not found", async () => {
+            try {
+                applicationAggregateRepository.findById.mockResolvedValue(null);
+                await applicationService.AddRisksAndMileStones(
+                    "uuid",
+                    revenueDetails as any
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).message).toBe(
+                    "Application  Not Found"
+                );
+            }
+        });
+
+        it("User can't update the application", async () => {
+            try {
+                applicationAggregateRepository.findById.mockResolvedValue(
+                    saved_Application as any
+                );
+
+                await applicationService.AddRisksAndMileStones(
+                    "uuid1",
+                    revenueDetails as any
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe(
+                    "Only the applicant can add further details"
                 );
             }
         });

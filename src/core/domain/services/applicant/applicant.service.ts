@@ -3,7 +3,12 @@ import {
     GrantApplicationAggregatePort,
     GRANT_APPLICATION_AGGREGATE_PORT,
 } from "../../../../ports/outputs/repository/grantapplication/grantapplication.aggregate.port";
-import {CreateApplicationControllerDTO} from "../../../../infrastructure/driving/dtos/applicant.dto";
+import {
+    AddApplicationRevenueStreamDTO,
+    AddApplicationRisksAndMilestonesDTO,
+    AddBudgetAndTechnicalDetailsDTO,
+    CreateApplicationControllerDTO,
+} from "../../../../infrastructure/driving/dtos/applicant.dto";
 import ApiError from "../../../../shared/errors/api.error";
 import {
     CycleAggregatePort,
@@ -69,6 +74,144 @@ export class ApplicantService {
                 message: "Application Registered Successfully",
                 res: {
                     application,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async addApplicationBudgetDetails(
+        userId: string,
+        budgetDetails: AddBudgetAndTechnicalDetailsDTO
+    ): Promise<CreateApplicationResponse> {
+        try {
+            const {applicationId} = budgetDetails;
+
+            const application =
+                await this.applicationAggregateRepository.findById(
+                    applicationId
+                );
+
+            if (!application) {
+                throw new ApiError(
+                    404,
+                    "Application  Not Found",
+                    "Conflict Error"
+                );
+            }
+
+            if (application.applicantId !== userId) {
+                throw new ApiError(
+                    403,
+                    "Only the applicant can add further details",
+                    "Conflict Error"
+                );
+            }
+
+            const updatedApplication =
+                await this.applicationAggregateRepository.addApplicationBudgetDetails(
+                    application,
+                    budgetDetails
+                );
+
+            return {
+                status: 200,
+                message: "Application details added Successfully",
+                res: {
+                    application: updatedApplication,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async addApplicationRevenueStream(
+        userId: string,
+        revenueDetails: AddApplicationRevenueStreamDTO
+    ): Promise<CreateApplicationResponse> {
+        try {
+            const {applicationId} = revenueDetails;
+
+            const application =
+                await this.applicationAggregateRepository.findById(
+                    applicationId
+                );
+
+            if (!application) {
+                throw new ApiError(
+                    404,
+                    "Application  Not Found",
+                    "Conflict Error"
+                );
+            }
+
+            if (application.applicantId !== userId) {
+                throw new ApiError(
+                    403,
+                    "Only the applicant can add further details",
+                    "Conflict Error"
+                );
+            }
+
+            const updatedApplication =
+                await this.applicationAggregateRepository.addApplicationRevenueStream(
+                    application,
+                    revenueDetails
+                );
+
+            return {
+                status: 200,
+                message: "Application details added Successfully",
+                res: {
+                    application: updatedApplication,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async AddRisksAndMileStones(
+        userId: string,
+        risksAndMileStones: AddApplicationRisksAndMilestonesDTO
+    ): Promise<CreateApplicationResponse> {
+        try {
+            const {applicationId} = risksAndMileStones;
+
+            const application =
+                await this.applicationAggregateRepository.findById(
+                    applicationId
+                );
+
+            if (!application) {
+                throw new ApiError(
+                    404,
+                    "Application  Not Found",
+                    "Conflict Error"
+                );
+            }
+
+            if (application.applicantId !== userId) {
+                throw new ApiError(
+                    403,
+                    "Only the applicant can add further details",
+                    "Conflict Error"
+                );
+            }
+
+            const updatedApplication =
+                await this.applicationAggregateRepository.addApplicationRisksAndMileStones(
+                    application,
+                    risksAndMileStones
+                );
+
+            return {
+                status: 200,
+                message: "Application details added Successfully",
+                res: {
+                    application: updatedApplication,
                 },
             };
         } catch (error) {

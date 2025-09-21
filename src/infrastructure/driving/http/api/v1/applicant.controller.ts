@@ -1,10 +1,13 @@
-import {Body, Controller, Post, Res, Get, Delete} from "@nestjs/common";
+import {Body, Controller, Post, Res, Get, Delete, Patch} from "@nestjs/common";
 import {Response} from "express";
 import ApiError from "../../../../../shared/errors/api.error";
 import {ApplicantControllerPort} from "../../../../../ports/inputs/controllers/applicant.controller.port";
 import {ApplicantService} from "../../../../../core/domain/services/applicant/applicant.service";
 import {AccessTokenJwt} from "../../../../../shared/types/jwt.types";
 import {
+    AddApplicationRevenueStreamDTO,
+    AddApplicationRisksAndMilestonesDTO,
+    AddBudgetAndTechnicalDetailsDTO,
     CreateApplicationControllerDTO,
     DeleteApplicationDTO,
 } from "../../../dtos/applicant.dto";
@@ -28,6 +31,74 @@ export class ApplicantController implements ApplicantControllerPort {
         try {
             const id = user.userData.payload.id;
             const result = await this.applicantService.createApplication(
+                id,
+                body
+            );
+
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Patch("/add-application-budget")
+    @ApiResponse(APPLICATION_RESPONSES.UPDATE_DETAILS.SUCCESS)
+    @ApiResponse(APPLICATION_RESPONSES.UPDATE_DETAILS.NOT_FOUND)
+    @ApiResponse(APPLICATION_RESPONSES.UPDATE_DETAILS.FORBIDDEN)
+    async addApplicationBudgetDetails(
+        @CurrentUser() user: AccessTokenJwt,
+        @Body() body: AddBudgetAndTechnicalDetailsDTO,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+            const result =
+                await this.applicantService.addApplicationBudgetDetails(
+                    id,
+                    body
+                );
+
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Patch("/add-application-revenue-stream")
+    @ApiResponse(APPLICATION_RESPONSES.UPDATE_DETAILS.SUCCESS)
+    @ApiResponse(APPLICATION_RESPONSES.UPDATE_DETAILS.NOT_FOUND)
+    @ApiResponse(APPLICATION_RESPONSES.UPDATE_DETAILS.FORBIDDEN)
+    async addApplicationRevenueStream(
+        @CurrentUser() user: AccessTokenJwt,
+        @Body() body: AddApplicationRevenueStreamDTO,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+            const result =
+                await this.applicantService.addApplicationRevenueStream(
+                    id,
+                    body
+                );
+
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Patch("/add-application-risks-and-milestones")
+    @ApiResponse(APPLICATION_RESPONSES.UPDATE_DETAILS.SUCCESS)
+    @ApiResponse(APPLICATION_RESPONSES.UPDATE_DETAILS.NOT_FOUND)
+    @ApiResponse(APPLICATION_RESPONSES.UPDATE_DETAILS.FORBIDDEN)
+    async addApplicationRisksAndMileStones(
+        @CurrentUser() user: AccessTokenJwt,
+        @Body() body: AddApplicationRisksAndMilestonesDTO,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+            const result = await this.applicantService.AddRisksAndMileStones(
                 id,
                 body
             );

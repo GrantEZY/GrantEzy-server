@@ -15,6 +15,7 @@ const dummyApplicantData = {
 const saved_Application = {
     id: "uuid",
     userId: "uuid",
+    applicantId: "uuid",
     cycleId: "uuid",
     basicInfo: {
         title: "AI-powered Healthcare Assistant",
@@ -67,4 +68,72 @@ const applicationsArray = [
     saved_Application,
 ];
 
-export {dummyApplicantData, saved_Application, cycleData, applicationsArray};
+const budgetAndTechnicalDetails = {
+    applicationId: "4b7d1f33-0f2e-4b7a-91e3-5f58f3c9d4ab",
+    budget: {
+        amount: 500000,
+        currency: "INR",
+    },
+    technicalSpec: {
+        description: "An AI-powered health monitoring device",
+        techStack: ["Node.js", "TensorFlow", "React"],
+        prototype: "https://github.com/example/prototype",
+    },
+    marketInfo: {
+        totalAddressableMarket: "500M users worldwide",
+        serviceableMarket: "200M users in APAC region",
+        obtainableMarket: "50M users initially",
+        competitorAnalysis: "Competitor A has 60% market share",
+    },
+};
+
+const revenueDetails = {
+    applicationId: "4b7d1f33-0f2e-4b7a-91e3-5f58f3c9d4ab",
+    revenueModel: {
+        primaryStream: {
+            type: "SUBSCRIPTION",
+            description: "Monthly subscription fee",
+            percentage: 70,
+        },
+        secondaryStreams: [
+            {
+                type: "SUBSCRIPTION",
+                description: "Monthly subscription fee",
+                percentage: 70,
+            },
+        ],
+        pricing: "Freemium with premium upgrades",
+        unitEconomics: "LTV > CAC, payback period of 6 months",
+    },
+};
+
+const riskAndMileStones = {
+    applicationId: "4b7d1f33-0f2e-4b7a-91e3-5f58f3c9d4ab",
+    risks: [
+        {
+            description: "Vendor lock-in due to cloud provider dependency",
+            impact: "HIGH",
+            mitigation: "Use a multi-cloud strategy",
+        },
+    ],
+    milestones: [
+        {
+            title: "MVP Release",
+            description: "Deliver the MVP with core features",
+            deliverables: ["Auth module", "Dashboard"],
+            status: "IN_PROGRESS",
+            dueDate: "2025-12-31T00:00:00.000Z",
+            completedDate: null,
+        },
+    ],
+};
+
+export {
+    dummyApplicantData,
+    saved_Application,
+    cycleData,
+    applicationsArray,
+    budgetAndTechnicalDetails,
+    revenueDetails,
+    riskAndMileStones,
+};

@@ -201,9 +201,7 @@ export class GrantApplication {
                                   milestone.title,
                                   milestone.description,
                                   milestone.deliverables,
-                                  milestone.status,
-                                  milestone.dueDate,
-                                  milestone.completedDate
+                                  milestone.dueDate
                               )
                       )
                     : null,

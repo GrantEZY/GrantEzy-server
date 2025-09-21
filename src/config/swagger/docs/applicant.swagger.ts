@@ -152,4 +152,72 @@ export const APPLICATION_RESPONSES = {
       },
     },
   },
+
+  // ======== New Section: Update Application Details ========
+  UPDATE_DETAILS: {
+    SUCCESS: {
+      status: 200,
+      description: "Application details added successfully",
+      example: {
+        status: 200,
+        message: "Application details added Successfully",
+        res: {
+          application: {
+            id: "uuid",
+            userId: "uuid",
+            cycleId: "uuid",
+            basicInfo: {
+              title: "AI-powered Healthcare Assistant",
+              summary:
+                "An AI system that helps doctors with faster diagnostics.",
+              problem: "Healthcare diagnostics are slow and error-prone.",
+              solution: "Use AI algorithms to assist in diagnosis and reduce errors.",
+              innovation: "First system integrating AI and IoT for real-time diagnostics.",
+            },
+            budgetDetails: {
+              totalBudget: 100000,
+              breakdown: "R&D: 50%, Marketing: 30%, Operations: 20%",
+            },
+            revenueStreams: [
+              {
+                type: "Subscription",
+                description: "Monthly subscription from healthcare providers",
+              },
+            ],
+            risksAndMilestones: {
+              risks: ["Regulatory approval delay", "Technical feasibility"],
+              milestones: ["Prototype ready", "Pilot launch", "Market rollout"],
+            },
+          },
+        },
+      },
+    },
+    NOT_FOUND: {
+      status: 404,
+      description: "Application not found",
+      example: {
+        status: 404,
+        message: "Application Not Found",
+        res: null,
+      },
+    },
+    FORBIDDEN: {
+      status: 403,
+      description: "Only the applicant can add further details",
+      example: {
+        status: 403,
+        message: "Only the applicant can add further details",
+        res: null,
+      },
+    },
+    ERROR: {
+      status: 500,
+      description: "Unexpected error while updating application details",
+      example: {
+        status: 500,
+        message: "Internal Server Error",
+        res: null,
+      },
+    },
+  },
 };
