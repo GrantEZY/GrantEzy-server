@@ -1,7 +1,10 @@
 import {
     AddApplicationRevenueStreamDTO,
     AddApplicationRisksAndMilestonesDTO,
-    AddBudgetAndTechnicalDetailsDTO,
+    AddApplicationTeammatesDTO,
+    AddApplicationTechnicalAndMarketInfoDTO,
+    AddBudgetDetailsDTO,
+    ApplicationDocumentsDTO,
     CreateApplicationControllerDTO,
     DeleteApplicationDTO,
 } from "../../../infrastructure/driving/dtos/applicant.dto";
@@ -16,7 +19,13 @@ export interface ApplicantControllerPort {
 
     addApplicationBudgetDetails(
         user: AccessTokenJwt,
-        body: AddBudgetAndTechnicalDetailsDTO,
+        body: AddBudgetDetailsDTO,
+        response: Response
+    ): Promise<Response>;
+
+    addApplicationTechnicalAndMarketInfoDetails(
+        user: AccessTokenJwt,
+        body: AddApplicationTechnicalAndMarketInfoDTO,
         response: Response
     ): Promise<Response>;
 
@@ -31,6 +40,19 @@ export interface ApplicantControllerPort {
         body: AddApplicationRisksAndMilestonesDTO,
         response: Response
     ): Promise<Response>;
+
+    addApplicationDocuments(
+        user: AccessTokenJwt,
+        body: ApplicationDocumentsDTO,
+        response: Response
+    ): Promise<Response>;
+
+    addApplicationTeammates(
+        user: AccessTokenJwt,
+        body: AddApplicationTeammatesDTO,
+        response: Response
+    ): Promise<Response>;
+
     getUserApplications(
         user: AccessTokenJwt,
         response: Response

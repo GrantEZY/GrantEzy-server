@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
+import {RiskDTO} from "../../../infrastructure/driving/dtos/applicant.dto";
 import {Impact} from "../constants/risk.constants";
 
 export class Risk {
@@ -21,3 +22,11 @@ export class Risk {
         };
     }
 }
+
+export const ApplicationRiskObjectBuilder = (risks: RiskDTO[]): Risk[] => {
+    const ApplicationRisks = risks.map(
+        (risk) => new Risk(risk.description, risk.impact, risk.mitigation)
+    );
+
+    return ApplicationRisks;
+};

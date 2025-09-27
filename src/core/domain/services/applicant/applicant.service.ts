@@ -6,7 +6,10 @@ import {
 import {
     AddApplicationRevenueStreamDTO,
     AddApplicationRisksAndMilestonesDTO,
-    AddBudgetAndTechnicalDetailsDTO,
+    AddApplicationTeammatesDTO,
+    AddApplicationTechnicalAndMarketInfoDTO,
+    AddBudgetDetailsDTO,
+    ApplicationDocumentsDTO,
     CreateApplicationControllerDTO,
 } from "../../../../infrastructure/driving/dtos/applicant.dto";
 import ApiError from "../../../../shared/errors/api.error";
@@ -20,9 +23,16 @@ import {
     GetUserApplicationsResponse,
 } from "../../../../infrastructure/driven/response-dtos/applicant.response-dto";
 import {GrantApplicationStatus} from "../../constants/status.constants";
+import {
+    USER_INVITE_AGGREGATE_PORT,
+    UserInviteAggregatePort,
+} from "../../../../ports/outputs/repository/user.invite/user.invite.aggregate.port";
+
+import {UserSharedService} from "../shared/user/shared.user.service";
+import {UserRoles} from "../../constants/userRoles.constants";
 @Injectable()
 /**
- * This contains the
+ * This contains the services for application creation by the users
  */
 export class ApplicantService {
     constructor(
@@ -30,7 +40,11 @@ export class ApplicantService {
         private readonly applicationAggregateRepository: GrantApplicationAggregatePort,
 
         @Inject(CYCLE_AGGREGATE_PORT)
-        private readonly cycleAggregateRepository: CycleAggregatePort
+        private readonly cycleAggregateRepository: CycleAggregatePort,
+
+        @Inject(USER_INVITE_AGGREGATE_PORT)
+        private readonly userInviteAggregateRepository: UserInviteAggregatePort,
+        private readonly sharedUserService: UserSharedService
     ) {}
 
     async createApplication(
@@ -69,6 +83,11 @@ export class ApplicantService {
                 cycleId: cycle.id,
             });
 
+            await this.sharedUserService.addUserRole(
+                userId,
+                UserRoles.APPLICANT
+            );
+
             return {
                 status: 201,
                 message: "Application Registered Successfully",
@@ -83,10 +102,65 @@ export class ApplicantService {
 
     async addApplicationBudgetDetails(
         userId: string,
-        budgetDetails: AddBudgetAndTechnicalDetailsDTO
+        budgetDetails: AddBudgetDetailsDTO
     ): Promise<CreateApplicationResponse> {
         try {
             const {applicationId} = budgetDetails;
+
+            const application =
+                await this.applicationAggregateRepository.findById(
+                    applicationId
+                );
+
+            if (!application) {
+                throw new ApiError(
+                    404,
+                    "Application  Not Found",
+                    "Conflict Error"
+                );
+            }
+
+            if (application.stepNumber < 1) {
+                throw new ApiError(
+                    400,
+                    "Application  Order not  Followed",
+                    "Conflict Error"
+                );
+            }
+
+            if (application.applicantId !== userId) {
+                throw new ApiError(
+                    403,
+                    "Only the applicant can add further details",
+                    "Conflict Error"
+                );
+            }
+
+            const updatedApplication =
+                await this.applicationAggregateRepository.addApplicationBudgetDetails(
+                    application,
+                    budgetDetails,
+                    application.stepNumber == 1
+                );
+
+            return {
+                status: 200,
+                message: "Application details added Successfully",
+                res: {
+                    application: updatedApplication,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async addApplicationTechnicalAndMarketInfo(
+        userId: string,
+        technicalAndMarketDetails: AddApplicationTechnicalAndMarketInfoDTO
+    ): Promise<CreateApplicationResponse> {
+        try {
+            const {applicationId} = technicalAndMarketDetails;
 
             const application =
                 await this.applicationAggregateRepository.findById(
@@ -109,10 +183,19 @@ export class ApplicantService {
                 );
             }
 
+            if (application.stepNumber < 2) {
+                throw new ApiError(
+                    400,
+                    "Application  Order not  Followed",
+                    "Conflict Error"
+                );
+            }
+
             const updatedApplication =
-                await this.applicationAggregateRepository.addApplicationBudgetDetails(
+                await this.applicationAggregateRepository.addApplicationTechnicalAndMarketInfo(
                     application,
-                    budgetDetails
+                    technicalAndMarketDetails,
+                    application.stepNumber == 2
                 );
 
             return {
@@ -155,10 +238,19 @@ export class ApplicantService {
                 );
             }
 
+            if (application.stepNumber < 3) {
+                throw new ApiError(
+                    400,
+                    "Application  Order not  Followed",
+                    "Conflict Error"
+                );
+            }
+
             const updatedApplication =
                 await this.applicationAggregateRepository.addApplicationRevenueStream(
                     application,
-                    revenueDetails
+                    revenueDetails,
+                    application.stepNumber == 3
                 );
 
             return {
@@ -201,10 +293,18 @@ export class ApplicantService {
                 );
             }
 
+            if (application.stepNumber < 4) {
+                throw new ApiError(
+                    400,
+                    "Application  Order not  Followed",
+                    "Conflict Error"
+                );
+            }
             const updatedApplication =
                 await this.applicationAggregateRepository.addApplicationRisksAndMileStones(
                     application,
-                    risksAndMileStones
+                    risksAndMileStones,
+                    application.stepNumber == 4
                 );
 
             return {
@@ -212,6 +312,130 @@ export class ApplicantService {
                 message: "Application details added Successfully",
                 res: {
                     application: updatedApplication,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async addApplicationDocuments(
+        userId: string,
+        documentDetails: ApplicationDocumentsDTO
+    ): Promise<CreateApplicationResponse> {
+        try {
+            const {applicationId} = documentDetails;
+
+            const application =
+                await this.applicationAggregateRepository.findById(
+                    applicationId
+                );
+
+            if (!application) {
+                throw new ApiError(
+                    404,
+                    "Application  Not Found",
+                    "Conflict Error"
+                );
+            }
+
+            if (application.applicantId !== userId) {
+                throw new ApiError(
+                    403,
+                    "Only the applicant can add further details",
+                    "Conflict Error"
+                );
+            }
+
+            if (application.stepNumber < 5) {
+                throw new ApiError(
+                    400,
+                    "Application  Order not  Followed",
+                    "Conflict Error"
+                );
+            }
+
+            const updatedApplication =
+                await this.applicationAggregateRepository.addApplicationDocuments(
+                    application,
+                    documentDetails,
+                    application.stepNumber == 5
+                );
+
+            return {
+                status: 200,
+                message: "Application details added Successfully",
+                res: {
+                    application: updatedApplication,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async addApplicationTeamMates(
+        userId: string,
+        teammatesDetails: AddApplicationTeammatesDTO
+    ): Promise<CreateApplicationResponse> {
+        try {
+            const {applicationId, emails, isSubmitted} = teammatesDetails;
+
+            const application =
+                await this.applicationAggregateRepository.findById(
+                    applicationId
+                );
+            if (!application) {
+                throw new ApiError(
+                    404,
+                    "Application  Not Found",
+                    "Conflict Error"
+                );
+            }
+
+            if (application.applicantId !== userId) {
+                throw new ApiError(
+                    403,
+                    "Only the applicant can add further details",
+                    "Conflict Error"
+                );
+            }
+
+            if (application.stepNumber < 6) {
+                throw new ApiError(
+                    400,
+                    "Application  Order not  Followed",
+                    "Conflict Error"
+                );
+            }
+
+            await this.userInviteAggregateRepository.addTeamMatesInvites(
+                applicationId,
+                emails
+            );
+
+            if (isSubmitted) {
+                const finalSubmittedApplication =
+                    await this.applicationAggregateRepository.modifyApplicationStatus(
+                        application,
+                        GrantApplicationStatus.SUBMITTED,
+                        application.stepNumber == 6
+                    );
+
+                return {
+                    status: 200,
+                    message: "Application details added Successfully",
+                    res: {
+                        application: finalSubmittedApplication,
+                    },
+                };
+            }
+
+            return {
+                status: 200,
+                message: "Application details added Successfully",
+                res: {
+                    application,
                 },
             };
         } catch (error) {

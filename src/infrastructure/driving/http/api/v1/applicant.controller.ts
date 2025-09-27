@@ -7,7 +7,10 @@ import {AccessTokenJwt} from "../../../../../shared/types/jwt.types";
 import {
     AddApplicationRevenueStreamDTO,
     AddApplicationRisksAndMilestonesDTO,
-    AddBudgetAndTechnicalDetailsDTO,
+    AddApplicationTeammatesDTO,
+    AddApplicationTechnicalAndMarketInfoDTO,
+    AddBudgetDetailsDTO,
+    ApplicationDocumentsDTO,
     CreateApplicationControllerDTO,
     DeleteApplicationDTO,
 } from "../../../dtos/applicant.dto";
@@ -47,13 +50,36 @@ export class ApplicantController implements ApplicantControllerPort {
     @ApiResponse(APPLICATION_RESPONSES.UPDATE_DETAILS.FORBIDDEN)
     async addApplicationBudgetDetails(
         @CurrentUser() user: AccessTokenJwt,
-        @Body() body: AddBudgetAndTechnicalDetailsDTO,
+        @Body() body: AddBudgetDetailsDTO,
         @Res() response: Response
     ): Promise<Response> {
         try {
             const id = user.userData.payload.id;
             const result =
                 await this.applicantService.addApplicationBudgetDetails(
+                    id,
+                    body
+                );
+
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Patch("/add-application-technical-details")
+    @ApiResponse(APPLICATION_RESPONSES.UPDATE_DETAILS.SUCCESS)
+    @ApiResponse(APPLICATION_RESPONSES.UPDATE_DETAILS.NOT_FOUND)
+    @ApiResponse(APPLICATION_RESPONSES.UPDATE_DETAILS.FORBIDDEN)
+    async addApplicationTechnicalAndMarketInfoDetails(
+        @CurrentUser() user: AccessTokenJwt,
+        @Body() body: AddApplicationTechnicalAndMarketInfoDTO,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+            const result =
+                await this.applicantService.addApplicationTechnicalAndMarketInfo(
                     id,
                     body
                 );
@@ -99,6 +125,50 @@ export class ApplicantController implements ApplicantControllerPort {
         try {
             const id = user.userData.payload.id;
             const result = await this.applicantService.AddRisksAndMileStones(
+                id,
+                body
+            );
+
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Patch("/add-application-documents")
+    @ApiResponse(APPLICATION_RESPONSES.UPDATE_DETAILS.SUCCESS)
+    @ApiResponse(APPLICATION_RESPONSES.UPDATE_DETAILS.NOT_FOUND)
+    @ApiResponse(APPLICATION_RESPONSES.UPDATE_DETAILS.FORBIDDEN)
+    async addApplicationDocuments(
+        @CurrentUser() user: AccessTokenJwt,
+        @Body() body: ApplicationDocumentsDTO,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+            const result = await this.applicantService.addApplicationDocuments(
+                id,
+                body
+            );
+
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Patch("/add-application-teammates")
+    @ApiResponse(APPLICATION_RESPONSES.UPDATE_DETAILS.SUCCESS)
+    @ApiResponse(APPLICATION_RESPONSES.UPDATE_DETAILS.NOT_FOUND)
+    @ApiResponse(APPLICATION_RESPONSES.UPDATE_DETAILS.FORBIDDEN)
+    async addApplicationTeammates(
+        @CurrentUser() user: AccessTokenJwt,
+        @Body() body: AddApplicationTeammatesDTO,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+            const result = await this.applicantService.addApplicationTeamMates(
                 id,
                 body
             );

@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
+import {RevenueModelDTO} from "../../../infrastructure/driving/dtos/applicant.dto";
 import {RevenueType} from "../constants/revenue.constants";
 
 export class RevenueStream {
@@ -48,3 +49,33 @@ export class RevenueModel {
         };
     }
 }
+
+export const ApplicationRevenueModelObjectBuilder = (
+    revenueModel: RevenueModelDTO
+): RevenueModel => {
+    const {primaryStream, secondaryStreams, pricing, unitEconomics} =
+        revenueModel;
+    const primaryRevenue = new RevenueStream(
+        primaryStream.type,
+        primaryStream.description,
+        primaryStream.percentage
+    );
+    // eslint-disable-next-line
+    const secondaryRevenues = secondaryStreams.map(
+        (revenue) =>
+            new RevenueStream(
+                revenue.type,
+                revenue.description,
+                revenue.percentage
+            )
+    );
+
+    const ApplicationRevenueStream = new RevenueModel(
+        primaryRevenue,
+        secondaryRevenues,
+        pricing,
+        unitEconomics
+    );
+
+    return ApplicationRevenueStream;
+};

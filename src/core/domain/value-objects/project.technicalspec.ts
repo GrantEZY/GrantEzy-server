@@ -1,3 +1,5 @@
+import {TechnicalSpecDTO} from "../../../infrastructure/driving/dtos/applicant.dto";
+
 export class TechnicalSpec {
     description: string;
     techStack: string[];
@@ -17,3 +19,15 @@ export class TechnicalSpec {
         };
     }
 }
+
+export const TechnicalSpecObjectBuilder = (
+    technicalSpec: TechnicalSpecDTO
+): TechnicalSpec => {
+    const applicationTechnicalSpec = new TechnicalSpec(
+        technicalSpec.description,
+        technicalSpec.techStack,
+        technicalSpec.prototype
+    );
+
+    return applicationTechnicalSpec;
+};

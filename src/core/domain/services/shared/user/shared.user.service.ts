@@ -23,6 +23,7 @@ import {
     AddUserData,
 } from "../../../../../infrastructure/driven/response-dtos/shared.response-dto";
 import {User} from "../../../aggregates/user.aggregate";
+import {UserRoles} from "../../../constants/userRoles.constants";
 
 @Injectable()
 export class UserSharedService {
@@ -45,6 +46,35 @@ export class UserSharedService {
                     email: contact.email,
                 },
             };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async addUserRole(userId: string, userRole: UserRoles): Promise<boolean> {
+        try {
+            const user = await this.userAggregateRepository.findById(
+                userId,
+                false
+            );
+
+            if (!user) {
+                throw new ApiError(404, "User Not Found", "Conflict Error");
+            }
+
+            const {role} = user;
+
+            if (role.includes(userRole)) {
+                return true;
+            }
+
+            user.role.push(userRole);
+            const isUpdated = await this.userAggregateRepository.updateUserRole(
+                user.personId,
+                user.role
+            );
+
+            return isUpdated;
         } catch (error) {
             this.handleError(error);
         }

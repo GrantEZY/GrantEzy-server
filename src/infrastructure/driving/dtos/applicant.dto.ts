@@ -9,11 +9,14 @@ import {
     IsEnum,
     IsEmail,
     IsBoolean,
+    IsOptional,
+    IsObject,
 } from "class-validator";
 import {Type} from "class-transformer";
 import {MoneyDTO} from "./pm.dto";
 import {RevenueType} from "../../../core/domain/constants/revenue.constants";
 import {Impact} from "../../../core/domain/constants/risk.constants";
+
 export class ProjectBasicInfoDTO {
     @ApiProperty({
         example: "AI-powered Healthcare Assistant",
@@ -188,6 +191,57 @@ export class RiskDTO {
     mitigation: string;
 }
 
+export class DocumentObjectDTO {
+    @ApiProperty({
+        example: "Endorsement Letter",
+        description: "Title of the document",
+    })
+    @IsString()
+    title: string;
+
+    @ApiProperty({
+        example: "Letter signed by the head of institution",
+        required: false,
+    })
+    @IsOptional()
+    @IsString()
+    description?: string;
+
+    @ApiProperty({example: "endorsement_letter.pdf", description: "File name"})
+    @IsString()
+    fileName: string;
+
+    @ApiProperty({
+        example: "2MB",
+        description: "Size of the file (string or formatted value)",
+    })
+    @IsString()
+    fileSize: string;
+
+    @ApiProperty({
+        example: "application/pdf",
+        description: "MIME type of the file",
+    })
+    @IsString()
+    mimeType: string;
+
+    @ApiProperty({
+        example: "https://storage.example.com/docs/endorsement_letter.pdf",
+        description: "Storage URL",
+    })
+    @IsString()
+    storageUrl: string;
+
+    @ApiProperty({
+        example: {issuedBy: "Institute Head", date: "2025-01-01"},
+        required: false,
+        description: "Additional metadata for the document",
+    })
+    @IsOptional()
+    @IsObject()
+    metaData?: Record<string, string>;
+}
+
 /**
  * DTO for Project Milestone
  */
@@ -225,6 +279,66 @@ export class ProjectMilestoneDTO {
     })
     @IsDateString()
     dueDate: Date;
+}
+
+export class BudgetComponentDTO {
+    @ApiProperty({
+        example: "Hiring developers",
+        description: "Reason for the budget allocation",
+    })
+    @IsString()
+    BudgetReason: string;
+
+    @ApiProperty({type: () => MoneyDTO, description: "Budget details"})
+    @ValidateNested()
+    @Type(() => MoneyDTO)
+    Budget: MoneyDTO;
+}
+
+export class QuotedBudgetDTO {
+    @ApiProperty({
+        type: [BudgetComponentDTO],
+        description: "Manpower budget components",
+    })
+    @ValidateNested({each: true})
+    @Type(() => BudgetComponentDTO)
+    ManPower: BudgetComponentDTO[];
+
+    @ApiProperty({
+        type: [BudgetComponentDTO],
+        description: "Equipment budget components",
+    })
+    @ValidateNested({each: true})
+    @Type(() => BudgetComponentDTO)
+    Equipment: BudgetComponentDTO[];
+
+    @ApiProperty({
+        type: [BudgetComponentDTO],
+        description: "Other costs budget components",
+    })
+    @ValidateNested({each: true})
+    @Type(() => BudgetComponentDTO)
+    OtherCosts: BudgetComponentDTO[];
+
+    @ApiProperty({type: BudgetComponentDTO, description: "Consumables budget"})
+    @ValidateNested()
+    @Type(() => BudgetComponentDTO)
+    Consumables: BudgetComponentDTO;
+
+    @ApiProperty({type: BudgetComponentDTO, description: "Travel budget"})
+    @ValidateNested()
+    @Type(() => BudgetComponentDTO)
+    Travel: BudgetComponentDTO;
+
+    @ApiProperty({type: BudgetComponentDTO, description: "Contingency budget"})
+    @ValidateNested()
+    @Type(() => BudgetComponentDTO)
+    Contigency: BudgetComponentDTO;
+
+    @ApiProperty({type: BudgetComponentDTO, description: "Overhead budget"})
+    @ValidateNested()
+    @Type(() => BudgetComponentDTO)
+    Overhead: BudgetComponentDTO;
 }
 
 /**
@@ -287,7 +401,7 @@ export class CreateApplicationRepoDTO {
     basicInfo: ProjectBasicInfoDTO;
 }
 
-export class AddBudgetAndTechnicalDetailsDTO {
+export class AddBudgetDetailsDTO {
     @ApiProperty({
         description: "UUID of the associated application",
         example: "4b7d1f33-0f2e-4b7a-91e3-5f58f3c9d4ab",
@@ -296,16 +410,104 @@ export class AddBudgetAndTechnicalDetailsDTO {
     applicationId: string;
 
     @ApiProperty({
-        description: "Budget information",
-        type: MoneyDTO,
+        description: "Quoted budget information",
+        type: QuotedBudgetDTO,
         example: {
-            amount: 500000,
-            currency: "INR",
+            ManPower: [
+                {
+                    BudgetReason: "Hiring developers",
+                    Budget: {amount: 200000, currency: "INR"},
+                },
+            ],
+            Equipment: [
+                {
+                    BudgetReason: "GPU Servers",
+                    Budget: {amount: 150000, currency: "INR"},
+                },
+            ],
+            OtherCosts: [],
+            Consumables: {
+                BudgetReason: "Cloud credits",
+                Budget: {amount: 50000, currency: "INR"},
+            },
+            Travel: {
+                BudgetReason: "Conferences",
+                Budget: {amount: 20000, currency: "INR"},
+            },
+            Contigency: {
+                BudgetReason: "Unexpected costs",
+                Budget: {amount: 30000, currency: "INR"},
+            },
+            Overhead: {
+                BudgetReason: "Admin expenses",
+                Budget: {amount: 50000, currency: "INR"},
+            },
         },
     })
     @ValidateNested()
-    @Type(() => MoneyDTO)
-    budget: MoneyDTO;
+    @Type(() => QuotedBudgetDTO)
+    budget: QuotedBudgetDTO;
+}
+
+export class ApplicationDocumentsDTO {
+    @ApiProperty({
+        description: "UUID of the associated application",
+        example: "4b7d1f33-0f2e-4b7a-91e3-5f58f3c9d4ab",
+    })
+    @IsUUID()
+    applicationId: string;
+
+    @ApiProperty({type: DocumentObjectDTO, description: "Endorsement Letter"})
+    @ValidateNested()
+    @Type(() => DocumentObjectDTO)
+    endorsementLetter: DocumentObjectDTO;
+
+    @ApiProperty({
+        type: DocumentObjectDTO,
+        description: "Plagiarism Undertaking",
+    })
+    @ValidateNested()
+    @Type(() => DocumentObjectDTO)
+    plagiarismUndertaking: DocumentObjectDTO;
+
+    @ApiProperty({type: DocumentObjectDTO, description: "Age Proof"})
+    @ValidateNested()
+    @Type(() => DocumentObjectDTO)
+    ageProof: DocumentObjectDTO;
+
+    @ApiProperty({type: DocumentObjectDTO, description: "Aadhar"})
+    @ValidateNested()
+    @Type(() => DocumentObjectDTO)
+    aadhar: DocumentObjectDTO;
+
+    @ApiProperty({type: DocumentObjectDTO, description: "PI Certificate"})
+    @ValidateNested()
+    @Type(() => DocumentObjectDTO)
+    piCertificate: DocumentObjectDTO;
+
+    @ApiProperty({type: DocumentObjectDTO, description: "Co-PI Certificate"})
+    @ValidateNested()
+    @Type(() => DocumentObjectDTO)
+    coPiCertificate: DocumentObjectDTO;
+
+    @ApiProperty({
+        type: [DocumentObjectDTO],
+        required: false,
+        description: "Any other relevant documents",
+    })
+    @ValidateNested({each: true})
+    @IsOptional()
+    @Type(() => DocumentObjectDTO)
+    otherDocuments?: DocumentObjectDTO[];
+}
+
+export class AddApplicationTechnicalAndMarketInfoDTO {
+    @ApiProperty({
+        description: "UUID of the associated application",
+        example: "4b7d1f33-0f2e-4b7a-91e3-5f58f3c9d4ab",
+    })
+    @IsUUID()
+    applicationId: string;
 
     @ApiProperty({
         description: "Technical specifications of the project",

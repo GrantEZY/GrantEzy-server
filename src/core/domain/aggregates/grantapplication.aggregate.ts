@@ -26,6 +26,10 @@ import {
 import {Risk} from "../value-objects/risk.object";
 import {ProjectMilestone} from "../value-objects/project.status.object";
 import {Review} from "./review.aggregate";
+import {QuotedBudget} from "../value-objects/quotedbudget.object";
+import {BudgetComponent} from "../value-objects/quotedbudget.object";
+import {ApplicationDocumentsObject} from "../value-objects/applicationdocuments.object";
+import {DocumentObject} from "../value-objects/document.object";
 
 @Entity({name: "grant-applications"})
 @Unique(["applicantId", "cycleId"])
@@ -65,15 +69,110 @@ export class GrantApplication {
     status: GrantApplicationStatus;
 
     @Column({
+        type: "integer",
+    })
+    stepNumber: number;
+
+    @Column({
         type: "jsonb",
         nullable: true,
         transformer: {
-            to: (value: Money) => (value ? value.toJSON() : null),
-            from: (value: {amount: number; currency: string}) =>
-                value ? new Money(value.amount, value.currency) : null,
+            to: (value: QuotedBudget | null) => (value ? value.toJSON() : null),
+            from: (value: {
+                ManPower: {
+                    BudgetReason: string;
+                    Budget: {amount: number; currency: string};
+                }[];
+                Equipment: {
+                    BudgetReason: string;
+                    Budget: {amount: number; currency: string};
+                }[];
+                OtherCosts: {
+                    BudgetReason: string;
+                    Budget: {amount: number; currency: string};
+                }[];
+                Consumables: {
+                    BudgetReason: string;
+                    Budget: {amount: number; currency: string};
+                };
+                Travel: {
+                    BudgetReason: string;
+                    Budget: {amount: number; currency: string};
+                };
+                Contigency: {
+                    BudgetReason: string;
+                    Budget: {amount: number; currency: string};
+                };
+                Overhead: {
+                    BudgetReason: string;
+                    Budget: {amount: number; currency: string};
+                };
+            }) =>
+                value
+                    ? new QuotedBudget(
+                          value.ManPower?.map(
+                              (c) =>
+                                  new BudgetComponent(
+                                      c.BudgetReason,
+                                      new Money(
+                                          c.Budget.amount,
+                                          c.Budget.currency
+                                      )
+                                  )
+                          ),
+                          value.Equipment?.map(
+                              (c) =>
+                                  new BudgetComponent(
+                                      c.BudgetReason,
+                                      new Money(
+                                          c.Budget.amount,
+                                          c.Budget.currency
+                                      )
+                                  )
+                          ),
+                          value.OtherCosts?.map(
+                              (c) =>
+                                  new BudgetComponent(
+                                      c.BudgetReason,
+                                      new Money(
+                                          c.Budget.amount,
+                                          c.Budget.currency
+                                      )
+                                  )
+                          ),
+                          new BudgetComponent(
+                              value.Consumables.BudgetReason,
+                              new Money(
+                                  value.Consumables.Budget.amount,
+                                  value.Consumables.Budget.currency
+                              )
+                          ),
+                          new BudgetComponent(
+                              value.Travel.BudgetReason,
+                              new Money(
+                                  value.Travel.Budget.amount,
+                                  value.Travel.Budget.currency
+                              )
+                          ),
+                          new BudgetComponent(
+                              value.Contigency.BudgetReason,
+                              new Money(
+                                  value.Contigency.Budget.amount,
+                                  value.Contigency.Budget.currency
+                              )
+                          ),
+                          new BudgetComponent(
+                              value.Overhead.BudgetReason,
+                              new Money(
+                                  value.Overhead.Budget.amount,
+                                  value.Overhead.Budget.currency
+                              )
+                          )
+                      )
+                    : null,
         },
     })
-    budget: Money | null;
+    budget: QuotedBudget | null;
 
     @Column({
         type: "jsonb",
@@ -208,6 +307,36 @@ export class GrantApplication {
         },
     })
     milestones: ProjectMilestone[] | null;
+
+    @Column({
+        type: "jsonb",
+        nullable: true,
+        transformer: {
+            to: (value: ApplicationDocumentsObject) =>
+                value ? value.toJSON() : null,
+            from: (value: {
+                endorsementLetter: DocumentObject;
+                plagiarismUndertaking: DocumentObject;
+                ageProof: DocumentObject;
+                aadhar: DocumentObject;
+                piCertificate: DocumentObject;
+                coPiCertificate: DocumentObject;
+                otherDocuments: DocumentObject[] | null;
+            }) =>
+                value
+                    ? new ApplicationDocumentsObject(
+                          value.endorsementLetter,
+                          value.plagiarismUndertaking,
+                          value.ageProof,
+                          value.aadhar,
+                          value.piCertificate,
+                          value.coPiCertificate,
+                          value.otherDocuments
+                      )
+                    : null,
+        },
+    })
+    applicationDocuments: ApplicationDocumentsObject | null;
 
     @OneToMany(() => Review, (review) => review.application, {eager: false})
     reviews: Review[];

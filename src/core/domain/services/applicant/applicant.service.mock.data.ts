@@ -1,3 +1,5 @@
+import {InviteStatus} from "../../constants/invite.constants";
+
 const dummyApplicantData = {
     cycleSlug: "4b7d1f330f2e4b7a91e35f58f3c9d4ab",
     basicInfo: {
@@ -17,6 +19,7 @@ const saved_Application = {
     userId: "uuid",
     applicantId: "uuid",
     cycleId: "uuid",
+    stepNumber: 1,
     basicInfo: {
         title: "AI-powered Healthcare Assistant",
         summary: "An AI system that helps doctors with faster diagnostics.",
@@ -62,6 +65,11 @@ const cycleData = {
     },
 };
 
+const InviteArray = [
+    {email: "inthrak04@gmail.com", status: InviteStatus.SENT},
+    {email: "tylerdurden@gmail.com", status: InviteStatus.SENT},
+];
+
 const applicationsArray = [
     saved_Application,
     saved_Application,
@@ -71,9 +79,58 @@ const applicationsArray = [
 const budgetAndTechnicalDetails = {
     applicationId: "4b7d1f33-0f2e-4b7a-91e3-5f58f3c9d4ab",
     budget: {
-        amount: 500000,
-        currency: "INR",
+        ManPower: [
+            {
+                BudgetReason: "Hiring developers",
+                Budget: {
+                    amount: 200000,
+                    currency: "INR",
+                },
+            },
+        ],
+        Equipment: [
+            {
+                BudgetReason: "GPU Servers",
+                Budget: {
+                    amount: 150000,
+                    currency: "INR",
+                },
+            },
+        ],
+        OtherCosts: [],
+        Consumables: {
+            BudgetReason: "Cloud credits",
+            Budget: {
+                amount: 50000,
+                currency: "INR",
+            },
+        },
+        Travel: {
+            BudgetReason: "Conferences",
+            Budget: {
+                amount: 20000,
+                currency: "INR",
+            },
+        },
+        Contigency: {
+            BudgetReason: "Unexpected costs",
+            Budget: {
+                amount: 30000,
+                currency: "INR",
+            },
+        },
+        Overhead: {
+            BudgetReason: "Admin expenses",
+            Budget: {
+                amount: 50000,
+                currency: "INR",
+            },
+        },
     },
+};
+
+const applicationTechnicalAndMarketInfoDetails = {
+    applicationId: "4b7d1f33-0f2e-4b7a-91e3-5f58f3c9d4ab",
     technicalSpec: {
         description: "An AI-powered health monitoring device",
         techStack: ["Node.js", "TensorFlow", "React"],
@@ -85,6 +142,103 @@ const budgetAndTechnicalDetails = {
         obtainableMarket: "50M users initially",
         competitorAnalysis: "Competitor A has 60% market share",
     },
+};
+
+const applicationDocuments = {
+    applicationId: "4b7d1f33-0f2e-4b7a-91e3-5f58f3c9d4ab",
+    endorsementLetter: {
+        title: "Endorsement Letter",
+        description: "Letter signed by the head of institution",
+        fileName: "endorsement_letter.pdf",
+        fileSize: "2MB",
+        mimeType: "application/pdf",
+        storageUrl: "https://storage.example.com/docs/endorsement_letter.pdf",
+        metaData: {
+            issuedBy: "Institute Head",
+            date: "2025-01-01",
+        },
+    },
+    plagiarismUndertaking: {
+        title: "Endorsement Letter",
+        description: "Letter signed by the head of institution",
+        fileName: "endorsement_letter.pdf",
+        fileSize: "2MB",
+        mimeType: "application/pdf",
+        storageUrl: "https://storage.example.com/docs/endorsement_letter.pdf",
+        metaData: {
+            issuedBy: "Institute Head",
+            date: "2025-01-01",
+        },
+    },
+    ageProof: {
+        title: "Endorsement Letter",
+        description: "Letter signed by the head of institution",
+        fileName: "endorsement_letter.pdf",
+        fileSize: "2MB",
+        mimeType: "application/pdf",
+        storageUrl: "https://storage.example.com/docs/endorsement_letter.pdf",
+        metaData: {
+            issuedBy: "Institute Head",
+            date: "2025-01-01",
+        },
+    },
+    aadhar: {
+        title: "Endorsement Letter",
+        description: "Letter signed by the head of institution",
+        fileName: "endorsement_letter.pdf",
+        fileSize: "2MB",
+        mimeType: "application/pdf",
+        storageUrl: "https://storage.example.com/docs/endorsement_letter.pdf",
+        metaData: {
+            issuedBy: "Institute Head",
+            date: "2025-01-01",
+        },
+    },
+    piCertificate: {
+        title: "Endorsement Letter",
+        description: "Letter signed by the head of institution",
+        fileName: "endorsement_letter.pdf",
+        fileSize: "2MB",
+        mimeType: "application/pdf",
+        storageUrl: "https://storage.example.com/docs/endorsement_letter.pdf",
+        metaData: {
+            issuedBy: "Institute Head",
+            date: "2025-01-01",
+        },
+    },
+    coPiCertificate: {
+        title: "Endorsement Letter",
+        description: "Letter signed by the head of institution",
+        fileName: "endorsement_letter.pdf",
+        fileSize: "2MB",
+        mimeType: "application/pdf",
+        storageUrl: "https://storage.example.com/docs/endorsement_letter.pdf",
+        metaData: {
+            issuedBy: "Institute Head",
+            date: "2025-01-01",
+        },
+    },
+    otherDocuments: [
+        {
+            title: "Endorsement Letter",
+            description: "Letter signed by the head of institution",
+            fileName: "endorsement_letter.pdf",
+            fileSize: "2MB",
+            mimeType: "application/pdf",
+            storageUrl:
+                "https://storage.example.com/docs/endorsement_letter.pdf",
+            metaData: {
+                issuedBy: "Institute Head",
+                date: "2025-01-01",
+            },
+        },
+    ],
+};
+
+const addApplicationTeamMates = {
+    applicationId: "4b7d1f33-0f2e-4b7a-91e3-5f58f3c9d4ab",
+    emails: ["alice@example.com", "bob@example.com"],
+    isSubmitted: false,
 };
 
 const revenueDetails = {
@@ -132,8 +286,12 @@ export {
     dummyApplicantData,
     saved_Application,
     cycleData,
+    addApplicationTeamMates,
+    applicationTechnicalAndMarketInfoDetails,
+    applicationDocuments,
     applicationsArray,
     budgetAndTechnicalDetails,
     revenueDetails,
     riskAndMileStones,
+    InviteArray,
 };

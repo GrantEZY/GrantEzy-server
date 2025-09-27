@@ -12,6 +12,7 @@ import {TestingModule, Test} from "@nestjs/testing";
 import {createMock} from "@golevelup/ts-jest";
 import {ADD_USER, SAVED_USER} from "./shared.user.mock.data";
 import {User} from "../../../aggregates/user.aggregate";
+import {UserRoles} from "../../../constants/userRoles.constants";
 
 describe("SharedUserService", () => {
     let userSharedService: UserSharedService;
@@ -63,6 +64,56 @@ describe("SharedUserService", () => {
                     email: saved_user.contact.email,
                 },
             });
+        });
+    });
+
+    describe("Automated Update  User Role", () => {
+        it("Add User role :User already has the role", async () => {
+            const user = JSON.parse(JSON.stringify(SAVED_USER));
+            user.role = ["NORMAL_USER", UserRoles.ADMIN];
+
+            userAggregateRepository.findById.mockResolvedValue(user as any);
+
+            const result = await userSharedService.addUserRole(
+                "user-123",
+                UserRoles.ADMIN
+            );
+
+            expect(result).toBe(true);
+            expect(
+                userAggregateRepository.updateUserRole
+            ).toHaveBeenCalledTimes(0);
+        });
+
+        it("Add User role :User doesn't have the role", async () => {
+            const user = JSON.parse(JSON.stringify(SAVED_USER));
+
+            userAggregateRepository.findById.mockResolvedValue(user as any);
+
+            userAggregateRepository.updateUserRole.mockResolvedValue(true);
+            const result = await userSharedService.addUserRole(
+                "user-123",
+                UserRoles.ADMIN
+            );
+
+            expect(result).toBe(true);
+            expect(
+                userAggregateRepository.updateUserRole
+            ).toHaveBeenCalledTimes(1);
+        });
+
+        it("User Not Found", async () => {
+            try {
+                userAggregateRepository.findById.mockResolvedValue(null);
+                await userSharedService.addUserRole(
+                    "user-123",
+                    UserRoles.ADMIN
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).message).toBe("User Not Found");
+            }
         });
     });
 

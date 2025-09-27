@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
+import {ProjectBasicInfoDTO} from "../../../infrastructure/driving/dtos/applicant.dto";
+
 export class ProjectBasicInfo {
     readonly title: string;
     readonly summary: string;
@@ -31,3 +33,17 @@ export class ProjectBasicInfo {
         };
     }
 }
+
+export const ProjectBasicInfoObjectBuilder = (
+    basicInfo: ProjectBasicInfoDTO
+): ProjectBasicInfo => {
+    const basicInfoObject = new ProjectBasicInfo(
+        basicInfo.title,
+        basicInfo.summary,
+        basicInfo.problem,
+        basicInfo.solution,
+        basicInfo.innovation
+    );
+
+    return basicInfoObject;
+};

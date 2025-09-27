@@ -12,7 +12,6 @@ import {
 import {Notification} from "../entities/notification.entity";
 import {InviteAs, InviteStatus} from "../constants/invite.constants";
 import {GrantApplication} from "./grantapplication.aggregate";
-import {User} from "./user.aggregate";
 
 @Entity({name: "userInvites"})
 export class UserInvite {
@@ -26,19 +25,15 @@ export class UserInvite {
     status: InviteStatus;
 
     @Index()
-    @Column({type: "uuid"})
-    personId: string;
+    @Column({type: "varchar"})
+    email: string;
 
-    @ManyToOne(() => User, {eager: false})
-    @JoinColumn({name: "personId"})
-    person: User;
-
-    @Column({type: "uuid"})
-    notificationId: string;
+    @Column({type: "uuid", nullable: true})
+    notificationId: string | null;
 
     @OneToOne(() => Notification, {eager: true})
     @JoinColumn({name: "notificationId"})
-    notification: Notification;
+    notification: Notification | null;
 
     @Index()
     @Column({type: "uuid"})
@@ -49,7 +44,7 @@ export class UserInvite {
         eager: false,
     })
     @JoinColumn({name: "applicationId"})
-    application: GrantApplication;
+    application: GrantApplication | null;
 
     @CreateDateColumn()
     createdAt: Date;

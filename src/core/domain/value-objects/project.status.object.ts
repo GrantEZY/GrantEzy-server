@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
+import {ProjectMilestoneDTO} from "../../../infrastructure/driving/dtos/applicant.dto";
 import {ProjectStatus} from "../constants/status.constants";
 
 export class ProjectMilestone {
@@ -37,3 +38,17 @@ export class ProjectMilestone {
         };
     }
 }
+
+export const ApplicationMileStoneObjectBuilder = (
+    milestones: ProjectMilestoneDTO[]
+): ProjectMilestone[] => {
+    return milestones.map(
+        (milestone) =>
+            new ProjectMilestone(
+                milestone.title,
+                milestone.description,
+                milestone.deliverables,
+                milestone.dueDate
+            )
+    );
+};

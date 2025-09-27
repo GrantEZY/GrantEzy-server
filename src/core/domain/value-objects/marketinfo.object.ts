@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
+import {MarketInfoDTO} from "../../../infrastructure/driving/dtos/applicant.dto";
+
 export class MarketInfo {
     readonly totalAddressableMarket: string;
     readonly serviceableMarket: string;
@@ -27,3 +29,14 @@ export class MarketInfo {
         };
     }
 }
+
+export const MarketInfoObjectBuilder = (
+    marketInfo: MarketInfoDTO
+): MarketInfo => {
+    return new MarketInfo(
+        marketInfo.totalAddressableMarket,
+        marketInfo.serviceableMarket,
+        marketInfo.obtainableMarket,
+        marketInfo.competitorAnalysis
+    );
+};

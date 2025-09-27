@@ -1,3 +1,4 @@
+import {QuotedBudgetDTO} from "../../../infrastructure/driving/dtos/applicant.dto";
 import {Money} from "./project.metrics.object";
 
 export class BudgetComponent {
@@ -56,3 +57,85 @@ export class QuotedBudget {
         };
     }
 }
+
+export const QuotedBudgetObjectBuilder = (
+    budget: QuotedBudgetDTO
+): QuotedBudget => {
+    const {
+        ManPower,
+        Equipment,
+        Travel,
+        OtherCosts,
+        Consumables,
+        Contigency,
+        Overhead,
+    } = budget;
+
+    // eslint-disable-next-line
+    const manPowerBudget = ManPower.map(
+        (manPowerComponent) =>
+            new BudgetComponent(
+                manPowerComponent.BudgetReason,
+                new Money(
+                    manPowerComponent.Budget.amount,
+                    manPowerComponent.Budget.currency
+                )
+            )
+    );
+
+    // eslint-disable-next-line
+    const equipmentBudget = Equipment.map(
+        (equipmentComponent) =>
+            new BudgetComponent(
+                equipmentComponent.BudgetReason,
+                new Money(
+                    equipmentComponent.Budget.amount,
+                    equipmentComponent.Budget.currency
+                )
+            )
+    );
+
+    //eslint-disable-next-line
+    const otherCostsBudget = OtherCosts.map(
+        (otherCostComponent) =>
+            new BudgetComponent(
+                otherCostComponent.BudgetReason,
+                new Money(
+                    otherCostComponent.Budget.amount,
+                    otherCostComponent.Budget.currency
+                )
+            )
+    );
+
+    const consumablesBudget = new BudgetComponent(
+        Consumables.BudgetReason,
+        new Money(Consumables.Budget.amount, Consumables.Budget.currency)
+    );
+
+    const travelBudget = new BudgetComponent(
+        Travel.BudgetReason,
+        new Money(Travel.Budget.amount, Travel.Budget.currency)
+    );
+
+    const contigencyBudget = new BudgetComponent(
+        Contigency.BudgetReason,
+        new Money(Contigency.Budget.amount, Contigency.Budget.currency)
+    );
+
+    const overHeadBudget = new BudgetComponent(
+        Overhead.BudgetReason,
+        new Money(Overhead.Budget.amount, Overhead.Budget.currency)
+    );
+
+    const quotedBudget = new QuotedBudget(
+        manPowerBudget,
+        equipmentBudget,
+        otherCostsBudget,
+        consumablesBudget,
+        travelBudget,
+        contigencyBudget,
+        overHeadBudget
+    );
+
+    return quotedBudget;
+};
