@@ -13,14 +13,14 @@ import {GCVModule} from "./gcv/gcv.module";
 import {ApplicantModule} from "./applicant/applicant.module";
 import {ProgramManagerModule} from "./progam-manager/pm.module";
 import {QueueConnection} from "../../infrastructure/driven/queue/connection";
-import {QueueFeatureConnection} from "../../infrastructure/driven/queue/connection";
+import {QueueWorkerServiceModule} from "./others/queue-worker-module/queueWorkerServiceModule";
 @Module({
     imports: [
         ConfigConnection,
         DatabaseConnection,
         CacheConnection,
         QueueConnection,
-        QueueFeatureConnection,
+        QueueWorkerServiceModule,
         SharedModule,
         OutputPortModule,
         UserModule,

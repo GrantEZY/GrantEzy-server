@@ -1,3 +1,8 @@
+import {
+    EmailTemplateType,
+    InviteUserEmailTemplate,
+} from "./email.template.constants";
+
 export enum EmailNotifications {
     VERIFY_EMAIL = "Verify your email",
     RESET_PASSWORD = "Reset your password",
@@ -9,6 +14,7 @@ export enum EmailNotifications {
     NEWSLETTER = "Latest updates from GrantEzy",
     ACCOUNT_DELETION = "Your account has been deleted",
     SUPPORT_RESPONSE = "Response from GrantEzy Support",
+    INVITE_USER = "You have been invited",
 }
 
 export enum NotificationChannel {
@@ -29,3 +35,10 @@ export enum NotificationStatus {
     SENT = "SENT",
     READ = "READ",
 }
+
+export const EmailNotificationTemplateMapper: Record<
+    string,
+    EmailTemplateType
+> = {
+    [EmailNotifications.INVITE_USER]: InviteUserEmailTemplate,
+};
