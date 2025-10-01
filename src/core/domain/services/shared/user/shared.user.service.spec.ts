@@ -13,12 +13,13 @@ import {createMock} from "@golevelup/ts-jest";
 import {ADD_USER, SAVED_USER} from "./shared.user.mock.data";
 import {User} from "../../../aggregates/user.aggregate";
 import {UserRoles} from "../../../constants/userRoles.constants";
-
+import {EmailQueue} from "../../../../../infrastructure/driven/queue/queues/email.queue";
 describe("SharedUserService", () => {
     let userSharedService: UserSharedService;
     let userAggregateRepository: jest.Mocked<UserAggregatePort>;
     let passwordHasher: jest.Mocked<PasswordHasherPort>;
     let saved_user: User;
+    let emailQueue: jest.Mocked<EmailQueue>;
     beforeEach(async () => {
         const moduleReference: TestingModule = await Test.createTestingModule({
             providers: [
@@ -31,6 +32,10 @@ describe("SharedUserService", () => {
                     provide: PASSWORD_HASHER_PORT,
                     useValue: createMock<PasswordHasherPort>(),
                 },
+                {
+                    provide: EmailQueue,
+                    useValue: createMock<EmailQueue>(),
+                },
             ],
         }).compile();
 
@@ -39,6 +44,7 @@ describe("SharedUserService", () => {
         userAggregateRepository = moduleReference.get(USER_AGGREGATE_PORT);
         passwordHasher = moduleReference.get(PASSWORD_HASHER_PORT);
         saved_user = JSON.parse(JSON.stringify(SAVED_USER)) as User;
+        emailQueue = moduleReference.get(EmailQueue) as jest.Mocked<EmailQueue>;
     });
 
     it("to be defined", () => {
@@ -54,6 +60,13 @@ describe("SharedUserService", () => {
 
             userAggregateRepository.save.mockResolvedValue(saved_user as any);
 
+            emailQueue.addInviteEmailToQueue.mockResolvedValue({
+                status: true,
+                queue: {
+                    name: "job-name",
+                },
+            });
+
             const result = await userSharedService.addUser(user);
 
             expect(result).toEqual({
@@ -64,6 +77,35 @@ describe("SharedUserService", () => {
                     email: saved_user.contact.email,
                 },
             });
+        });
+
+        it("Add User: Error in sending invite for added user", async () => {
+            try {
+                const user = ADD_USER;
+
+                const passwordHash = "mocked_hashed_password";
+                passwordHasher.hash.mockResolvedValue(passwordHash);
+
+                userAggregateRepository.save.mockResolvedValue(
+                    saved_user as any
+                );
+
+                emailQueue.addInviteEmailToQueue.mockImplementation(() => {
+                    throw new ApiError(
+                        500,
+                        "Issue In Sending Email",
+                        "Email Queue Error"
+                    );
+                });
+
+                await userSharedService.addUser(user);
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(500);
+                expect((error as ApiError).message).toBe(
+                    "Issue In Sending Email"
+                );
+            }
         });
     });
 

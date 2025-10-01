@@ -24,6 +24,7 @@ import {
 } from "../../../../../infrastructure/driven/response-dtos/shared.response-dto";
 import {User} from "../../../aggregates/user.aggregate";
 import {UserRoles} from "../../../constants/userRoles.constants";
+import {EmailQueue} from "../../../../../infrastructure/driven/queue/queues/email.queue";
 
 @Injectable()
 export class UserSharedService {
@@ -31,13 +32,31 @@ export class UserSharedService {
         @Inject(USER_AGGREGATE_PORT)
         private readonly userAggregateRepository: UserAggregatePort,
         @Inject(PASSWORD_HASHER_PORT)
-        private readonly passwordHasherRepository: PasswordHasherPort
+        private readonly passwordHasherRepository: PasswordHasherPort,
+        private readonly emailQueue: EmailQueue
     ) {}
 
     async addUser(userData: AddUserDTO): Promise<AddUserDataResponse> {
         try {
-            const {user: newUser} = await this.addUserDetails(userData);
+            const {user: newUser, password} =
+                await this.addUserDetails(userData);
             const {personId, contact} = newUser;
+            const queueStatus = await this.emailQueue.addInviteEmailToQueue(
+                contact.email,
+                {
+                    email: contact.email,
+                    password,
+                    role: userData.role,
+                }
+            );
+
+            if (!queueStatus.status) {
+                throw new ApiError(
+                    500,
+                    "Error in Inviting the User",
+                    "Internal Error"
+                );
+            }
             return {
                 status: 201,
                 message: "User Added Successfully",
@@ -207,7 +226,7 @@ export class UserSharedService {
                 commitment,
                 password_hash: PASSWORD_HASH,
             });
-            return {user};
+            return {user, password};
         } catch (error) {
             this.handleError(error);
         }

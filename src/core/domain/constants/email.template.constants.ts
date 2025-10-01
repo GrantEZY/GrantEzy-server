@@ -23,6 +23,10 @@ export const InviteUserEmailTemplate: EmailTemplateType = {
           <td><strong>Password:</strong></td>
           <td>${values.password}</td>
         </tr>
+          <tr>
+          <td><strong>Email:</strong></td>
+          <td>${values.role as string}</td>
+        </tr>
       </table>
 
       <p>

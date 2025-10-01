@@ -4,6 +4,7 @@ import {ApiResponse} from "../../../shared/types/response.type";
 
 export class AddUserData {
     user: User;
+    password: string;
 }
 
 class AddUserResponseData {

@@ -4,7 +4,7 @@ import {ConfigType} from "../../../config/env/app.types";
 import {BullModule} from "@nestjs/bullmq";
 import {QueueWorkerServiceModule} from "../../../core/application/others/queue-worker-module/queueWorkerServiceModule";
 import {EmailQueue} from "./queues/email.queue";
-import {Module} from "@nestjs/common";
+import {Global, Module} from "@nestjs/common";
 import {EmailQueueListener} from "./listeners/email.queue.listener";
 export const BullConfiguration = BullModule.forRootAsync({
     imports: [ConfigModule, QueueWorkerServiceModule],
@@ -26,6 +26,7 @@ export const QueueFeatureConnection = BullModule.registerQueue({
     name: "email-queue",
 });
 
+@Global()
 @Module({
     imports: [
         ConfigModule,
