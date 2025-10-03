@@ -13,4 +13,9 @@ export class EmailQueueListener extends QueueEventsHost {
     onAdded(job: {jobId: string; name: string}) {
         this.logger.log(`Job ${job.jobId} has been added to the email queue`);
     }
+
+    @OnQueueEvent("error")
+    onError(job: {jobId: string; name: string}) {
+        this.logger.log(`Job ${job.jobId} has  faced an to the email queue`);
+    }
 }

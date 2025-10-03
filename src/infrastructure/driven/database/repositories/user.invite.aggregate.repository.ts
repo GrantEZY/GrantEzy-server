@@ -35,7 +35,7 @@ export class UserInviteAggregateRepository implements UserInviteAggregatePort {
                         applicationId,
                         email,
                         inviteAs: InviteAs.TEAMMATE,
-                        status: InviteStatus.CREATED,
+                        status: InviteStatus.SENT,
                     });
                     return await this.userInviteRepository.save(invite);
                 })

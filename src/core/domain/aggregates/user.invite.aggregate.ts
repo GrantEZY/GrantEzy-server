@@ -5,11 +5,9 @@ import {
     CreateDateColumn,
     JoinColumn,
     UpdateDateColumn,
-    OneToOne,
     ManyToOne,
     Index,
 } from "typeorm";
-import {Notification} from "../entities/notification.entity";
 import {InviteAs, InviteStatus} from "../constants/invite.constants";
 import {GrantApplication} from "./grantapplication.aggregate";
 
@@ -27,13 +25,6 @@ export class UserInvite {
     @Index()
     @Column({type: "varchar"})
     email: string;
-
-    @Column({type: "uuid", nullable: true})
-    notificationId: string | null;
-
-    @OneToOne(() => Notification, {eager: true})
-    @JoinColumn({name: "notificationId"})
-    notification: Notification | null;
 
     @Index()
     @Column({type: "uuid"})

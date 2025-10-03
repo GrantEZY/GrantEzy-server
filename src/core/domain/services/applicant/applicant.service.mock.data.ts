@@ -20,7 +20,7 @@ const saved_Application = {
     applicantId: "uuid",
     cycleId: "uuid",
     stepNumber: 1,
-    basicInfo: {
+    basicDetails: {
         title: "AI-powered Healthcare Assistant",
         summary: "An AI system that helps doctors with faster diagnostics.",
         problem: "Healthcare diagnostics are slow and error-prone.",
@@ -281,7 +281,81 @@ const riskAndMileStones = {
         },
     ],
 };
+const SAVED_USER = {
+    personId: "user-123",
+    person: {
+        id: "user-123",
+        firstName: "John",
+        lastName: "Doe",
+        password_hash: "hashed_password_123",
+    },
+    status: "ACTIVE",
+    role: ["NORMAL_USER"],
+    commitment: "ACTIVE",
+    contact: {
+        email: "john.doe@example.com",
+        phone: "+1-555-1234",
+        address: "123 Main Street, Springfield, USA",
+    },
+    audit: {
+        createdAt: "2024-01-01T10:00:00.000Z",
+        updatedAt: "2024-01-10T15:30:00.000Z",
+    },
+    experiences: [
+        {
+            company: "Acme Corp",
+            position: "Software Engineer",
+            startDate: "2020-01-01T00:00:00.000Z",
+            description: "Worked on backend services",
+            endDate: "2022-06-01T00:00:00.000Z",
+        },
+        {
+            company: "Tech Solutions",
+            position: "Senior Developer",
+            startDate: "2022-07-01T00:00:00.000Z",
+            description: "Leading a small dev team",
+            endDate: null,
+        },
+    ],
+    tokenVersion: 1,
+    createdAt: "2024-01-01T10:00:00.000Z",
+    updatedAt: "2024-01-10T15:30:00.000Z",
+};
 
+const SAVED_CYCLE = {
+    programId: "4b7d1f33-0f2e-4b7a-91e3-5f58f3c9d4ab",
+    round: {
+        year: 2025,
+        type: "Spring",
+    },
+    budget: {
+        amount: 500000,
+        currency: "USD",
+    },
+    duration: {
+        startDate: "2025-01-01T00:00:00Z",
+        endDate: "2025-06-30T23:59:59Z",
+    },
+    trlCriteria: {
+        TRL_1: {
+            requirements: ["Understand basic principles"],
+            evidence: ["Research whitepaper"],
+            metrics: ["Readiness index"],
+        },
+        TRL_2: {
+            requirements: ["Proof of concept demonstrated"],
+            evidence: ["Prototype demo"],
+            metrics: ["Prototype performance"],
+        },
+    },
+    scoringScheme: {
+        technical: {minScore: 1, maxScore: 10, weightage: 0.3},
+        market: {minScore: 1, maxScore: 10, weightage: 0.25},
+        financial: {minScore: 1, maxScore: 10, weightage: 0.2},
+        team: {minScore: 1, maxScore: 10, weightage: 0.15},
+        innovation: {minScore: 1, maxScore: 10, weightage: 0.1},
+    },
+};
 export {
     dummyApplicantData,
     saved_Application,
@@ -294,4 +368,6 @@ export {
     revenueDetails,
     riskAndMileStones,
     InviteArray,
+    SAVED_USER,
+    SAVED_CYCLE,
 };

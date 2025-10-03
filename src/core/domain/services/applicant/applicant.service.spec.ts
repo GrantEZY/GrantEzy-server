@@ -21,6 +21,8 @@ import {
     revenueDetails,
     riskAndMileStones,
     saved_Application,
+    SAVED_CYCLE,
+    SAVED_USER,
 } from "./applicant.service.mock.data";
 import ApiError from "../../../../shared/errors/api.error";
 import {GrantApplicationStatus} from "../../constants/status.constants";
@@ -29,12 +31,19 @@ import {
     USER_INVITE_AGGREGATE_PORT,
     UserInviteAggregatePort,
 } from "../../../../ports/outputs/repository/user.invite/user.invite.aggregate.port";
+import {
+    UserAggregatePort,
+    USER_AGGREGATE_PORT,
+} from "../../../../ports/outputs/repository/user/user.aggregate.port";
+import {CycleInviteQueue} from "../../../../infrastructure/driven/queue/queues/cycle.invite.queue";
 describe("Applicant ", () => {
     let applicationService: ApplicantService;
     let applicationAggregateRepository: jest.Mocked<GrantApplicationAggregatePort>;
     let cycleAggregateRepository: jest.Mocked<CycleAggregatePort>;
     let userinviteAggregateRepository: jest.Mocked<UserInviteAggregatePort>;
     let userSharedService: jest.Mocked<UserSharedService>;
+    let userAggregateRepository: jest.Mocked<UserAggregatePort>;
+    let cycleInviteQueue: jest.Mocked<CycleInviteQueue>;
     beforeEach(async () => {
         const moduleReference: TestingModule = await Test.createTestingModule({
             providers: [
@@ -42,6 +51,14 @@ describe("Applicant ", () => {
                 {
                     provide: GRANT_APPLICATION_AGGREGATE_PORT,
                     useValue: createMock<GrantApplicationAggregatePort>(),
+                },
+                {
+                    provide: USER_AGGREGATE_PORT,
+                    useValue: createMock<UserAggregatePort>(),
+                },
+                {
+                    provide: CycleInviteQueue,
+                    useValue: createMock<CycleInviteQueue>(),
                 },
                 {
                     provide: CYCLE_AGGREGATE_PORT,
@@ -71,6 +88,13 @@ describe("Applicant ", () => {
         userinviteAggregateRepository = moduleReference.get(
             USER_INVITE_AGGREGATE_PORT
         ) as jest.Mocked<UserInviteAggregatePort>;
+        userAggregateRepository = moduleReference.get(
+            USER_AGGREGATE_PORT
+        ) as jest.Mocked<UserAggregatePort>;
+
+        cycleInviteQueue = moduleReference.get(
+            CycleInviteQueue
+        ) as jest.Mocked<CycleInviteQueue>;
     });
 
     it("to be Defined", () => {
@@ -559,6 +583,9 @@ describe("Applicant ", () => {
         it("Successful teammates invite with draft", async () => {
             saved_Application.stepNumber = 6;
 
+            userAggregateRepository.findById.mockResolvedValue(
+                SAVED_USER as any
+            );
             applicationAggregateRepository.findById.mockResolvedValue(
                 saved_Application as any
             );
@@ -566,7 +593,13 @@ describe("Applicant ", () => {
             userinviteAggregateRepository.addTeamMatesInvites.mockResolvedValue(
                 InviteArray as any
             );
+            cycleAggregateRepository.findById.mockResolvedValue(
+                SAVED_CYCLE as any
+            );
 
+            cycleInviteQueue.UserCycleInvite.mockResolvedValue({
+                status: true,
+            } as any);
             const result = await applicationService.addApplicationTeamMates(
                 "uuid",
                 addApplicationTeamMates
@@ -586,6 +619,9 @@ describe("Applicant ", () => {
         it("Successful teammates invite with submission", async () => {
             saved_Application.stepNumber = 6;
 
+            userAggregateRepository.findById.mockResolvedValue(
+                SAVED_USER as any
+            );
             addApplicationTeamMates.isSubmitted = true;
             applicationAggregateRepository.findById.mockResolvedValue(
                 saved_Application as any
@@ -598,7 +634,12 @@ describe("Applicant ", () => {
             applicationAggregateRepository.modifyApplicationStatus.mockResolvedValue(
                 saved_Application as any
             );
-
+            cycleInviteQueue.UserCycleInvite.mockResolvedValue({
+                status: true,
+            } as any);
+            cycleAggregateRepository.findById.mockResolvedValue(
+                SAVED_CYCLE as any
+            );
             const result = await applicationService.addApplicationTeamMates(
                 "uuid",
                 addApplicationTeamMates
@@ -616,8 +657,25 @@ describe("Applicant ", () => {
             });
         });
 
+        it("User Not Found", async () => {
+            try {
+                userAggregateRepository.findById.mockResolvedValue(null);
+                await applicationService.addApplicationTeamMates(
+                    "uuid",
+                    addApplicationTeamMates
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).message).toBe("User Not Found");
+            }
+        });
+
         it("Application not found", async () => {
             try {
+                userAggregateRepository.findById.mockResolvedValue(
+                    SAVED_USER as any
+                );
                 applicationAggregateRepository.findById.mockResolvedValue(null);
                 await applicationService.addApplicationTeamMates(
                     "uuid",
@@ -634,6 +692,9 @@ describe("Applicant ", () => {
 
         it("User can't update the application", async () => {
             try {
+                userAggregateRepository.findById.mockResolvedValue(
+                    SAVED_USER as any
+                );
                 applicationAggregateRepository.findById.mockResolvedValue(
                     saved_Application as any
                 );
@@ -653,6 +714,9 @@ describe("Applicant ", () => {
 
         it("Application order not followed", async () => {
             try {
+                userAggregateRepository.findById.mockResolvedValue(
+                    SAVED_USER as any
+                );
                 saved_Application.stepNumber = 2;
                 applicationAggregateRepository.findById.mockResolvedValue(
                     saved_Application as any
@@ -667,6 +731,67 @@ describe("Applicant ", () => {
                 expect((error as ApiError).status).toBe(400);
                 expect((error as ApiError).message).toBe(
                     "Application  Order not  Followed"
+                );
+            }
+        });
+
+        it("Cycle Not Found", async () => {
+            try {
+                saved_Application.stepNumber = 6;
+
+                userAggregateRepository.findById.mockResolvedValue(
+                    SAVED_USER as any
+                );
+                applicationAggregateRepository.findById.mockResolvedValue(
+                    saved_Application as any
+                );
+
+                userinviteAggregateRepository.addTeamMatesInvites.mockResolvedValue(
+                    InviteArray as any
+                );
+                cycleAggregateRepository.findById.mockResolvedValue(null);
+
+                await applicationService.addApplicationDocuments(
+                    "uuid",
+                    applicationDocuments as any
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).message).toBe("Cycle Not Found");
+            }
+        });
+
+        it("Error in inviting Users", async () => {
+            try {
+                saved_Application.stepNumber = 6;
+
+                userAggregateRepository.findById.mockResolvedValue(
+                    SAVED_USER as any
+                );
+                applicationAggregateRepository.findById.mockResolvedValue(
+                    saved_Application as any
+                );
+
+                userinviteAggregateRepository.addTeamMatesInvites.mockResolvedValue(
+                    InviteArray as any
+                );
+                cycleAggregateRepository.findById.mockResolvedValue(
+                    SAVED_CYCLE as any
+                );
+
+                cycleInviteQueue.UserCycleInvite.mockResolvedValue({
+                    status: false,
+                } as any);
+                await applicationService.addApplicationDocuments(
+                    "uuid",
+                    applicationDocuments as any
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(500);
+                expect((error as ApiError).message).toBe(
+                    "Error in sending Invite to the user"
                 );
             }
         });

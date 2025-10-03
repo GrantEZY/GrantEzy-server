@@ -2,8 +2,11 @@ import {Injectable} from "@nestjs/common";
 import {InjectQueue} from "@nestjs/bullmq";
 import {Queue} from "bullmq";
 import ApiError from "../../../../shared/errors/api.error";
-import {InviteEmailDTO} from "../../../driving/dtos/queue/email.dto";
-import {EmailResponse} from "../../response-dtos/queue/email.response-dto";
+import {
+    CycleInviteDTO,
+    InviteEmailDTO,
+} from "../../../driving/dtos/queue/queue.dto";
+import {EmailResponse} from "../../response-dtos/queue/queue.response-dto";
 import {Logger} from "@nestjs/common";
 import {v4 as uuid} from "uuid";
 @Injectable()
@@ -22,7 +25,37 @@ export class EmailQueue {
     ): Promise<EmailResponse> {
         try {
             const uniqueId = uuid();
-            const jobId = `${uniqueId}-${email}`;
+            const jobId = `${uniqueId}-${email}-application-invite`;
+            const job = await this.emailQueue.add(jobId, data, {
+                removeOnComplete: true,
+            });
+
+            return {
+                status: true,
+                queue: {
+                    name: job.name,
+                },
+            };
+        } catch (error) {
+            this.logger.log(`Error in Adding to Invite Email Queue`);
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                500,
+                "Issue In Sending Email",
+                "Email Queue Error"
+            );
+        }
+    }
+
+    async addCycleInviteEmailToQueue(
+        email: string,
+        data: CycleInviteDTO
+    ): Promise<EmailResponse> {
+        try {
+            const uniqueId = uuid();
+            const jobId = `${uniqueId}-${email}-cycle-invite`;
             const job = await this.emailQueue.add(jobId, data, {
                 removeOnComplete: true,
             });

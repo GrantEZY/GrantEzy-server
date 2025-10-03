@@ -30,6 +30,11 @@ import {
 
 import {UserSharedService} from "../shared/user/shared.user.service";
 import {UserRoles} from "../../constants/userRoles.constants";
+import {
+    UserAggregatePort,
+    USER_AGGREGATE_PORT,
+} from "../../../../ports/outputs/repository/user/user.aggregate.port";
+import {CycleInviteQueue} from "../../../../infrastructure/driven/queue/queues/cycle.invite.queue";
 @Injectable()
 /**
  * This contains the services for application creation by the users
@@ -39,12 +44,16 @@ export class ApplicantService {
         @Inject(GRANT_APPLICATION_AGGREGATE_PORT)
         private readonly applicationAggregateRepository: GrantApplicationAggregatePort,
 
+        @Inject(USER_AGGREGATE_PORT)
+        private readonly userAggregateRepository: UserAggregatePort,
+
         @Inject(CYCLE_AGGREGATE_PORT)
         private readonly cycleAggregateRepository: CycleAggregatePort,
 
         @Inject(USER_INVITE_AGGREGATE_PORT)
         private readonly userInviteAggregateRepository: UserInviteAggregatePort,
-        private readonly sharedUserService: UserSharedService
+        private readonly sharedUserService: UserSharedService,
+        private readonly cycleInviteQueue: CycleInviteQueue
     ) {}
 
     async createApplication(
@@ -381,6 +390,15 @@ export class ApplicantService {
         try {
             const {applicationId, emails, isSubmitted} = teammatesDetails;
 
+            const user = await this.userAggregateRepository.findById(
+                userId,
+                false
+            );
+
+            if (!user) {
+                throw new ApiError(404, "User Not Found", "Conflict Error");
+            }
+
             const application =
                 await this.applicationAggregateRepository.findById(
                     applicationId
@@ -413,6 +431,31 @@ export class ApplicantService {
                 applicationId,
                 emails
             );
+            const cycle = await this.cycleAggregateRepository.findById(
+                application.cycleId
+            );
+
+            if (!cycle) {
+                throw new ApiError(404, "Cycle Not Found", "Conflict Error");
+            }
+            for (const email of emails) {
+                const userCycleInviteStatus =
+                    await this.cycleInviteQueue.UserCycleInvite({
+                        email,
+                        invitedBy: user.person.firstName,
+                        role: UserRoles.TEAM_MATE,
+                        programName: cycle.program?.details.name ?? "Progam",
+                        round: cycle.round,
+                        applicationName: application.basicDetails.title,
+                    });
+                if (!userCycleInviteStatus.status) {
+                    throw new ApiError(
+                        500,
+                        "Error in sending Invite to the user",
+                        "Invite Error"
+                    );
+                }
+            }
 
             if (isSubmitted) {
                 const finalSubmittedApplication =

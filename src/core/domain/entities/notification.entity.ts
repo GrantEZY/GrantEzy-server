@@ -1,9 +1,4 @@
-import {
-    Entity,
-    Column,
-    PrimaryGeneratedColumn,
-    CreateDateColumn,
-} from "typeorm";
+import {Entity, Column, PrimaryGeneratedColumn} from "typeorm";
 import {
     NotificationType,
     NotificationChannel,
@@ -29,7 +24,7 @@ export class Notification {
     @Column()
     status: NotificationStatus;
 
-    @Column({type: "jsonb"})
+    @Column({type: "jsonb", nullable: true})
     metadata: Record<string, string>;
 
     @Column({type: Date})
@@ -37,7 +32,4 @@ export class Notification {
 
     @Column({type: Date})
     readAt: Date;
-
-    @CreateDateColumn()
-    createdAt: Date;
 }

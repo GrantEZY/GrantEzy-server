@@ -6,7 +6,7 @@ import {
 import {
     EmailBody,
     EmailWorkerJobDTO,
-} from "../../../../../infrastructure/driving/dtos/queue/email.dto";
+} from "../../../../../infrastructure/driving/dtos/queue/queue.dto";
 import ApiError from "../../../../../shared/errors/api.error";
 import {EmailNotifications} from "../../../constants/notification.constants";
 import {EmailNotificationTemplateMapper} from "../../../constants/notification.constants";
