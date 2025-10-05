@@ -16,9 +16,9 @@ import {ProgramManagerControllerPort} from "../../../../../ports/inputs/controll
 import {
     CreateCycleDTO,
     DeleteCycleDTO,
-    GetProgramCyclesDTO,
     GetCycleDetailsDTO,
     GetApplicationDetailsDTO,
+    GetPMProgramCyclesDTO,
 } from "../../../dtos/pm.dto";
 import ApiError from "../../../../../shared/errors/api.error";
 import {UpdateCycleDTO} from "../../../dtos/shared/shared.program.dto";
@@ -55,7 +55,7 @@ export class ProgramManagerController implements ProgramManagerControllerPort {
     @ApiResponse(CYCLE_RESPONSES.PROGRAM_CYCLES_READ.CONFLICT)
     @ApiResponse(CYCLE_RESPONSES.PROGRAM_CYCLES_READ.NO_CYCLES_FOUND)
     async getProgramCycles(
-        @Query() getProgramCycle: GetProgramCyclesDTO,
+        @Query() getProgramCycle: GetPMProgramCyclesDTO,
         @CurrentUser() user: AccessTokenJwt,
         @Res() response: Response
     ): Promise<Response> {

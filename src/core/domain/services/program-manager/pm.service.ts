@@ -7,7 +7,7 @@ import {
 import {
     CreateCycleDTO,
     DeleteCycleDTO,
-    GetProgramCyclesDTO,
+    GetPMProgramCyclesDTO,
 } from "../../../../infrastructure/driving/dtos/pm.dto";
 import ApiError from "../../../../shared/errors/api.error";
 import {SharedProgramService} from "../shared/program/shared.program.service";
@@ -99,15 +99,16 @@ export class ProgramManagerService {
     }
 
     async getProgramCycles(
-        getCycleDto: GetProgramCyclesDTO,
+        getCycleDto: GetPMProgramCyclesDTO,
         userId: string
     ): Promise<GetProgramCyclesResponse> {
         try {
-            const program = await this.programAggregateRepository.findById(
-                getCycleDto.programId
-            );
+            const program =
+                await this.programAggregateRepository.getProgramByManagerId(
+                    userId
+                );
 
-            if (program?.managerId !== userId) {
+            if (!program) {
                 throw new ApiError(
                     403,
                     "Only Program Manager can access the Program",
@@ -116,7 +117,11 @@ export class ProgramManagerService {
             }
 
             const {cycles, totalNumberOfCycles} =
-                await this.sharedProgramService.getProgramCycles(getCycleDto);
+                await this.sharedProgramService.getProgramCycles({
+                    programId: program.id,
+                    page: getCycleDto.page,
+                    numberOfResults: getCycleDto.numberOfResults,
+                });
 
             return {
                 status: 200,
@@ -223,6 +228,7 @@ export class ProgramManagerService {
         }
     }
 
+    // TODO  logic could be improved
     async getApplicationDetails(
         cycleSlug: string,
         applicationSlug: string,
@@ -252,14 +258,14 @@ export class ProgramManagerService {
             if (!application) {
                 throw new ApiError(
                     404,
-                    "Application  Not Found",
+                    "Application Not Found",
                     "Conflict Error"
                 );
             }
 
             if (application?.cycleId != cycle.id) {
                 throw new ApiError(
-                    404,
+                    403,
                     "Application Doesn't Belongs to the Cycle",
                     "Conflict Error"
                 );

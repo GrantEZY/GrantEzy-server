@@ -10,6 +10,7 @@ import {
     inputCycle,
     NEW_PROGRAM_DATA,
     PROGRAMS_ARRAY,
+    saved_Application,
     SAVED_PROGRAM,
 } from "./shared.program.mock.data";
 import ApiError from "../../../../../shared/errors/api.error";
@@ -18,10 +19,15 @@ import {
     CYCLE_AGGREGATE_PORT,
 } from "../../../../../ports/outputs/repository/cycle/cycle.aggregate.port";
 import {dummyCycle} from "../../program-manager/pm.service.mock.data";
+import {
+    GRANT_APPLICATION_AGGREGATE_PORT,
+    GrantApplicationAggregatePort,
+} from "../../../../../ports/outputs/repository/grantapplication/grantapplication.aggregate.port";
 describe("Shared Program Service", () => {
     let programAggregateRepository: jest.Mocked<ProgramAggregatePort>;
     let sharedProgramService: SharedProgramService;
     let cycleAggregateRepository: jest.Mocked<CycleAggregatePort>;
+    let applicationAggregateRepository: jest.Mocked<GrantApplicationAggregatePort>;
     beforeAll(async () => {
         const moduleReference: TestingModule = await Test.createTestingModule({
             providers: [
@@ -34,6 +40,10 @@ describe("Shared Program Service", () => {
                     provide: CYCLE_AGGREGATE_PORT,
                     useValue: createMock<CycleAggregatePort>(),
                 },
+                {
+                    provide: GRANT_APPLICATION_AGGREGATE_PORT,
+                    useValue: createMock<GrantApplicationAggregatePort>(),
+                },
             ],
         }).compile();
 
@@ -44,6 +54,9 @@ describe("Shared Program Service", () => {
         cycleAggregateRepository = moduleReference.get(
             CYCLE_AGGREGATE_PORT
         ) as jest.Mocked<CycleAggregatePort>;
+        applicationAggregateRepository = moduleReference.get(
+            GRANT_APPLICATION_AGGREGATE_PORT
+        ) as jest.Mocked<GrantApplicationAggregatePort>;
     });
 
     describe("Get All Programs", () => {
@@ -231,34 +244,62 @@ describe("Shared Program Service", () => {
 
         it("Program Already has a cycle in that round", async () => {
             try {
-                try {
-                    cycleAggregateRepository.findById.mockResolvedValue(
-                        dummyCycle as any
-                    );
+                cycleAggregateRepository.findById.mockResolvedValue(
+                    dummyCycle as any
+                );
 
-                    cycleAggregateRepository.getProgramCycleWithRound.mockResolvedValue(
-                        dummyCycle as any
-                    );
+                cycleAggregateRepository.getProgramCycleWithRound.mockResolvedValue(
+                    dummyCycle as any
+                );
 
-                    const updateDetails = {
-                        budget: {
-                            amount: 10000,
-                        },
-                        duration: {
-                            endDate: new Date(),
-                        },
-                    };
-                    await sharedProgramService.updateCycleDetails(
-                        updateDetails as any
-                    );
-                } catch (error) {
-                    expect(error).toBeInstanceOf(ApiError);
-                    expect((error as ApiError).status).toBe(409);
-                    expect((error as ApiError).message).toBe(
-                        "Program has a same cycle with round"
-                    );
-                }
-            } catch (error) {}
+                const updateDetails = {
+                    budget: {
+                        amount: 10000,
+                    },
+                    duration: {
+                        endDate: new Date(),
+                    },
+                };
+                await sharedProgramService.updateCycleDetails(
+                    updateDetails as any
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(409);
+                expect((error as ApiError).message).toBe(
+                    "Program has a same cycle with round"
+                );
+            }
+        });
+    });
+
+    describe("Get Cycle With Application", () => {
+        it("Successful Cycle Fetch", async () => {
+            cycleAggregateRepository.getCycleDetailsWithApplications.mockResolvedValue(
+                dummyCycle as any
+            );
+
+            const result =
+                await sharedProgramService.getCycleDetailsWithApplications(
+                    "slug"
+                );
+
+            expect(result).toEqual(dummyCycle);
+        });
+    });
+
+    describe("Get Application With Slug", () => {
+        it("Successful Application Fetch", async () => {
+            applicationAggregateRepository.getUserCreatedApplicationWithSlug.mockResolvedValue(
+                saved_Application as any
+            );
+
+            const result =
+                await sharedProgramService.getApplicationDetailsWithSlug(
+                    "slug"
+                );
+
+            expect(result).toEqual(saved_Application);
         });
     });
 });

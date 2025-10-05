@@ -444,14 +444,14 @@ export class GCVService {
             if (!application) {
                 throw new ApiError(
                     404,
-                    "Application  Not Found",
+                    "Application Not Found",
                     "Conflict Error"
                 );
             }
 
             if (application?.cycleId != cycle.id) {
                 throw new ApiError(
-                    404,
+                    403,
                     "Application Doesn't Belongs to the Cycle",
                     "Conflict Error"
                 );

@@ -3,7 +3,7 @@ import {
     DeleteCycleDTO,
     GetApplicationDetailsDTO,
     GetCycleDetailsDTO,
-    GetProgramCyclesDTO,
+    GetPMProgramCyclesDTO,
 } from "../../../infrastructure/driving/dtos/pm.dto";
 import {Response} from "express";
 import {UpdateCycleDTO} from "../../../infrastructure/driving/dtos/shared/shared.program.dto";
@@ -14,7 +14,7 @@ export interface ProgramManagerControllerPort {
         response: Response
     ): Promise<Response>;
     getProgramCycles(
-        getProgramCycle: GetProgramCyclesDTO,
+        getProgramCycle: GetPMProgramCyclesDTO,
         user: AccessTokenJwt,
         response: Response
     ): Promise<Response>;

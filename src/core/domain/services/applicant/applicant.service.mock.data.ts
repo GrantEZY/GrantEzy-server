@@ -333,6 +333,12 @@ const SAVED_USER = {
 
 const SAVED_CYCLE = {
     programId: "4b7d1f33-0f2e-4b7a-91e3-5f58f3c9d4ab",
+    program: {
+        managerId: "uuid",
+        details: {
+            name: "Program Name",
+        },
+    },
     round: {
         year: 2025,
         type: "Spring",

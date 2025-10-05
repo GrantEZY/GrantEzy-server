@@ -330,3 +330,23 @@ export class GetApplicationDetailsDTO {
     })
     applicationSlug: string;
 }
+
+export class GetPMProgramCyclesDTO {
+    @IsInt()
+    @IsPositive()
+    @Type(() => Number)
+    @ApiProperty({
+        description: "Page Number for pagination",
+        example: 1,
+    })
+    page: number;
+
+    @ApiProperty({
+        description: "Number Of Results per page for pagination",
+        example: 1,
+    })
+    @IsInt()
+    @Min(1)
+    @Type(() => Number)
+    numberOfResults: number;
+}
