@@ -1,5 +1,5 @@
 import {UserInviteAggregatePort} from "../../../../ports/outputs/repository/user.invite/user.invite.aggregate.port";
-import {Injectable} from "@nestjs/common";
+import {Inject, Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import ApiError from "../../../../shared/errors/api.error";
@@ -9,7 +9,10 @@ import {
     InviteStatus,
 } from "../../../../core/domain/constants/invite.constants";
 import {VerificationTokenEntity} from "../../../../core/domain/entities/verification.entity";
-import {v4 as uuid} from "uuid";
+import {
+    PasswordHasherPort,
+    PASSWORD_HASHER_PORT,
+} from "../../../../ports/outputs/crypto/hash.port";
 @Injectable()
 /**
  * This file contains the repo  structure for user invite aggregate
@@ -19,7 +22,9 @@ export class UserInviteAggregateRepository implements UserInviteAggregatePort {
         @InjectRepository(UserInvite)
         private readonly userInviteRepository: Repository<UserInvite>,
         @InjectRepository(VerificationTokenEntity)
-        private readonly verificationRepository: Repository<VerificationTokenEntity>
+        private readonly verificationRepository: Repository<VerificationTokenEntity>,
+        @Inject(PASSWORD_HASHER_PORT)
+        private readonly cryptoRepository: PasswordHasherPort
     ) {}
 
     /**
@@ -35,7 +40,11 @@ export class UserInviteAggregateRepository implements UserInviteAggregatePort {
             const details: Record<string, string> = {};
             await Promise.all(
                 emails.map(async (email) => {
-                    const token = uuid();
+                    const token = this.cryptoRepository.encrypt(
+                        email,
+                        applicationId,
+                        InviteAs.TEAMMATE
+                    );
                     const validTill = new Date(
                         Date.now() + 24 * 60 * 60 * 1000 * 7
                     );
