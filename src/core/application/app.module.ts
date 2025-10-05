@@ -13,6 +13,7 @@ import {GCVModule} from "./gcv/gcv.module";
 import {ApplicantModule} from "./applicant/applicant.module";
 import {ProgramManagerModule} from "./progam-manager/pm.module";
 import {QueueConnection} from "../../infrastructure/driven/queue/connection";
+import {CoApplicantModule} from "./co-applicant/co.applicant.module";
 @Module({
     imports: [
         ConfigConnection,
@@ -27,6 +28,7 @@ import {QueueConnection} from "../../infrastructure/driven/queue/connection";
         GCVModule,
         ProgramManagerModule,
         ApplicantModule,
+        CoApplicantModule,
     ],
     controllers: [AppController],
     providers: [AppService],
