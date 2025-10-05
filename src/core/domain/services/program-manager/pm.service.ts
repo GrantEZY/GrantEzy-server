@@ -14,6 +14,8 @@ import {SharedProgramService} from "../shared/program/shared.program.service";
 import {
     CreateCycleResponse,
     DeleteCycleResponse,
+    GetApplicationDetailsResponse,
+    GetCycleDetailsResponse,
     GetProgramCyclesResponse,
     UpdateCycleResponse,
 } from "../../../../infrastructure/driven/response-dtos/pm.response-dto";
@@ -97,9 +99,22 @@ export class ProgramManagerService {
     }
 
     async getProgramCycles(
-        getCycleDto: GetProgramCyclesDTO
+        getCycleDto: GetProgramCyclesDTO,
+        userId: string
     ): Promise<GetProgramCyclesResponse> {
         try {
+            const program = await this.programAggregateRepository.findById(
+                getCycleDto.programId
+            );
+
+            if (program?.managerId !== userId) {
+                throw new ApiError(
+                    403,
+                    "Only Program Manager can access the Program",
+                    "Conflict Error"
+                );
+            }
+
             const {cycles, totalNumberOfCycles} =
                 await this.sharedProgramService.getProgramCycles(getCycleDto);
 
@@ -169,6 +184,94 @@ export class ProgramManagerService {
                 "Error in deleting cycle",
                 "Cycle Deletion Error"
             );
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async getCycleWithApplications(
+        cycleSlug: string,
+        userId: string
+    ): Promise<GetCycleDetailsResponse> {
+        try {
+            const cycle =
+                await this.sharedProgramService.getCycleDetailsWithApplications(
+                    cycleSlug
+                );
+
+            if (!cycle) {
+                throw new ApiError(404, "Cycle Not Found", "Conflict Error");
+            }
+
+            if (cycle.program?.managerId != userId) {
+                throw new ApiError(
+                    403,
+                    "Only Program Manager can access the Program",
+                    "Conflict Error"
+                );
+            }
+
+            return {
+                status: 200,
+                message: "Cycle Details With Applications",
+                res: {
+                    cycle,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async getApplicationDetails(
+        cycleSlug: string,
+        applicationSlug: string,
+        userId: string
+    ): Promise<GetApplicationDetailsResponse> {
+        try {
+            const cycle =
+                await this.cycleAggregateRepository.findCycleByslug(cycleSlug);
+
+            if (!cycle) {
+                throw new ApiError(404, "Cycle Not Found", "Conflict Error");
+            }
+
+            if (cycle.program?.managerId != userId) {
+                throw new ApiError(
+                    403,
+                    "Only Program Manager can access the Program",
+                    "Conflict Error"
+                );
+            }
+
+            const application =
+                await this.sharedProgramService.getApplicationDetailsWithSlug(
+                    applicationSlug
+                );
+
+            if (!application) {
+                throw new ApiError(
+                    404,
+                    "Application  Not Found",
+                    "Conflict Error"
+                );
+            }
+
+            if (application?.cycleId != cycle.id) {
+                throw new ApiError(
+                    404,
+                    "Application Doesn't Belongs to the Cycle",
+                    "Conflict Error"
+                );
+            }
+
+            return {
+                status: 200,
+                message: "Cycle Details With Applications",
+                res: {
+                    application,
+                },
+            };
         } catch (error) {
             this.handleError(error);
         }

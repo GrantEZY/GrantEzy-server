@@ -7,6 +7,7 @@ import {
     Get,
     Query,
     Delete,
+    Param,
 } from "@nestjs/common";
 import {ApiResponse, ApiTags} from "@nestjs/swagger";
 import {GCVControllerPort} from "../../../../../ports/inputs/controllers/gcv.controller.port";
@@ -21,23 +22,24 @@ import {
 } from "../../../dtos/gcv.dto";
 import ApiError from "../../../../../shared/errors/api.error";
 import {Response} from "express";
-import {
-    GET_GCV_MEMBERS,
-    ADD_GCV_USERS,
-    UPDATE_GCV_USER_ROLE,
-    PROGRAM_RESPONSES,
-} from "../../../../../config/swagger/docs/gcv.swagger";
+import {GCV_RESPONSES} from "../../../../../config/swagger/docs/gcv.swagger";
 import {CreateProgramDTO} from "../../../dtos/gcv.dto";
 import {UpdateProgramDTO} from "../../../dtos/shared/shared.program.dto";
 import {GetAllProgramDTO} from "../../../dtos/shared/shared.program.dto";
+import {
+    GetProgramCyclesDTO,
+    GetCycleDetailsDTO,
+    GetApplicationDetailsDTO,
+} from "../../../dtos/pm.dto";
 @ApiTags("GCV-Only")
 @Controller("gcv")
 export class GCVController implements GCVControllerPort {
     constructor(private readonly gcvService: GCVService) {}
 
     @Post("/add-gcv-member")
-    @ApiResponse(ADD_GCV_USERS.SUCCESS)
-    @ApiResponse(ADD_GCV_USERS.USER_ALREADY_PRESENT)
+    @ApiResponse(GCV_RESPONSES.ADD_MEMBER.CREATED_NEW)
+    @ApiResponse(GCV_RESPONSES.ADD_MEMBER.SUCCESS)
+    @ApiResponse(GCV_RESPONSES.ADD_MEMBER.ERROR)
     async addGcvMembers(
         @Body() body: GCVMemberAddDTO,
         @Res() response: Response
@@ -51,8 +53,8 @@ export class GCVController implements GCVControllerPort {
     }
 
     @Get("/get-gcv-members")
-    @ApiResponse(GET_GCV_MEMBERS.SUCCESS)
-    @ApiResponse(GET_GCV_MEMBERS.NO_USERS_PRESENT)
+    @ApiResponse(GCV_RESPONSES.GET_MEMBERS.SUCCESS)
+    @ApiResponse(GCV_RESPONSES.GET_MEMBERS.NO_USERS_PRESENT)
     async getAllMembers(
         @Res() response: Response,
         @Query() query: GetAllGCVUsersDTO
@@ -66,8 +68,8 @@ export class GCVController implements GCVControllerPort {
     }
 
     @Patch("/update-gcv-role")
-    @ApiResponse(UPDATE_GCV_USER_ROLE.SUCCESS)
-    @ApiResponse(UPDATE_GCV_USER_ROLE.ALREADY_ROLE_LINKED)
+    @ApiResponse(GCV_RESPONSES.UPDATE_MEMBER_ROLE.SUCCESS)
+    @ApiResponse(GCV_RESPONSES.UPDATE_MEMBER_ROLE.USER_NOT_FOUND)
     async updateGCVMemberRole(
         @Body() body: UpdateGCVUserRoleDTO,
         @Res() response: Response
@@ -82,9 +84,8 @@ export class GCVController implements GCVControllerPort {
     }
 
     @Post("/create-program")
-    @ApiResponse(PROGRAM_RESPONSES.CREATE.SUCCESS)
-    @ApiResponse(PROGRAM_RESPONSES.CREATE.TRYING_TO_CREATE_ALREADY_EXISTING_ORG)
-    @ApiResponse(PROGRAM_RESPONSES.CREATE.ORGANIZATION_NOT_FOUND)
+    @ApiResponse(GCV_RESPONSES.CREATE_PROGRAM.SUCCESS)
+    @ApiResponse(GCV_RESPONSES.CREATE_PROGRAM.DUPLICATE)
     async createProgram(
         @Body() body: CreateProgramDTO,
         @Res() response: Response
@@ -98,7 +99,7 @@ export class GCVController implements GCVControllerPort {
     }
 
     @Get("/get-programs")
-    @ApiResponse(PROGRAM_RESPONSES.FETCH.SUCCESS)
+    @ApiResponse(GCV_RESPONSES.GET_PROGRAMS.SUCCESS)
     async getAllPrograms(
         @Query() query: GetAllProgramDTO,
         @Res() response: Response
@@ -112,9 +113,8 @@ export class GCVController implements GCVControllerPort {
     }
 
     @Patch("/update-program")
-    @ApiResponse(PROGRAM_RESPONSES.UPDATE.SUCCESS)
-    @ApiResponse(PROGRAM_RESPONSES.UPDATE.NOT_FOUND)
-    @ApiResponse(PROGRAM_RESPONSES.UPDATE.NAME_ALREADY_TAKEN)
+    @ApiResponse(GCV_RESPONSES.UPDATE_PROGRAM.SUCCESS)
+    @ApiResponse(GCV_RESPONSES.UPDATE_PROGRAM.ERROR)
     async updateProgram(
         @Body() body: UpdateProgramDTO,
         @Res() response: Response
@@ -128,9 +128,9 @@ export class GCVController implements GCVControllerPort {
     }
 
     @Delete("/delete-program")
-    @ApiResponse(PROGRAM_RESPONSES.DELETE.SUCCESS)
-    @ApiResponse(PROGRAM_RESPONSES.DELETE.NOT_FOUND)
-    @ApiResponse(PROGRAM_RESPONSES.DELETE.FAILURE)
+    @ApiResponse(GCV_RESPONSES.DELETE_PROGRAM.SUCCESS)
+    @ApiResponse(GCV_RESPONSES.DELETE_PROGRAM.NOT_FOUND)
+    @ApiResponse(GCV_RESPONSES.DELETE_PROGRAM.ERROR)
     async deleteProgram(
         @Body() body: DeleteProgramDTO,
         @Res() response: Response
@@ -144,11 +144,10 @@ export class GCVController implements GCVControllerPort {
     }
 
     @Post("/add-program-manager")
-    @ApiResponse(PROGRAM_RESPONSES.ADD_MANAGER.SUCCESS)
-    @ApiResponse(PROGRAM_RESPONSES.ADD_MANAGER.MANAGER_ALREADY_LINKED)
-    @ApiResponse(PROGRAM_RESPONSES.ADD_MANAGER.PROGRAM_NOT_FOUND)
-    @ApiResponse(PROGRAM_RESPONSES.ADD_MANAGER.FAILURE)
-    @ApiResponse(PROGRAM_RESPONSES.ADD_MANAGER.USER_NOT_FOUND)
+    @ApiResponse(GCV_RESPONSES.ADD_PROGRAM_MANAGER.SUCCESS)
+    @ApiResponse(GCV_RESPONSES.ADD_PROGRAM_MANAGER.PROGRAM_NOT_FOUND)
+    @ApiResponse(GCV_RESPONSES.ADD_PROGRAM_MANAGER.USER_NOT_FOUND)
+    @ApiResponse(GCV_RESPONSES.ADD_PROGRAM_MANAGER.MANAGER_ALREADY_ASSIGNED)
     async addProgramManager(
         @Body() body: AddProgramManagerDTO,
         @Res() response: Response
@@ -162,14 +161,68 @@ export class GCVController implements GCVControllerPort {
     }
 
     @Patch("/update-program-manager")
-    @ApiResponse(PROGRAM_RESPONSES.UPDATE_MANAGER.SUCCESS)
-    @ApiResponse(PROGRAM_RESPONSES.UPDATE_MANAGER.FAILURE)
+    @ApiResponse(GCV_RESPONSES.ADD_PROGRAM_MANAGER.SUCCESS)
+    @ApiResponse(GCV_RESPONSES.ADD_PROGRAM_MANAGER.PROGRAM_NOT_FOUND)
+    @ApiResponse(GCV_RESPONSES.ADD_PROGRAM_MANAGER.USER_NOT_FOUND)
+    @ApiResponse(GCV_RESPONSES.ADD_PROGRAM_MANAGER.MANAGER_ALREADY_ASSIGNED)
     async updateProgramManager(
         @Body() body: UpdateProgramManagerDTO,
         @Res() response: Response
     ): Promise<Response> {
         try {
             const result = await this.gcvService.addProgramManager(body);
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Get("/get-program-cycles")
+    @ApiResponse(GCV_RESPONSES.PROGRAM_CYCLES.SUCCESS)
+    @ApiResponse(GCV_RESPONSES.PROGRAM_CYCLES.NO_CYCLES_FOUND)
+    async getProgramCycles(
+        @Param() parameters: GetProgramCyclesDTO,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const result = await this.gcvService.getProgramCycles(parameters);
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Get("/get-cycle-details")
+    @ApiResponse(GCV_RESPONSES.CYCLE_WITH_APPLICATIONS.SUCCESS)
+    @ApiResponse(GCV_RESPONSES.CYCLE_WITH_APPLICATIONS.NOT_FOUND)
+    async getCycleDetails(
+        @Param() parameters: GetCycleDetailsDTO,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const result = await this.gcvService.getCycleWithApplications(
+                parameters.cycleSlug
+            );
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Get("/get-cycle-application-details")
+    @ApiResponse(GCV_RESPONSES.APPLICATION_DETAILS.SUCCESS)
+    @ApiResponse(GCV_RESPONSES.APPLICATION_DETAILS.APPLICATION_MISMATCH)
+    @ApiResponse(GCV_RESPONSES.APPLICATION_DETAILS.APPLICATION_NOT_FOUND)
+    @ApiResponse(GCV_RESPONSES.APPLICATION_DETAILS.CYCLE_NOT_FOUND)
+    async getApplicationDetails(
+        @Param() parameters: GetApplicationDetailsDTO,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const result = await this.gcvService.getApplicationDetails(
+                parameters.cycleSlug,
+                parameters.applicationSlug
+            );
             return response.status(result.status).json(result);
         } catch (error) {
             return this.handleError(error, response);

@@ -143,6 +143,7 @@ const SAVED_PROGRAM = {
     minTRL: "TRL_3",
     maxTRL: "TRL_7",
     slug: "ai-innovation-challenge-a12f3b45",
+    managerId: "uuid",
     createdAt: "2025-01-01T10:00:00.000Z",
     updatedAt: "2025-02-15T15:30:00.000Z",
 };

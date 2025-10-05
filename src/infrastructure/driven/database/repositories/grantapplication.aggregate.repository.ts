@@ -434,4 +434,28 @@ export class GrantApplicationRepository
             );
         }
     }
+
+    async getUserCreatedApplicationWithSlug(
+        applicationSlug: string
+    ): Promise<GrantApplication | null> {
+        try {
+            const application = await this.grantApplicationRepository.findOne({
+                where: {
+                    slug: applicationSlug,
+                },
+                relations: ["teamMateInvites", "cycle", "teammates"],
+            });
+
+            return application;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Failed to fetch application",
+                "Database Error"
+            );
+        }
+    }
 }

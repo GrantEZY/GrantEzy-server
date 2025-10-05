@@ -4,6 +4,7 @@ import {PasswordHasherPort} from "../../../ports/outputs/crypto/hash.port";
 import {InviteAs} from "../../../core/domain/constants/invite.constants";
 import {ConfigService} from "@nestjs/config";
 import {ConfigType} from "../../../config/env/app.types";
+import ApiError from "../../../shared/errors/api.error";
 export class BcryptPasswordHasher implements PasswordHasherPort {
     private readonly Algorithm = "aes-256-gcm";
 
@@ -54,24 +55,31 @@ export class BcryptPasswordHasher implements PasswordHasherPort {
         applicationId: string;
         role: InviteAs;
     } {
-        const data = Buffer.from(encryptedText, "base64");
+        try {
+            const data = Buffer.from(encryptedText, "base64");
 
-        const iv = data.subarray(0, 16);
-        const authTag = data.subarray(16, 32);
-        const encrypted = data.subarray(32);
+            const iv = data.subarray(0, 16);
+            const authTag = data.subarray(16, 32);
+            const encrypted = data.subarray(32);
 
-        const decipher = crypto.createDecipheriv(
-            this.Algorithm,
-            this.configService.get("app").ENCRYPTION_KEY,
-            iv
-        );
-        decipher.setAuthTag(authTag);
+            const decipher = crypto.createDecipheriv(
+                this.Algorithm,
+                this.configService.get("app").ENCRYPTION_KEY,
+                iv
+            );
+            decipher.setAuthTag(authTag);
 
-        const decrypted = Buffer.concat([
-            decipher.update(encrypted),
-            decipher.final(),
-        ]).toString("utf8");
+            const decrypted = Buffer.concat([
+                decipher.update(encrypted),
+                decipher.final(),
+            ]).toString("utf8");
 
-        return JSON.parse(decrypted); // eslint-disable-line
+            return JSON.parse(decrypted); // eslint-disable-line
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(403, "Token was modified", "Token error");
+        }
     }
 }

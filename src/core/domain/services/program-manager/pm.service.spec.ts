@@ -149,13 +149,18 @@ describe("Program Manager Service", () => {
                 page: 1,
                 numberOfResults: 5,
             };
-
+            programAggregaterepository.findById.mockResolvedValue(
+                SAVED_PROGRAM as any
+            );
             sharedProgramService.getProgramCycles.mockResolvedValue({
                 cycles: CYCLES_ARRAY as any,
                 totalNumberOfCycles: 2,
             });
 
-            const result = await programManagerService.getProgramCycles(filter);
+            const result = await programManagerService.getProgramCycles(
+                filter,
+                "uuid"
+            );
 
             expect(result).toEqual({
                 status: 200,
@@ -165,6 +170,31 @@ describe("Program Manager Service", () => {
                     totalNumberOfCycles: 2,
                 },
             });
+        });
+
+        it("Program Manager Conflict Error", async () => {
+            try {
+                const filter = {
+                    programId: "program-id",
+                    page: 1,
+                    numberOfResults: 5,
+                };
+                programAggregaterepository.findById.mockResolvedValue(
+                    SAVED_PROGRAM as any
+                );
+                sharedProgramService.getProgramCycles.mockResolvedValue({
+                    cycles: CYCLES_ARRAY as any,
+                    totalNumberOfCycles: 2,
+                });
+
+                await programManagerService.getProgramCycles(filter, "uuid1");
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe(
+                    "Only Program Manager can access the Program"
+                );
+            }
         });
     });
 

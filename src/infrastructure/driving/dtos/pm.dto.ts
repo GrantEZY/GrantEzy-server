@@ -309,3 +309,24 @@ export class GetProgramCyclesDTO {
     @Type(() => Number)
     numberOfResults: number;
 }
+
+export class GetCycleDetailsDTO {
+    @ApiProperty({
+        description: "Cycle Slug",
+    })
+    cycleSlug: string;
+}
+
+export class GetApplicationDetailsDTO {
+    @ApiProperty({
+        description: "Cycle Slug",
+        example: "34ruibrjgq94hq83t4p3498",
+    })
+    cycleSlug: string;
+
+    @ApiProperty({
+        description: "Application Slug",
+        example: "q3u4th938th3p48hoi9",
+    })
+    applicationSlug: string;
+}
