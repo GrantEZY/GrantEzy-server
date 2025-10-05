@@ -8,7 +8,8 @@ import {
     InviteAs,
     InviteStatus,
 } from "../../../../core/domain/constants/invite.constants";
-
+import {VerificationTokenEntity} from "../../../../core/domain/entities/verification.entity";
+import {v4 as uuid} from "uuid";
 @Injectable()
 /**
  * This file contains the repo  structure for user invite aggregate
@@ -16,7 +17,9 @@ import {
 export class UserInviteAggregateRepository implements UserInviteAggregatePort {
     constructor(
         @InjectRepository(UserInvite)
-        private readonly userInviteRepository: Repository<UserInvite>
+        private readonly userInviteRepository: Repository<UserInvite>,
+        @InjectRepository(VerificationTokenEntity)
+        private readonly verificationRepository: Repository<VerificationTokenEntity>
     ) {}
 
     /**
@@ -27,21 +30,35 @@ export class UserInviteAggregateRepository implements UserInviteAggregatePort {
     async addTeamMatesInvites(
         applicationId: string,
         emails: string[]
-    ): Promise<UserInvite[]> {
+    ): Promise<Record<string, string>> {
         try {
-            const invites = await Promise.all(
+            const details: Record<string, string> = {};
+            await Promise.all(
                 emails.map(async (email) => {
+                    const token = uuid();
+                    const validTill = new Date(
+                        Date.now() + 24 * 60 * 60 * 1000 * 7
+                    );
+
+                    const verification = this.verificationRepository.create({
+                        token,
+                        validTill,
+                    });
+                    const savedVerification =
+                        await this.verificationRepository.save(verification);
+
                     const invite = this.userInviteRepository.create({
                         applicationId,
                         email,
                         inviteAs: InviteAs.TEAMMATE,
                         status: InviteStatus.SENT,
+                        verificationId: savedVerification.id,
                     });
-                    return await this.userInviteRepository.save(invite);
+                    await this.userInviteRepository.save(invite);
+                    details[email] = token;
                 })
             );
-
-            return invites;
+            return details;
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;

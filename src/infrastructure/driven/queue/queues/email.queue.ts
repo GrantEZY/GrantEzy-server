@@ -9,6 +9,7 @@ import {
 import {EmailResponse} from "../../response-dtos/queue/queue.response-dto";
 import {Logger} from "@nestjs/common";
 import {v4 as uuid} from "uuid";
+import {EmailNotifications} from "../../../../core/domain/constants/notification.constants";
 @Injectable()
 export class EmailQueue {
     private logger;
@@ -26,9 +27,13 @@ export class EmailQueue {
         try {
             const uniqueId = uuid();
             const jobId = `${uniqueId}-${email}-application-invite`;
-            const job = await this.emailQueue.add(jobId, data, {
-                removeOnComplete: true,
-            });
+            const job = await this.emailQueue.add(
+                jobId,
+                {type: EmailNotifications.INVITE_USER, data},
+                {
+                    removeOnComplete: true,
+                }
+            );
 
             return {
                 status: true,
@@ -56,9 +61,13 @@ export class EmailQueue {
         try {
             const uniqueId = uuid();
             const jobId = `${uniqueId}-${email}-cycle-invite`;
-            const job = await this.emailQueue.add(jobId, data, {
-                removeOnComplete: true,
-            });
+            const job = await this.emailQueue.add(
+                jobId,
+                {type: EmailNotifications.CYCLE_INVITE_REQUEST, data},
+                {
+                    removeOnComplete: true,
+                }
+            );
 
             return {
                 status: true,

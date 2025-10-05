@@ -4,6 +4,7 @@ import {
     InviteEmailDTO,
 } from "../../../infrastructure/driving/dtos/queue/queue.dto";
 
+const BASE_URL = process.env.CLIENT_URL;
 export interface EmailTemplateType {
     subject: string;
     body: (values: EmailBody) => string;
@@ -85,10 +86,10 @@ export const CycleInviteEmailTemplate: EmailTemplateType = {
       </table>
 
       <p>
-        👉 <a href="https://grantezy.com/login"
+        👉 <a href="${BASE_URL ?? "http://localhost"}/invite-accept-or-reject/${(values as CycleInviteDTO).token}"
               style="background: #4CAF50; color: white; padding: 10px 16px;
                      text-decoration: none; border-radius: 5px; display: inline-block;">
-          Log in to GrantEzy
+            Accept Or Reject Invite
         </a>
       </p>
 

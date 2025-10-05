@@ -67,6 +67,7 @@ export class GrantApplicationRepository
 
             return savedApplication;
         } catch (error) {
+            console.log(error);
             if (error instanceof ApiError) {
                 throw error;
             }
@@ -394,9 +395,7 @@ export class GrantApplicationRepository
                     applicantId: userId,
                     cycleId,
                 },
-                order: {
-                    createdAt: "DESC",
-                },
+                relations: ["teamMateInvites", "cycle"],
             });
 
             return application;
@@ -412,23 +411,25 @@ export class GrantApplicationRepository
         }
     }
 
-    async getUserApplications(userId: string): Promise<GrantApplication[]> {
+    async getUserCreatedApplication(
+        applicationId: string
+    ): Promise<GrantApplication | null> {
         try {
-            const grantApplications =
-                await this.grantApplicationRepository.find({
-                    where: {
-                        applicantId: userId,
-                    },
-                });
+            const application = await this.grantApplicationRepository.findOne({
+                where: {
+                    id: applicationId,
+                },
+                relations: ["teamMateInvites", "cycle", "teammates"],
+            });
 
-            return grantApplications;
+            return application;
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;
             }
             throw new ApiError(
                 502,
-                "Failed to fetch user applications",
+                "Failed to fetch application",
                 "Database Error"
             );
         }

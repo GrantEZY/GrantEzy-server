@@ -32,6 +32,7 @@ import {USER_INVITE_AGGREGATE_PORT} from "./repository/user.invite/user.invite.a
 import {UserInviteAggregateRepository} from "../../infrastructure/driven/database/repositories/user.invite.aggregate.repository";
 import {Notification} from "../../core/domain/entities/notification.entity";
 import {UserNotifications} from "../../core/domain/aggregates/usernotifications.aggregate";
+import {VerificationTokenEntity} from "../../core/domain/entities/verification.entity";
 @Global()
 @Module({
     imports: [
@@ -45,6 +46,7 @@ import {UserNotifications} from "../../core/domain/aggregates/usernotifications.
             UserInvite,
             Notification,
             UserNotifications,
+            VerificationTokenEntity,
         ]),
         JwtModule.register({}),
         ConfigModule,

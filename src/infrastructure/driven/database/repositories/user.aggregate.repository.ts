@@ -373,4 +373,32 @@ export class UserAggregateRepository implements UserAggregatePort {
             );
         }
     }
+
+    /**
+     *
+     * @param userId the user id of the user
+     * @returns
+     */
+    async getUserApplication(userId: string): Promise<User | null> {
+        try {
+            const userwithApplicationDetails =
+                await this.userRepository.findOne({
+                    where: {
+                        personId: userId,
+                    },
+                    relations: ["myApplications", "linkedApplications"],
+                });
+
+            return userwithApplicationDetails;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Error in fetching user applications",
+                "Database Error"
+            );
+        }
+    }
 }

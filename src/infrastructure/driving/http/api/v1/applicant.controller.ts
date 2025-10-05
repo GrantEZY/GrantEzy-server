@@ -1,4 +1,13 @@
-import {Body, Controller, Post, Res, Get, Delete, Patch} from "@nestjs/common";
+import {
+    Body,
+    Controller,
+    Post,
+    Res,
+    Get,
+    Delete,
+    Patch,
+    Param,
+} from "@nestjs/common";
 import {Response} from "express";
 import ApiError from "../../../../../shared/errors/api.error";
 import {ApplicantControllerPort} from "../../../../../ports/inputs/controllers/applicant.controller.port";
@@ -13,6 +22,8 @@ import {
     ApplicationDocumentsDTO,
     CreateApplicationControllerDTO,
     DeleteApplicationDTO,
+    GetApplicationWithCycleDetailsDTO,
+    GetUserCreatedApplicationDTO,
 } from "../../../dtos/applicant.dto";
 import {CurrentUser} from "../../../../../shared/decorators/currentuser.decorator";
 import {ApiResponse, ApiTags} from "@nestjs/swagger";
@@ -189,6 +200,46 @@ export class ApplicantController implements ApplicantControllerPort {
         try {
             const id = user.userData.payload.id;
             const result = await this.applicantService.getUserApplications(id);
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Get("/get-application-details-with-cycle")
+    async getApplicationDetailsWithCycle(
+        @CurrentUser() user: AccessTokenJwt,
+        @Param() parameter: GetApplicationWithCycleDetailsDTO,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+            const result =
+                await this.applicantService.getApplicationDetailsWithCycle(
+                    id,
+                    parameter.cycleSlug
+                );
+
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Get("/get-user-created-applications")
+    async getUserCreatedApplicationDetails(
+        @CurrentUser() user: AccessTokenJwt,
+        @Param() parameter: GetUserCreatedApplicationDTO,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+            const result =
+                await this.applicantService.getUserCreatedApplicationDetails(
+                    parameter.applicationId,
+                    id
+                );
+
             return response.status(result.status).json(result);
         } catch (error) {
             return this.handleError(error, response);

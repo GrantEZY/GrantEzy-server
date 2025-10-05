@@ -26,6 +26,7 @@ export interface UserAggregatePort {
         oldUser: User,
         updateDetails: UpdateProfileDTO
     ): Promise<User>;
+    getUserApplication(userId: string): Promise<User | null>;
     deleteUser(id: string): Promise<boolean>;
 }
 export const USER_AGGREGATE_PORT = Symbol("UserAggregatePort");

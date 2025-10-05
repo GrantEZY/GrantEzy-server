@@ -8,7 +8,7 @@ import {Global, Module} from "@nestjs/common";
 import {EmailQueueListener} from "./listeners/email.queue.listener";
 import {CycleInviteQueueListener} from "./listeners/cycle.invite.queue.listener";
 import {EmailWorker} from "../../driving/http/workers/email.worker";
-import {CycleInviteWorker} from "../../driving/http/workers/cycleinvite.worker";
+import {CycleInviteWorker} from "../../driving/http/workers/cycle.invite.worker";
 export const BullConfiguration = BullModule.forRootAsync({
     imports: [ConfigModule],
     inject: [ConfigService],

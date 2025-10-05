@@ -799,9 +799,10 @@ describe("Applicant ", () => {
 
     describe("Get User Applications", () => {
         it("Get User Applications", async () => {
-            applicationAggregateRepository.getUserApplications.mockResolvedValueOnce(
-                applicationsArray as any
-            );
+            userAggregateRepository.getUserApplication.mockResolvedValue({
+                myApplications: applicationsArray as any,
+                linkedApplications: applicationsArray as any,
+            } as any);
 
             const result =
                 await applicationService.getUserApplications("user-id");
@@ -814,7 +815,23 @@ describe("Applicant ", () => {
                 },
             });
         });
+
+        it("User Not Found", async () => {
+            try {
+                userAggregateRepository.getUserApplication.mockResolvedValue(
+                    null
+                );
+
+                await applicationService.getUserApplications("user-id");
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).message).toBe("User Not Found");
+            }
+        });
     });
+
+    describe("GetApplicationDetailsWithCycle", () => {});
 
     describe("Delete User Application", () => {
         it("Successful deletion of the application", async () => {

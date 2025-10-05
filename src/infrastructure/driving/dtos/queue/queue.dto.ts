@@ -1,4 +1,4 @@
-import {IsString, IsEmail, IsEnum, IsObject} from "class-validator";
+import {IsString, IsEmail, IsEnum, IsObject, IsUUID} from "class-validator";
 import {EmailNotifications} from "../../../../core/domain/constants/notification.constants";
 import {UserRoles} from "../../../../core/domain/constants/userRoles.constants";
 import {ProgramRound} from "../../../../core/domain/value-objects/program.round.object";
@@ -30,6 +30,9 @@ export class CycleInviteBodyDTO {
     @IsObject()
     round: ProgramRound;
 
+    @IsUUID()
+    token: string;
+
     @IsString()
     applicationName: string;
 
@@ -57,6 +60,9 @@ export class CycleInviteDTO {
 
     @IsObject()
     round: ProgramRound;
+
+    @IsUUID()
+    token: string;
 
     @IsString()
     applicationName: string;

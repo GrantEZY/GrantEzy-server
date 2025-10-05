@@ -7,6 +7,8 @@ import {
     ApplicationDocumentsDTO,
     CreateApplicationControllerDTO,
     DeleteApplicationDTO,
+    GetApplicationWithCycleDetailsDTO,
+    GetUserCreatedApplicationDTO,
 } from "../../../infrastructure/driving/dtos/applicant.dto";
 import {AccessTokenJwt} from "../../../shared/types/jwt.types";
 import {Response} from "express";
@@ -55,6 +57,18 @@ export interface ApplicantControllerPort {
 
     getUserApplications(
         user: AccessTokenJwt,
+        response: Response
+    ): Promise<Response>;
+
+    getUserCreatedApplicationDetails(
+        user: AccessTokenJwt,
+        parameter: GetUserCreatedApplicationDTO,
+        response: Response
+    ): Promise<Response>;
+
+    getApplicationDetailsWithCycle(
+        user: AccessTokenJwt,
+        parameter: GetApplicationWithCycleDetailsDTO,
         response: Response
     ): Promise<Response>;
 

@@ -633,3 +633,20 @@ export class DeleteApplicationDTO {
     @IsUUID()
     applicationId: string;
 }
+
+export class GetUserCreatedApplicationDTO {
+    @ApiProperty({
+        description: "UUID of the associated application",
+        example: "4b7d1f33-0f2e-4b7a-91e3-5f58f3c9d4ab",
+    })
+    @IsUUID()
+    applicationId: string;
+}
+
+export class GetApplicationWithCycleDetailsDTO {
+    @ApiProperty({
+        description: "slug of the associated cycle",
+        example: "4b7d1f330f2e4b7a91e35f58f3c9d4ab",
+    })
+    cycleSlug: string;
+}

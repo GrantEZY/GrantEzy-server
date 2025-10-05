@@ -20,7 +20,9 @@ import {
 import {
     CreateApplicationResponse,
     DeleteApplicationResponse,
+    GetApplicationWithCycleDetailsResponse,
     GetUserApplicationsResponse,
+    GetUserCreatedApplicationResponse,
 } from "../../../../infrastructure/driven/response-dtos/applicant.response-dto";
 import {GrantApplicationStatus} from "../../constants/status.constants";
 import {
@@ -35,6 +37,7 @@ import {
     USER_AGGREGATE_PORT,
 } from "../../../../ports/outputs/repository/user/user.aggregate.port";
 import {CycleInviteQueue} from "../../../../infrastructure/driven/queue/queues/cycle.invite.queue";
+import {InviteAs} from "../../constants/invite.constants";
 @Injectable()
 /**
  * This contains the services for application creation by the users
@@ -427,10 +430,11 @@ export class ApplicantService {
                 );
             }
 
-            await this.userInviteAggregateRepository.addTeamMatesInvites(
-                applicationId,
-                emails
-            );
+            const details =
+                await this.userInviteAggregateRepository.addTeamMatesInvites(
+                    applicationId,
+                    emails
+                );
             const cycle = await this.cycleAggregateRepository.findById(
                 application.cycleId
             );
@@ -444,9 +448,10 @@ export class ApplicantService {
                         email,
                         invitedBy: user.person.firstName,
                         role: UserRoles.TEAM_MATE,
-                        programName: cycle.program?.details.name ?? "Progam",
+                        programName: cycle.program?.details.name ?? "Program",
                         round: cycle.round,
                         applicationName: application.basicDetails.title,
+                        token: details[email] ?? null,
                     });
                 if (!userCycleInviteStatus.status) {
                     throw new ApiError(
@@ -490,15 +495,102 @@ export class ApplicantService {
         userId: string
     ): Promise<GetUserApplicationsResponse> {
         try {
-            const applications =
-                await this.applicationAggregateRepository.getUserApplications(
-                    userId
-                );
+            const userDetails =
+                await this.userAggregateRepository.getUserApplication(userId);
 
+            if (!userDetails) {
+                throw new ApiError(404, "User Not Found", "Conflict Error");
+            }
+
+            const {myApplications, linkedApplications} = userDetails;
             return {
                 status: 200,
                 message: "User Applications",
-                res: {applications},
+                res: {myApplications, linkedApplications},
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async getApplicationDetailsWithCycle(
+        userId: string,
+        cycleSlug: string
+    ): Promise<GetApplicationWithCycleDetailsResponse> {
+        try {
+            const cycle =
+                await this.cycleAggregateRepository.findCycleByslug(cycleSlug);
+
+            if (!cycle) {
+                throw new ApiError(404, "Cycle Not Found", "Conflict Error");
+            }
+            const application =
+                await this.applicationAggregateRepository.findUserCycleApplication(
+                    userId,
+                    cycle.id
+                );
+            if (!application) {
+                return {
+                    status: 200,
+                    message: "Cycle Details",
+                    res: {
+                        cycle,
+                        applicationDetails: null,
+                    },
+                };
+            }
+            application.teamMateInvites = application.teamMateInvites.filter(
+                (teaminvite) => teaminvite.inviteAs != InviteAs.REVIEWER
+            );
+            return {
+                status: 200,
+                message: "Application Cycle Details",
+                res: {
+                    cycle: application.cycle,
+                    applicationDetails: application,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async getUserCreatedApplicationDetails(
+        applicationId: string,
+        userId: string
+    ): Promise<GetUserCreatedApplicationResponse> {
+        try {
+            const application =
+                await this.applicationAggregateRepository.getUserCreatedApplication(
+                    applicationId
+                );
+
+            if (!application) {
+                throw new ApiError(
+                    404,
+                    "Application  Not Found",
+                    "Conflict Error"
+                );
+            }
+
+            if (application.applicantId !== userId) {
+                throw new ApiError(
+                    403,
+                    "Only the applicant can get further details",
+                    "Conflict Error"
+                );
+            }
+
+            application.teamMateInvites = application.teamMateInvites.filter(
+                (teaminvite) => teaminvite.inviteAs != InviteAs.REVIEWER
+            );
+
+            return {
+                status: 200,
+                message: "User Application Fetch",
+                res: {
+                    application,
+                },
             };
         } catch (error) {
             this.handleError(error);
