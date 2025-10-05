@@ -811,7 +811,8 @@ describe("Applicant ", () => {
                 status: 200,
                 message: "User Applications",
                 res: {
-                    applications: applicationsArray,
+                    myApplications: applicationsArray,
+                    linkedApplications: applicationsArray,
                 },
             });
         });
@@ -831,7 +832,134 @@ describe("Applicant ", () => {
         });
     });
 
-    describe("GetApplicationDetailsWithCycle", () => {});
+    describe("GetApplicationDetailsWithCycle", () => {
+        it("Successful fetch", async () => {
+            cycleAggregateRepository.findCycleByslug.mockResolvedValue(
+                SAVED_CYCLE as any
+            );
+
+            applicationAggregateRepository.findUserCycleApplication.mockResolvedValue(
+                saved_Application as any
+            );
+
+            const result =
+                await applicationService.getApplicationDetailsWithCycle(
+                    "user-id",
+                    "cycleslug"
+                );
+
+            expect(result).toEqual({
+                status: 200,
+                message: "Application Cycle Details",
+                res: {
+                    cycle: saved_Application.cycle,
+                    applicationDetails: saved_Application,
+                },
+            });
+        });
+
+        it("Application Not Found", async () => {
+            cycleAggregateRepository.findCycleByslug.mockResolvedValue(
+                SAVED_CYCLE as any
+            );
+
+            applicationAggregateRepository.findUserCycleApplication.mockResolvedValue(
+                null
+            );
+
+            const result =
+                await applicationService.getApplicationDetailsWithCycle(
+                    "user-id",
+                    "cycleslug"
+                );
+
+            expect(result).toEqual({
+                status: 200,
+                message: "Cycle Details",
+                res: {
+                    cycle: SAVED_CYCLE,
+                    applicationDetails: null,
+                },
+            });
+        });
+
+        it("Cycle Not Found", async () => {
+            try {
+                cycleAggregateRepository.findCycleByslug.mockResolvedValue(
+                    null
+                );
+
+                await applicationService.getApplicationDetailsWithCycle(
+                    "user-id",
+                    "cycleslug"
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).message).toBe("Cycle Not Found");
+            }
+        });
+    });
+
+    describe("Get User Created Application Details", () => {
+        it("SuccessFul Application Fetch", async () => {
+            applicationAggregateRepository.getUserCreatedApplication.mockResolvedValue(
+                saved_Application as any
+            );
+
+            const result =
+                await applicationService.getUserCreatedApplicationDetails(
+                    "id",
+                    "uuid"
+                );
+
+            expect(result).toEqual({
+                status: 200,
+                message: "User Application Fetch",
+                res: {
+                    application: saved_Application,
+                },
+            });
+        });
+
+        it("Application Not Found", async () => {
+            try {
+                applicationAggregateRepository.getUserCreatedApplication.mockResolvedValue(
+                    null
+                );
+
+                await applicationService.getUserCreatedApplicationDetails(
+                    "id",
+                    "uuid"
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).message).toBe(
+                    "Application Not Found"
+                );
+            }
+        });
+
+        it("User Not Allowed", async () => {
+            try {
+                applicationAggregateRepository.getUserCreatedApplication.mockResolvedValue(
+                    saved_Application as any
+                );
+
+                await applicationService.getUserCreatedApplicationDetails(
+                    "id",
+                    "uuid1"
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe(
+                    "Only the applicant can get further details"
+                );
+            }
+        });
+    });
 
     describe("Delete User Application", () => {
         it("Successful deletion of the application", async () => {

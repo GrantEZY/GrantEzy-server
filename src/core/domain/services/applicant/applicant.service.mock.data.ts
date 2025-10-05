@@ -1,4 +1,4 @@
-import {InviteStatus} from "../../constants/invite.constants";
+import {InviteAs, InviteStatus} from "../../constants/invite.constants";
 
 const dummyApplicantData = {
     cycleSlug: "4b7d1f330f2e4b7a91e35f58f3c9d4ab",
@@ -20,6 +20,15 @@ const saved_Application = {
     applicantId: "uuid",
     cycleId: "uuid",
     stepNumber: 1,
+    teamMateInvites: [
+        {email: "inthrak04@gmail.com", inviteAs: InviteAs.TEAMMATE},
+    ],
+    cycle: {
+        name: "Cycle 123",
+        program: {
+            name: "ProgramName",
+        },
+    },
     basicDetails: {
         title: "AI-powered Healthcare Assistant",
         summary: "An AI system that helps doctors with faster diagnostics.",

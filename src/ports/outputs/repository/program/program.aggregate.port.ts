@@ -2,6 +2,7 @@ import {Program} from "../../../../core/domain/aggregates/program.aggregate";
 import {FindOptionsWhere} from "typeorm";
 import {CreateProgramDTO} from "../../../../infrastructure/driving/dtos/gcv.dto";
 import {UpdateProgramDTO} from "../../../../infrastructure/driving/dtos/shared/shared.program.dto";
+import {ProgramStatus} from "../../../../core/domain/constants/status.constants";
 
 export interface ProgramAggregatePort {
     save(
@@ -20,6 +21,10 @@ export interface ProgramAggregatePort {
         updateDetails: UpdateProgramDTO,
         oldProgramDetails: Program
     ): Promise<Program>;
+    updateProgramStatus(
+        program: Program,
+        status: ProgramStatus
+    ): Promise<boolean>;
     addProgramManager(managerId: string, program: Program): Promise<boolean>;
     getProgramByManagerId(managerId: string): Promise<Program | null>;
 }

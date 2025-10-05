@@ -22,6 +22,7 @@ import {
     PROGRAM_AGGREGATE_PORT,
 } from "../../../../ports/outputs/repository/program/program.aggregate.port";
 import {UpdateCycleDTO} from "../../../../infrastructure/driving/dtos/shared/shared.program.dto";
+import {ProgramStatus} from "../../constants/status.constants";
 @Injectable()
 export class ProgramManagerService {
     constructor(
@@ -76,6 +77,12 @@ export class ProgramManagerService {
                 });
 
             const cycle = await this.cycleAggregateRepository.save(createCycle);
+
+            await this.programAggregateRepository.updateProgramStatus(
+                updatedProgram,
+                ProgramStatus.ACTIVE
+            );
+
             return {
                 status: 201,
                 message: "Cycle Created for Program",

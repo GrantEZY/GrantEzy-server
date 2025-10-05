@@ -78,6 +78,10 @@ describe("Program Manager Service", () => {
                 inputCycle as any
             );
 
+            programAggregaterepository.updateProgramStatus.mockResolvedValue(
+                true
+            );
+
             expect(result).toEqual({
                 status: 201,
                 message: "Cycle Created for Program",

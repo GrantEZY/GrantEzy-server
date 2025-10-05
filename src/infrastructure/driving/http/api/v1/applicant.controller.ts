@@ -169,9 +169,10 @@ export class ApplicantController implements ApplicantControllerPort {
     }
 
     @Patch("/add-application-teammates")
-    @ApiResponse(APPLICATION_RESPONSES.UPDATE_DETAILS.SUCCESS)
-    @ApiResponse(APPLICATION_RESPONSES.UPDATE_DETAILS.NOT_FOUND)
-    @ApiResponse(APPLICATION_RESPONSES.UPDATE_DETAILS.FORBIDDEN)
+    @ApiResponse(APPLICATION_RESPONSES.TEAMMATES.SUCCESS)
+    @ApiResponse(APPLICATION_RESPONSES.TEAMMATES.NOT_FOUND)
+    @ApiResponse(APPLICATION_RESPONSES.TEAMMATES.FORBIDDEN)
+    @ApiResponse(APPLICATION_RESPONSES.TEAMMATES.INVITE_ERROR)
     async addApplicationTeammates(
         @CurrentUser() user: AccessTokenJwt,
         @Body() body: AddApplicationTeammatesDTO,
@@ -207,6 +208,10 @@ export class ApplicantController implements ApplicantControllerPort {
     }
 
     @Get("/get-application-details-with-cycle")
+    @ApiResponse(APPLICATION_RESPONSES.GET_APPLICATION_WITH_CYCLE.SUCCESS)
+    @ApiResponse(
+        APPLICATION_RESPONSES.GET_APPLICATION_WITH_CYCLE.CYCLE_NOT_FOUND
+    )
     async getApplicationDetailsWithCycle(
         @CurrentUser() user: AccessTokenJwt,
         @Param() parameter: GetApplicationWithCycleDetailsDTO,
@@ -227,6 +232,9 @@ export class ApplicantController implements ApplicantControllerPort {
     }
 
     @Get("/get-user-created-applications")
+    @ApiResponse(APPLICATION_RESPONSES.GET_USER_CREATED_APPLICATION.SUCCESS)
+    @ApiResponse(APPLICATION_RESPONSES.GET_USER_CREATED_APPLICATION.NOT_FOUND)
+    @ApiResponse(APPLICATION_RESPONSES.GET_USER_CREATED_APPLICATION.FORBIDDEN)
     async getUserCreatedApplicationDetails(
         @CurrentUser() user: AccessTokenJwt,
         @Param() parameter: GetUserCreatedApplicationDTO,

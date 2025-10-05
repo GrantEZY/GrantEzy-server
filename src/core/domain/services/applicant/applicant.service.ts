@@ -568,7 +568,7 @@ export class ApplicantService {
             if (!application) {
                 throw new ApiError(
                     404,
-                    "Application  Not Found",
+                    "Application Not Found",
                     "Conflict Error"
                 );
             }
