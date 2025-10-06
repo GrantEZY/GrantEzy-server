@@ -1,0 +1,62 @@
+import {Controller, Get, Query, Res} from "@nestjs/common";
+import {ReviewerService} from "../../../../../core/domain/services/reviewer/reviewer.service";
+import {ApiTags} from "@nestjs/swagger";
+import ApiError from "../../../../../shared/errors/api.error";
+import {Response} from "express";
+import {ReviewerControllerPort} from "../../../../../ports/inputs/controllers/reviewer.controller.port";
+import {GetTokenDetailsDTO} from "../../../dtos/co.applicant.dto";
+import {REVIEWER_RESPONSES} from "../../../../../config/swagger/docs/reviewer.swagger";
+import {ApiResponse} from "@nestjs/swagger";
+@Controller("reviewer")
+@ApiTags("Reviewer")
+export class ReviewerController implements ReviewerControllerPort {
+    constructor(private readonly reviewService: ReviewerService) {}
+
+    @Get("/get-token-details")
+    @ApiResponse(REVIEWER_RESPONSES.GET_TOKEN_DETAILS.SUCCESS)
+    @ApiResponse(REVIEWER_RESPONSES.GET_TOKEN_DETAILS.APPLICATION_NOT_FOUND)
+    @ApiResponse(REVIEWER_RESPONSES.GET_TOKEN_DETAILS.INVITE_CONFLICT)
+    @ApiResponse(REVIEWER_RESPONSES.GET_TOKEN_DETAILS.TOKEN_INVALID)
+    @ApiResponse(REVIEWER_RESPONSES.GET_TOKEN_DETAILS.INVITE_EXPIRED)
+    async getTokenDetails(
+        @Query() parameter: GetTokenDetailsDTO,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const result = await this.reviewService.getTokenDetails(
+                parameter.token
+            );
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    handleError(error: unknown, response: Response) {
+        if (error instanceof ApiError) {
+            return response.status(error.status).json({
+                status: error.status,
+                message: error.message,
+                res: null,
+            });
+        }
+
+        if (typeof error === "object" && error !== null && "status" in error) {
+            const event = error as {status?: number; message?: string};
+            return response.status(event.status ?? 500).json({
+                status: event.status ?? 500,
+                message: event.message ?? "Internal Server Error",
+                res: null,
+            });
+        }
+
+        return response.status(500).json({
+            status: 500,
+            message:
+                error instanceof Error
+                    ? error.message
+                    : "Internal Server Error",
+            res: null,
+        });
+    }
+}
