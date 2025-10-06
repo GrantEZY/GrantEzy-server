@@ -8,3 +8,12 @@ export class CoApplicantApplicationDTO {
     @IsUUID()
     applicationId: string;
 }
+
+export class GetTokenDetailsDTO {
+    @ApiProperty({
+        description: "token for verification purpose",
+        example: "sgfksdjfgnsldkfjgsndlfkgjndkjf",
+    })
+    @IsUUID()
+    token: string;
+}

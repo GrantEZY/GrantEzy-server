@@ -5,10 +5,7 @@ export interface UserInviteAggregatePort {
         email: string[]
     ): Promise<Record<string, string>>;
 
-    getUserInvite(
-        applicationId: string,
-        email: string
-    ): Promise<UserInvite | null>;
+    getUserInvite(tokenHash: string): Promise<UserInvite | null>;
 }
 
 export const USER_INVITE_AGGREGATE_PORT = Symbol("UserInviteAggregatePort");

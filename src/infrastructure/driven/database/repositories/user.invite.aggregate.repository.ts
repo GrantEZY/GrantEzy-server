@@ -73,16 +73,13 @@ export class UserInviteAggregateRepository implements UserInviteAggregatePort {
         }
     }
 
-    async getUserInvite(
-        applicationId: string,
-        email: string
-    ): Promise<UserInvite | null> {
+    async getUserInvite(tokenHash: string): Promise<UserInvite | null> {
         try {
             const invite = await this.userInviteRepository.findOne({
                 where: {
-                    applicationId,
-                    email,
-                    status: InviteStatus.SENT,
+                    verification: {
+                        token: tokenHash,
+                    },
                 },
             });
 

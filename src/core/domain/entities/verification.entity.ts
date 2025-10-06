@@ -5,7 +5,7 @@ export class VerificationTokenEntity {
     @PrimaryGeneratedColumn("uuid")
     id: string;
 
-    @Column()
+    @Column({select: false})
     token: string;
 
     @Column({type: "date"})

@@ -4,9 +4,12 @@ import {
     GRANT_APPLICATION_AGGREGATE_PORT,
 } from "../../../../ports/outputs/repository/grantapplication/grantapplication.aggregate.port";
 import ApiError from "../../../../shared/errors/api.error";
-import {CoApplicantApplicationResponse} from "../../../../infrastructure/driven/response-dtos/co.applicant.response-dto";
+import {
+    CoApplicantApplicationResponse,
+    TokenVerificationResponse,
+} from "../../../../infrastructure/driven/response-dtos/co.applicant.response-dto";
 import {InviteAs} from "../../constants/invite.constants";
-
+import {SharedApplicationService} from "../shared/application/shared.application.service";
 /**
  * This file contains the co applicant service for viewing the application
  */
@@ -14,7 +17,8 @@ import {InviteAs} from "../../constants/invite.constants";
 export class CoApplicantService {
     constructor(
         @Inject(GRANT_APPLICATION_AGGREGATE_PORT)
-        private readonly applicationAggregateRepository: GrantApplicationAggregatePort
+        private readonly applicationAggregateRepository: GrantApplicationAggregatePort,
+        private readonly sharedApplicationService: SharedApplicationService
     ) {}
 
     async getApplicationDetails(
@@ -56,6 +60,27 @@ export class CoApplicantService {
                 message: "Application Details for CoApplicant",
                 res: {
                     application,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async getTokenDetails(token: string): Promise<TokenVerificationResponse> {
+        try {
+            const {application, invite} =
+                await this.sharedApplicationService.getTokenDetails(token);
+
+            return {
+                status: 200,
+                message: "Co Applicant Invite Details Fetch",
+                res: {
+                    invitedAt: invite.createdAt,
+                    application: {
+                        name: application.basicDetails.title,
+                        problem: application.basicDetails.problem,
+                    },
                 },
             };
         } catch (error) {

@@ -1,5 +1,3 @@
-import {InviteAs} from "../../constants/invite.constants";
-
 const saved_Application = {
     id: "uuid",
     userId: "uuid",
@@ -7,9 +5,7 @@ const saved_Application = {
     cycleId: "uuid",
     stepNumber: 1,
     teammates: [{personId: "uuid"}],
-    teamMateInvites: [
-        {email: "inthrak04@gmail.com", inviteAs: InviteAs.TEAMMATE},
-    ],
+    teamMateInvites: [{email: "inthrak04@gmail.com", inviteAs: "TEAMMATE"}],
     cycle: {
         name: "Cycle 123",
         program: {

@@ -40,7 +40,7 @@ export class UserInvite {
 
     @OneToOne(() => VerificationTokenEntity, {
         cascade: true,
-        eager: false,
+        eager: true,
     })
     @JoinColumn({name: "verificationId"})
     verification: VerificationTokenEntity;

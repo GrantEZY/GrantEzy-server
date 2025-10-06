@@ -5,6 +5,7 @@ import {SharedProgramService} from "../../domain/services/shared/program/shared.
 import {Global} from "@nestjs/common";
 import {EmailQueueService} from "../../domain/services/queue/email/email.queue.service";
 import {CycleInviteQueueService} from "../../domain/services/queue/cycle-invite/cycle.invite.queue.service";
+import {SharedApplicationService} from "../../domain/services/shared/application/shared.application.service";
 @Global()
 @Module({
     providers: [
@@ -13,6 +14,7 @@ import {CycleInviteQueueService} from "../../domain/services/queue/cycle-invite/
         SharedProgramService,
         EmailQueueService,
         CycleInviteQueueService,
+        SharedApplicationService,
     ],
     exports: [
         UserSharedService,
@@ -20,6 +22,7 @@ import {CycleInviteQueueService} from "../../domain/services/queue/cycle-invite/
         SharedProgramService,
         EmailQueueService,
         CycleInviteQueueService,
+        SharedApplicationService,
     ],
 })
 export class SharedModule {}
