@@ -40,17 +40,14 @@ export class UserInviteAggregateRepository implements UserInviteAggregatePort {
             const details: Record<string, string> = {};
             await Promise.all(
                 emails.map(async (email) => {
-                    const token = this.cryptoRepository.encrypt(
-                        email,
-                        applicationId,
-                        InviteAs.TEAMMATE
-                    );
+                    const {token, hash} =
+                        await this.cryptoRepository.generateToken();
                     const validTill = new Date(
                         Date.now() + 24 * 60 * 60 * 1000 * 7
                     );
 
                     const verification = this.verificationRepository.create({
-                        token,
+                        token: hash,
                         validTill,
                     });
                     const savedVerification =
