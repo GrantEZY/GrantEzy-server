@@ -36,6 +36,7 @@ import {VerificationTokenEntity} from "../../core/domain/entities/verification.e
 @Global()
 @Module({
     imports: [
+        ConfigModule,
         TypeOrmModule.forFeature([
             User,
             Person,
@@ -49,7 +50,6 @@ import {VerificationTokenEntity} from "../../core/domain/entities/verification.e
             VerificationTokenEntity,
         ]),
         JwtModule.register({}),
-        ConfigModule,
     ],
     providers: [
         {provide: USER_AGGREGATE_PORT, useClass: UserAggregateRepository},

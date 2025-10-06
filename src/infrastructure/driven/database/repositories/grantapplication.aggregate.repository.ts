@@ -67,7 +67,6 @@ export class GrantApplicationRepository
 
             return savedApplication;
         } catch (error) {
-            console.log(error);
             if (error instanceof ApiError) {
                 throw error;
             }

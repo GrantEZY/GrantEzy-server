@@ -392,7 +392,6 @@ export class ApplicantService {
     ): Promise<CreateApplicationResponse> {
         try {
             const {applicationId, emails, isSubmitted} = teammatesDetails;
-
             const user = await this.userAggregateRepository.findById(
                 userId,
                 false
@@ -441,6 +440,14 @@ export class ApplicantService {
 
             if (!cycle) {
                 throw new ApiError(404, "Cycle Not Found", "Conflict Error");
+            }
+
+            if (emails.includes(user.contact.email)) {
+                throw new ApiError(
+                    403,
+                    "Applicant cant be invited as CoApplicant",
+                    "Conflict Error"
+                );
             }
             for (const email of emails) {
                 const userCycleInviteStatus =

@@ -762,6 +762,48 @@ describe("Applicant ", () => {
             }
         });
 
+        it("Applicant cant be a CoApplicant", async () => {
+            try {
+                const teamMatesDetails = JSON.parse(
+                    JSON.stringify(addApplicationTeamMates)
+                );
+                teamMatesDetails.emails.push("john.doe@example.com");
+                saved_Application.stepNumber = 6;
+
+                userAggregateRepository.findById.mockResolvedValue(
+                    SAVED_USER as any
+                );
+                addApplicationTeamMates.isSubmitted = true;
+                applicationAggregateRepository.findById.mockResolvedValue(
+                    saved_Application as any
+                );
+
+                userinviteAggregateRepository.addTeamMatesInvites.mockResolvedValue(
+                    InviteArray as any
+                );
+
+                applicationAggregateRepository.modifyApplicationStatus.mockResolvedValue(
+                    saved_Application as any
+                );
+                cycleInviteQueue.UserCycleInvite.mockResolvedValue({
+                    status: true,
+                } as any);
+                cycleAggregateRepository.findById.mockResolvedValue(
+                    SAVED_CYCLE as any
+                );
+                await applicationService.addApplicationTeamMates(
+                    "uuid",
+                    addApplicationTeamMates
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe(
+                    "Applicant cant be invited as CoApplicant"
+                );
+            }
+        });
+
         it("Error in inviting Users", async () => {
             try {
                 saved_Application.stepNumber = 6;

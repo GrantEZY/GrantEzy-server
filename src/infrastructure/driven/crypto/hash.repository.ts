@@ -5,10 +5,23 @@ import {InviteAs} from "../../../core/domain/constants/invite.constants";
 import {ConfigService} from "@nestjs/config";
 import {ConfigType} from "../../../config/env/app.types";
 import ApiError from "../../../shared/errors/api.error";
+import {Injectable} from "@nestjs/common";
+
+@Injectable()
 export class BcryptPasswordHasher implements PasswordHasherPort {
     private readonly Algorithm = "aes-256-gcm";
 
     constructor(private readonly configService: ConfigService<ConfigType>) {}
+
+    private getKey(): Buffer {
+        const secret = this.configService.get("app").ENCRYPTION_KEY;
+        if (!secret) {
+            throw new Error("ENCRYPTION_KEY is not configured");
+        }
+
+        // Ensure the key is always 32 bytes long (required by aes-256-gcm)
+        return crypto.createHash("sha256").update(secret).digest();
+    }
 
     /**
      * Hash password with bcrypt
@@ -28,14 +41,12 @@ export class BcryptPasswordHasher implements PasswordHasherPort {
      * Encrypt email + applicationId + role
      */
     encrypt(email: string, applicationId: string, role: InviteAs): string {
-        const iv = crypto.randomBytes(16); // initialization vector
-        const cipher = crypto.createCipheriv(
-            this.Algorithm,
-            this.configService.get("app").ENCRYPTION_KEY,
-            iv
-        );
+        const key = this.getKey();
+        const iv = crypto.randomBytes(12); // recommended length for GCM
+        const cipher = crypto.createCipheriv(this.Algorithm, key, iv);
 
         const payload = JSON.stringify({email, applicationId, role});
+
         const encrypted = Buffer.concat([
             cipher.update(payload, "utf8"),
             cipher.final(),
@@ -56,17 +67,14 @@ export class BcryptPasswordHasher implements PasswordHasherPort {
         role: InviteAs;
     } {
         try {
+            const key = this.getKey();
             const data = Buffer.from(encryptedText, "base64");
 
-            const iv = data.subarray(0, 16);
-            const authTag = data.subarray(16, 32);
-            const encrypted = data.subarray(32);
+            const iv = data.subarray(0, 12); // first 12 bytes
+            const authTag = data.subarray(12, 28); // next 16 bytes
+            const encrypted = data.subarray(28); // rest
 
-            const decipher = crypto.createDecipheriv(
-                this.Algorithm,
-                this.configService.get("app").ENCRYPTION_KEY,
-                iv
-            );
+            const decipher = crypto.createDecipheriv(this.Algorithm, key, iv);
             decipher.setAuthTag(authTag);
 
             const decrypted = Buffer.concat([

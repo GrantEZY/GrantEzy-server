@@ -7,7 +7,6 @@ import {
     Get,
     Query,
     Delete,
-    Param,
 } from "@nestjs/common";
 import {ApiResponse, ApiTags} from "@nestjs/swagger";
 import {GCVControllerPort} from "../../../../../ports/inputs/controllers/gcv.controller.port";
@@ -181,7 +180,7 @@ export class GCVController implements GCVControllerPort {
     @ApiResponse(GCV_RESPONSES.PROGRAM_CYCLES.SUCCESS)
     @ApiResponse(GCV_RESPONSES.PROGRAM_CYCLES.NO_CYCLES_FOUND)
     async getProgramCycles(
-        @Param() parameters: GetProgramCyclesDTO,
+        @Query() parameters: GetProgramCyclesDTO,
         @Res() response: Response
     ): Promise<Response> {
         try {
@@ -196,7 +195,7 @@ export class GCVController implements GCVControllerPort {
     @ApiResponse(GCV_RESPONSES.CYCLE_WITH_APPLICATIONS.SUCCESS)
     @ApiResponse(GCV_RESPONSES.CYCLE_WITH_APPLICATIONS.NOT_FOUND)
     async getCycleDetails(
-        @Param() parameters: GetCycleDetailsDTO,
+        @Query() parameters: GetCycleDetailsDTO,
         @Res() response: Response
     ): Promise<Response> {
         try {
@@ -215,7 +214,7 @@ export class GCVController implements GCVControllerPort {
     @ApiResponse(GCV_RESPONSES.APPLICATION_DETAILS.APPLICATION_NOT_FOUND)
     @ApiResponse(GCV_RESPONSES.APPLICATION_DETAILS.CYCLE_NOT_FOUND)
     async getApplicationDetails(
-        @Param() parameters: GetApplicationDetailsDTO,
+        @Query() parameters: GetApplicationDetailsDTO,
         @Res() response: Response
     ): Promise<Response> {
         try {

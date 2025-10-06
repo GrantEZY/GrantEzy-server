@@ -75,4 +75,30 @@ export class UserInviteAggregateRepository implements UserInviteAggregatePort {
             throw new ApiError(502, "Failed to invite users", "Database Error");
         }
     }
+
+    async getUserInvite(
+        applicationId: string,
+        email: string
+    ): Promise<UserInvite | null> {
+        try {
+            const invite = await this.userInviteRepository.findOne({
+                where: {
+                    applicationId,
+                    email,
+                    status: InviteStatus.SENT,
+                },
+            });
+
+            return invite;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Failed to fetch invite users",
+                "Database Error"
+            );
+        }
+    }
 }
