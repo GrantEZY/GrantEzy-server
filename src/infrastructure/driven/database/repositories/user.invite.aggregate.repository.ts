@@ -95,4 +95,28 @@ export class UserInviteAggregateRepository implements UserInviteAggregatePort {
             );
         }
     }
+
+    async updateUserInviteStatus(
+        invite: UserInvite,
+        status: InviteStatus
+    ): Promise<boolean> {
+        try {
+            invite.status = status;
+
+            invite.verification.validatedAt = new Date();
+
+            await this.userInviteRepository.save(invite);
+
+            return true;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Failed to update invite user status",
+                "Database Error"
+            );
+        }
+    }
 }

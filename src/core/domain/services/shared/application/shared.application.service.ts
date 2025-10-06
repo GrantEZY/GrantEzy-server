@@ -14,7 +14,8 @@ import {
 import {GrantApplication} from "../../../aggregates/grantapplication.aggregate";
 import {UserInvite} from "../../../aggregates/user.invite.aggregate";
 import ApiError from "../../../../../shared/errors/api.error";
-import {InviteStatus} from "../../../constants/invite.constants";
+import {InviteAs, InviteStatus} from "../../../constants/invite.constants";
+import {GetUserInviteStatusDetailsResponse} from "../../../../../infrastructure/driven/response-dtos/shared.response-dto";
 @Injectable()
 export class SharedApplicationService {
     constructor(
@@ -65,6 +66,56 @@ export class SharedApplicationService {
             return {
                 application,
                 invite,
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async getInviteResponse(
+        token: string,
+        status: InviteStatus.ACCEPTED | InviteStatus.REJECTED,
+        type: InviteAs
+    ): Promise<GetUserInviteStatusDetailsResponse> {
+        try {
+            const hash = await this.hasherPort.hash(token);
+
+            const invite =
+                await this.userInviteAggregateRepository.getUserInvite(hash);
+            if (!invite || invite.inviteAs != type) {
+                throw new ApiError(404, "Token Not Valid", "Token Error");
+            }
+
+            if (invite.status != InviteStatus.SENT) {
+                throw new ApiError(
+                    403,
+                    "Invite has already been handled",
+                    "Conflict Error"
+                );
+            }
+
+            const application =
+                await this.applicationAggregateRepository.findById(
+                    invite.applicationId
+                );
+
+            if (!application) {
+                throw new ApiError(
+                    404,
+                    "Application Not Found",
+                    "Conflict Error"
+                );
+            }
+
+            const isUpdateSuccess =
+                await this.userInviteAggregateRepository.updateUserInviteStatus(
+                    invite,
+                    status
+                );
+            return {
+                status: isUpdateSuccess,
+                application,
+                email: invite.email,
             };
         } catch (error) {
             this.handleError(error);

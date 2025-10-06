@@ -18,6 +18,7 @@ import {
     saved_Application,
 } from "./shared.application.mock.data";
 import ApiError from "../../../../../shared/errors/api.error";
+import {InviteAs, InviteStatus} from "../../../constants/invite.constants";
 
 describe("Shared Application Service", () => {
     let applicationAggregateRepository: jest.Mocked<GrantApplicationAggregatePort>;
@@ -131,6 +132,86 @@ describe("Shared Application Service", () => {
                 applicationAggregateRepository.findById.mockResolvedValue(null);
 
                 await sharedApplicationService.getTokenDetails("token");
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).message).toBe(
+                    "Application Not Found"
+                );
+            }
+        });
+    });
+
+    describe("GetInviteResponse", () => {
+        it("Succesful Updation of the Response", async () => {
+            hasherRepository.hash.mockResolvedValue("hash");
+
+            userInviteRepository.getUserInvite.mockResolvedValue(
+                dummyUserInvite as any
+            );
+
+            applicationAggregateRepository.findById.mockResolvedValue(
+                saved_Application as any
+            );
+
+            userInviteRepository.updateUserInviteStatus.mockResolvedValue(true);
+
+            const result = await sharedApplicationService.getInviteResponse(
+                "token",
+                InviteStatus.ACCEPTED,
+                InviteAs.TEAMMATE
+            );
+
+            expect(result).toEqual({
+                status: true,
+                application: saved_Application as any,
+                email: dummyUserInvite.email,
+            });
+        });
+
+        it("Invite not Found", async () => {
+            try {
+                hasherRepository.hash.mockResolvedValue("hash");
+
+                userInviteRepository.getUserInvite.mockResolvedValue(null);
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).message).toBe("Token Not Valid");
+            }
+        });
+
+        it("Invite mismatch", async () => {
+            try {
+                hasherRepository.hash.mockResolvedValue("hash");
+                const invite = JSON.parse(JSON.stringify(dummyUserInvite));
+
+                invite.status = InviteStatus.REJECTED;
+                userInviteRepository.getUserInvite.mockResolvedValue(invite);
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe(
+                    "Invite has already been handled"
+                );
+            }
+        });
+
+        it("Application Not Found", async () => {
+            try {
+                hasherRepository.hash.mockResolvedValue("hash");
+
+                userInviteRepository.getUserInvite.mockResolvedValue(
+                    dummyUserInvite as any
+                );
+
+                applicationAggregateRepository.findById.mockResolvedValue(null);
+
+                await sharedApplicationService.getInviteResponse(
+                    "token",
+                    InviteStatus.ACCEPTED,
+                    InviteAs.TEAMMATE
+                );
             } catch (error) {
                 expect(error).toBeInstanceOf(ApiError);
                 expect((error as ApiError).status).toBe(404);

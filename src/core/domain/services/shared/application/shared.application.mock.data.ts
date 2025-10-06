@@ -31,7 +31,7 @@ const dummyVerification = {
 
 const dummyUserInvite = {
     id: "c18e3d10-2f51-4cb8-9d3f-37bdbb6c9e9e",
-    inviteAs: "CO_APPLICANT",
+    inviteAs: "TEAMMATE",
     status: "SENT",
     email: "jane.doe@example.com",
     applicationId: "7f6d8a60-9b56-43c9-bc21-d4e6f16fd3af",

@@ -1,4 +1,4 @@
-import {Controller, Get, Query, Res} from "@nestjs/common";
+import {Body, Controller, Get, Query, Res, Patch} from "@nestjs/common";
 import {ApiTags, ApiResponse} from "@nestjs/swagger";
 import {CoApplicantService} from "../../../../../core/domain/services/co-applicant/co.applicant.service";
 import {CoApplicantControllerPort} from "../../../../../ports/inputs/controllers/co.applicant.controller.port";
@@ -6,6 +6,7 @@ import {CurrentUser} from "../../../../../shared/decorators/currentuser.decorato
 import {
     CoApplicantApplicationDTO,
     GetTokenDetailsDTO,
+    SubmitInviteStatusDTO,
 } from "../../../dtos/co.applicant.dto";
 import {AccessTokenJwt} from "../../../../../shared/types/jwt.types";
 import ApiError from "../../../../../shared/errors/api.error";
@@ -51,6 +52,29 @@ export class CoApplicantController implements CoApplicantControllerPort {
             const result = await this.coApplicantService.getTokenDetails(
                 parameter.token
             );
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Patch("/update-user-invite-status")
+    @ApiResponse(CO_APPLICANT_RESPONSES.UPDATE_INVITE_STATUS.SUCCESS_ACCEPTED)
+    @ApiResponse(
+        CO_APPLICANT_RESPONSES.UPDATE_INVITE_STATUS.APPLICATION_UPDATE_FAILED
+    )
+    @ApiResponse(CO_APPLICANT_RESPONSES.UPDATE_INVITE_STATUS.UPDATE_FAILED)
+    @ApiResponse(CO_APPLICANT_RESPONSES.UPDATE_INVITE_STATUS.USER_NOT_FOUND)
+    async updateUserInviteStatus(
+        @Body() inviteStatusData: SubmitInviteStatusDTO,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const result =
+                await this.coApplicantService.updateTeamMateInviteStatus(
+                    inviteStatusData
+                );
+
             return response.status(result.status).json(result);
         } catch (error) {
             return this.handleError(error, response);
