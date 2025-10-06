@@ -11,6 +11,7 @@ import {AccessTokenJwt} from "../../../shared/types/jwt.types";
 export interface ProgramManagerControllerPort {
     createCycle(
         createCycleDTO: CreateCycleDTO,
+        user: AccessTokenJwt,
         response: Response
     ): Promise<Response>;
     getProgramCycles(

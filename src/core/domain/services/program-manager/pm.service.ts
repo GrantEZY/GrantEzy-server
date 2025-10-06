@@ -36,7 +36,8 @@ export class ProgramManagerService {
     ) {}
 
     async createCycle(
-        createCycle: CreateCycleDTO
+        createCycle: CreateCycleDTO,
+        userId: string
     ): Promise<CreateCycleResponse> {
         try {
             const {programId, budget, round} = createCycle;
@@ -46,6 +47,14 @@ export class ProgramManagerService {
 
             if (!program) {
                 throw new ApiError(404, "Program Not Found", "Program Error");
+            }
+
+            if (program.managerId != userId) {
+                throw new ApiError(
+                    403,
+                    "Only Program Manager Can Access And Create Cycles",
+                    "Conflict Error"
+                );
             }
 
             const isAlreadyCycle =

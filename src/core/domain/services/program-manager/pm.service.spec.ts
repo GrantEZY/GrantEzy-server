@@ -76,7 +76,8 @@ describe("Program Manager Service", () => {
             cycleAggregaterepository.save.mockResolvedValue(dummyCycle as any);
             inputCycle.budget.amount = 1;
             const result = await programManagerService.createCycle(
-                inputCycle as any
+                inputCycle as any,
+                "uuid"
             );
 
             programAggregaterepository.updateProgramStatus.mockResolvedValue(
@@ -97,11 +98,33 @@ describe("Program Manager Service", () => {
             try {
                 programAggregaterepository.findById.mockResolvedValue(null);
 
-                await programManagerService.createCycle(inputCycle as any);
+                await programManagerService.createCycle(
+                    inputCycle as any,
+                    "uuid"
+                );
             } catch (error) {
                 expect(error).toBeInstanceOf(ApiError);
                 expect((error as ApiError).status).toBe(404);
                 expect((error as ApiError).message).toBe("Program Not Found");
+            }
+        });
+
+        it("Program Manager Not linked with the program", async () => {
+            try {
+                programAggregaterepository.findById.mockResolvedValue(
+                    SAVED_PROGRAM as any
+                );
+
+                await programManagerService.createCycle(
+                    inputCycle as any,
+                    "uuid1"
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe(
+                    "Only Program Manager Can Access And Create Cycles"
+                );
             }
         });
 
@@ -114,7 +137,10 @@ describe("Program Manager Service", () => {
                     dummyCycle as any
                 );
                 inputCycle.budget.amount = 10000000000000;
-                await programManagerService.createCycle(inputCycle as any);
+                await programManagerService.createCycle(
+                    inputCycle as any,
+                    "uuid"
+                );
             } catch (error) {
                 expect(error).toBeInstanceOf(ApiError);
                 expect((error as ApiError).status).toBe(409);
@@ -132,7 +158,10 @@ describe("Program Manager Service", () => {
                     null
                 );
                 inputCycle.budget.amount = 10000000000000;
-                await programManagerService.createCycle(inputCycle as any);
+                await programManagerService.createCycle(
+                    inputCycle as any,
+                    "uuid"
+                );
             } catch (error) {
                 expect(error).toBeInstanceOf(ApiError);
                 expect((error as ApiError).status).toBe(400);

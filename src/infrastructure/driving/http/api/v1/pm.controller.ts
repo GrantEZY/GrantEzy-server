@@ -38,11 +38,15 @@ export class ProgramManagerController implements ProgramManagerControllerPort {
     @ApiResponse(CYCLE_RESPONSES.CREATE.BUDGET_EXCEEDS)
     async createCycle(
         @Body() createCycleDTO: CreateCycleDTO,
+        @CurrentUser() user: AccessTokenJwt,
         @Res() response: Response
     ): Promise<Response> {
         try {
-            const result =
-                await this.programManagerService.createCycle(createCycleDTO);
+            const id = user.userData.payload.id;
+            const result = await this.programManagerService.createCycle(
+                createCycleDTO,
+                id
+            );
             return response.status(result.status).json(result);
         } catch (error) {
             return this.handleError(error, response);
