@@ -12,6 +12,11 @@ import {
     GetAllProgramDTO,
     UpdateProgramDTO,
 } from "../../../infrastructure/driving/dtos/shared/shared.program.dto";
+import {
+    GetProgramCyclesDTO,
+    GetApplicationDetailsDTO,
+    GetCycleDetailsDTO,
+} from "../../../infrastructure/driving/dtos/pm.dto";
 
 export interface GCVControllerPort {
     getAllMembers(
@@ -41,6 +46,21 @@ export interface GCVControllerPort {
 
     deleteProgram(
         body: DeleteProgramDTO,
+        response: Response
+    ): Promise<Response>;
+
+    getProgramCycles(
+        parameters: GetProgramCyclesDTO,
+        response: Response
+    ): Promise<Response>;
+
+    getCycleDetails(
+        parameters: GetCycleDetailsDTO,
+        response: Response
+    ): Promise<Response>;
+
+    getApplicationDetails(
+        parameters: GetApplicationDetailsDTO,
         response: Response
     ): Promise<Response>;
 

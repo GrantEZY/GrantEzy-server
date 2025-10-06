@@ -8,6 +8,7 @@ export interface AppConfigTypes {
     APP_NAME: string;
     RESEND_API: string;
     APP_EMAIL: string;
+    ENCRYPTION_KEY: string;
 }
 
 export const AppConfig = registerAs(
@@ -20,5 +21,6 @@ export const AppConfig = registerAs(
         APP_NAME: process.env.APP_NAME ?? "NestJS Application",
         RESEND_API: process.env.RESEND_API ?? "",
         APP_EMAIL: process.env.APP_EMAIL ?? "",
+        ENCRYPTION_KEY: process.env.ENCRYPTION_KEY ?? "",
     })
 );

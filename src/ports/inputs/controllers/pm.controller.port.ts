@@ -1,17 +1,22 @@
 import {
     CreateCycleDTO,
     DeleteCycleDTO,
-    GetProgramCyclesDTO,
+    GetApplicationDetailsDTO,
+    GetCycleDetailsDTO,
+    GetPMProgramCyclesDTO,
 } from "../../../infrastructure/driving/dtos/pm.dto";
 import {Response} from "express";
 import {UpdateCycleDTO} from "../../../infrastructure/driving/dtos/shared/shared.program.dto";
+import {AccessTokenJwt} from "../../../shared/types/jwt.types";
 export interface ProgramManagerControllerPort {
     createCycle(
         createCycleDTO: CreateCycleDTO,
+        user: AccessTokenJwt,
         response: Response
     ): Promise<Response>;
     getProgramCycles(
-        getProgramCycle: GetProgramCyclesDTO,
+        getProgramCycle: GetPMProgramCyclesDTO,
+        user: AccessTokenJwt,
         response: Response
     ): Promise<Response>;
     updateCycleDetails(
@@ -20,6 +25,17 @@ export interface ProgramManagerControllerPort {
     ): Promise<Response>;
     deleteCycle(
         deleteCycle: DeleteCycleDTO,
+        response: Response
+    ): Promise<Response>;
+    getCycleDetails(
+        parameters: GetCycleDetailsDTO,
+        user: AccessTokenJwt,
+        response: Response
+    ): Promise<Response>;
+
+    getApplicationDetails(
+        parameters: GetApplicationDetailsDTO,
+        user: AccessTokenJwt,
         response: Response
     ): Promise<Response>;
     handleError(error: unknown, response: Response): Response;

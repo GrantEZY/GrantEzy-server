@@ -128,6 +128,7 @@ export class Cycle {
     @OneToMany(() => GrantApplication, (application) => application.cycle, {
         onDelete: "NO ACTION",
         cascade: false,
+        eager: false,
     })
     applications: GrantApplication[];
 

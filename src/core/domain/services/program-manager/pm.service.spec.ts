@@ -16,6 +16,7 @@ import {
     dummyCycle,
     SAVED_PROGRAM,
     CYCLES_ARRAY,
+    saved_Application,
 } from "./pm.service.mock.data";
 describe("Program Manager Service", () => {
     let programManagerService: ProgramManagerService;
@@ -75,7 +76,12 @@ describe("Program Manager Service", () => {
             cycleAggregaterepository.save.mockResolvedValue(dummyCycle as any);
             inputCycle.budget.amount = 1;
             const result = await programManagerService.createCycle(
-                inputCycle as any
+                inputCycle as any,
+                "uuid"
+            );
+
+            programAggregaterepository.updateProgramStatus.mockResolvedValue(
+                true
             );
 
             expect(result).toEqual({
@@ -92,11 +98,33 @@ describe("Program Manager Service", () => {
             try {
                 programAggregaterepository.findById.mockResolvedValue(null);
 
-                await programManagerService.createCycle(inputCycle as any);
+                await programManagerService.createCycle(
+                    inputCycle as any,
+                    "uuid"
+                );
             } catch (error) {
                 expect(error).toBeInstanceOf(ApiError);
                 expect((error as ApiError).status).toBe(404);
                 expect((error as ApiError).message).toBe("Program Not Found");
+            }
+        });
+
+        it("Program Manager Not linked with the program", async () => {
+            try {
+                programAggregaterepository.findById.mockResolvedValue(
+                    SAVED_PROGRAM as any
+                );
+
+                await programManagerService.createCycle(
+                    inputCycle as any,
+                    "uuid1"
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe(
+                    "Only Program Manager Can Access And Create Cycles"
+                );
             }
         });
 
@@ -109,7 +137,10 @@ describe("Program Manager Service", () => {
                     dummyCycle as any
                 );
                 inputCycle.budget.amount = 10000000000000;
-                await programManagerService.createCycle(inputCycle as any);
+                await programManagerService.createCycle(
+                    inputCycle as any,
+                    "uuid"
+                );
             } catch (error) {
                 expect(error).toBeInstanceOf(ApiError);
                 expect((error as ApiError).status).toBe(409);
@@ -127,7 +158,10 @@ describe("Program Manager Service", () => {
                     null
                 );
                 inputCycle.budget.amount = 10000000000000;
-                await programManagerService.createCycle(inputCycle as any);
+                await programManagerService.createCycle(
+                    inputCycle as any,
+                    "uuid"
+                );
             } catch (error) {
                 expect(error).toBeInstanceOf(ApiError);
                 expect((error as ApiError).status).toBe(400);
@@ -141,17 +175,21 @@ describe("Program Manager Service", () => {
     describe("Get Program Cycles", () => {
         it("should fetch program cycles successfully", async () => {
             const filter = {
-                programId: "program-id",
                 page: 1,
                 numberOfResults: 5,
             };
-
+            programAggregaterepository.getProgramByManagerId.mockResolvedValue(
+                SAVED_PROGRAM as any
+            );
             sharedProgramService.getProgramCycles.mockResolvedValue({
                 cycles: CYCLES_ARRAY as any,
                 totalNumberOfCycles: 2,
             });
 
-            const result = await programManagerService.getProgramCycles(filter);
+            const result = await programManagerService.getProgramCycles(
+                filter,
+                "uuid"
+            );
 
             expect(result).toEqual({
                 status: 200,
@@ -161,6 +199,31 @@ describe("Program Manager Service", () => {
                     totalNumberOfCycles: 2,
                 },
             });
+        });
+
+        it("Program Manager Conflict Error", async () => {
+            try {
+                const filter = {
+                    programId: "program-id",
+                    page: 1,
+                    numberOfResults: 5,
+                };
+                programAggregaterepository.getProgramByManagerId.mockResolvedValue(
+                    null
+                );
+                sharedProgramService.getProgramCycles.mockResolvedValue({
+                    cycles: CYCLES_ARRAY as any,
+                    totalNumberOfCycles: 2,
+                });
+
+                await programManagerService.getProgramCycles(filter, "uuid1");
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe(
+                    "Only Program Manager can access the Program"
+                );
+            }
         });
     });
 
@@ -247,6 +310,148 @@ describe("Program Manager Service", () => {
                     status: true,
                 },
             });
+        });
+    });
+
+    describe("GetCycleWithApplication", () => {
+        it("Get Cycle Details", async () => {
+            sharedProgramService.getCycleDetailsWithApplications.mockResolvedValue(
+                dummyCycle as any
+            );
+
+            const result = await programManagerService.getCycleWithApplications(
+                "cycleslug",
+                "uuid"
+            );
+
+            expect(result).toEqual({
+                status: 200,
+                message: "Cycle Details With Applications",
+                res: {
+                    cycle: dummyCycle,
+                },
+            });
+        });
+
+        it("Cycle Not Found", async () => {
+            try {
+                sharedProgramService.getCycleDetailsWithApplications.mockResolvedValue(
+                    null
+                );
+
+                await programManagerService.getCycleWithApplications(
+                    "cycleslug",
+                    "uuid"
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).message).toBe("Cycle Not Found");
+            }
+        });
+
+        it("Cycle Not Related For ProgramManager", async () => {
+            try {
+                sharedProgramService.getCycleDetailsWithApplications.mockResolvedValue(
+                    dummyCycle as any
+                );
+
+                await programManagerService.getCycleWithApplications(
+                    "cycleslug",
+                    "uuid1"
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe(
+                    "Only Program Manager can access the Program"
+                );
+            }
+        });
+    });
+
+    describe("getApplicationDetails", () => {
+        it("Get Application Details", async () => {
+            sharedProgramService.getApplicationDetailsWithSlug.mockResolvedValue(
+                saved_Application as any
+            );
+
+            const result = await programManagerService.getApplicationDetails(
+                "cycleSlug",
+                "appSlug",
+                "uuid"
+            );
+            expect(result).toEqual({
+                status: 200,
+                message: "Cycle Details With Applications",
+                res: {
+                    application: saved_Application,
+                },
+            });
+        });
+
+        it("Cycle Not Available For the User", async () => {
+            try {
+                sharedProgramService.getApplicationDetailsWithSlug.mockResolvedValue(
+                    saved_Application as any
+                );
+
+                await programManagerService.getApplicationDetails(
+                    "cycleSlug",
+                    "appSlug",
+                    "uuid1"
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe(
+                    "Only Program Manager can access the Program"
+                );
+            }
+        });
+
+        it("Application Not Found", async () => {
+            try {
+                sharedProgramService.getApplicationDetailsWithSlug.mockResolvedValue(
+                    null
+                );
+
+                await programManagerService.getApplicationDetails(
+                    "cycleSlug",
+                    "appSlug",
+                    "uuid"
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).message).toBe(
+                    "Application Not Found"
+                );
+            }
+        });
+
+        it("Application Cycle Mismatch", async () => {
+            try {
+                const application = JSON.parse(
+                    JSON.stringify(saved_Application)
+                );
+                application.cycle.slug = "newSlug";
+                sharedProgramService.getApplicationDetailsWithSlug.mockResolvedValue(
+                    application as any
+                );
+
+                await programManagerService.getApplicationDetails(
+                    "cycleSlug",
+                    "appSlug",
+                    "uuid"
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe(
+                    "Application Doesn't Belongs to the Cycle"
+                );
+            }
         });
     });
 });

@@ -1,23 +1,31 @@
 import * as bcrypt from "bcrypt";
 import {PasswordHasherPort} from "../../../ports/outputs/crypto/hash.port";
-
+import {Injectable} from "@nestjs/common";
+import crypto from "crypto";
+@Injectable()
 export class BcryptPasswordHasher implements PasswordHasherPort {
     /**
-     *
-     * @param plain plain password of the user
-     * @returns hashed password for the user
+     * Hash password with bcrypt
      */
     async hash(plain: string): Promise<string> {
         return bcrypt.hash(plain, 12);
     }
 
     /**
-     *
-     * @param plain plain password
-     * @param hash hash password from db
-     * @returns true if same , false if not same
+     * Compare plain vs hash
      */
     async compare(plain: string, hash: string): Promise<boolean> {
         return bcrypt.compare(plain, hash);
+    }
+
+    async generateToken(): Promise<{token: string; hash: string}> {
+        const token = crypto.randomBytes(32).toString("hex");
+
+        const hash = await this.hash(token);
+
+        return {
+            token,
+            hash,
+        };
     }
 }

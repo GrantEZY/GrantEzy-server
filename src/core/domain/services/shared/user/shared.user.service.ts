@@ -23,6 +23,8 @@ import {
     AddUserData,
 } from "../../../../../infrastructure/driven/response-dtos/shared.response-dto";
 import {User} from "../../../aggregates/user.aggregate";
+import {UserRoles} from "../../../constants/userRoles.constants";
+import {EmailQueue} from "../../../../../infrastructure/driven/queue/queues/email.queue";
 
 @Injectable()
 export class UserSharedService {
@@ -30,13 +32,31 @@ export class UserSharedService {
         @Inject(USER_AGGREGATE_PORT)
         private readonly userAggregateRepository: UserAggregatePort,
         @Inject(PASSWORD_HASHER_PORT)
-        private readonly passwordHasherRepository: PasswordHasherPort
+        private readonly passwordHasherRepository: PasswordHasherPort,
+        private readonly emailQueue: EmailQueue
     ) {}
 
     async addUser(userData: AddUserDTO): Promise<AddUserDataResponse> {
         try {
-            const {user: newUser} = await this.addUserDetails(userData);
+            const {user: newUser, password} =
+                await this.addUserDetails(userData);
             const {personId, contact} = newUser;
+            const queueStatus = await this.emailQueue.addInviteEmailToQueue(
+                contact.email,
+                {
+                    email: contact.email,
+                    password,
+                    role: userData.role,
+                }
+            );
+
+            if (!queueStatus.status) {
+                throw new ApiError(
+                    500,
+                    "Error in Inviting the User",
+                    "Internal Error"
+                );
+            }
             return {
                 status: 201,
                 message: "User Added Successfully",
@@ -45,6 +65,35 @@ export class UserSharedService {
                     email: contact.email,
                 },
             };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async addUserRole(userId: string, userRole: UserRoles): Promise<boolean> {
+        try {
+            const user = await this.userAggregateRepository.findById(
+                userId,
+                false
+            );
+
+            if (!user) {
+                throw new ApiError(404, "User Not Found", "Conflict Error");
+            }
+
+            const {role} = user;
+
+            if (role.includes(userRole)) {
+                return true;
+            }
+
+            user.role.push(userRole);
+            const isUpdated = await this.userAggregateRepository.updateUserRole(
+                user.personId,
+                user.role
+            );
+
+            return isUpdated;
         } catch (error) {
             this.handleError(error);
         }
@@ -177,7 +226,7 @@ export class UserSharedService {
                 commitment,
                 password_hash: PASSWORD_HASH,
             });
-            return {user};
+            return {user, password};
         } catch (error) {
             this.handleError(error);
         }

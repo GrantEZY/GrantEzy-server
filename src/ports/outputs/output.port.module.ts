@@ -24,12 +24,32 @@ import {Organization} from "../../core/domain/entities/organization.entity";
 import {Cycle} from "../../core/domain/aggregates/cycle.aggregate";
 import {CYCLE_AGGREGATE_PORT} from "./repository/cycle/cycle.aggregate.port";
 import {CycleAggregateRepository} from "../../infrastructure/driven/database/repositories/cycle.aggregate.repository";
+import {GrantApplication} from "../../core/domain/aggregates/grantapplication.aggregate";
+import {GrantApplicationRepository} from "../../infrastructure/driven/database/repositories/grantapplication.aggregate.repository";
+import {GRANT_APPLICATION_AGGREGATE_PORT} from "./repository/grantapplication/grantapplication.aggregate.port";
+import {UserInvite} from "../../core/domain/aggregates/user.invite.aggregate";
+import {USER_INVITE_AGGREGATE_PORT} from "./repository/user.invite/user.invite.aggregate.port";
+import {UserInviteAggregateRepository} from "../../infrastructure/driven/database/repositories/user.invite.aggregate.repository";
+import {Notification} from "../../core/domain/entities/notification.entity";
+import {UserNotifications} from "../../core/domain/aggregates/usernotifications.aggregate";
+import {VerificationTokenEntity} from "../../core/domain/entities/verification.entity";
 @Global()
 @Module({
     imports: [
-        TypeOrmModule.forFeature([User, Person, Program, Organization, Cycle]),
-        JwtModule.register({}),
         ConfigModule,
+        TypeOrmModule.forFeature([
+            User,
+            Person,
+            Program,
+            Organization,
+            Cycle,
+            GrantApplication,
+            UserInvite,
+            Notification,
+            UserNotifications,
+            VerificationTokenEntity,
+        ]),
+        JwtModule.register({}),
     ],
     providers: [
         {provide: USER_AGGREGATE_PORT, useClass: UserAggregateRepository},
@@ -46,6 +66,14 @@ import {CycleAggregateRepository} from "../../infrastructure/driven/database/rep
             provide: CYCLE_AGGREGATE_PORT,
             useClass: CycleAggregateRepository,
         },
+        {
+            provide: GRANT_APPLICATION_AGGREGATE_PORT,
+            useClass: GrantApplicationRepository,
+        },
+        {
+            provide: USER_INVITE_AGGREGATE_PORT,
+            useClass: UserInviteAggregateRepository,
+        },
     ],
     exports: [
         USER_AGGREGATE_PORT,
@@ -55,8 +83,10 @@ import {CycleAggregateRepository} from "../../infrastructure/driven/database/rep
         CYCLE_AGGREGATE_PORT,
         EMAIL_SERVICE_PORT,
         CACHE_REPOSITORY_PORT,
+        USER_INVITE_AGGREGATE_PORT,
         PROGRAM_AGGREGATE_PORT,
         ORGANIZATION_ENTITY_PORT,
+        GRANT_APPLICATION_AGGREGATE_PORT,
     ],
 })
 export class OutputPortModule {}

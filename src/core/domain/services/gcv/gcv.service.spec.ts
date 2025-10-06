@@ -12,6 +12,8 @@ import {
     NEW_PROGRAM_DATA,
     SAVED_PROGRAM,
     PROGRAMS_ARRAY,
+    CYCLES_ARRAY,
+    saved_Application,
 } from "./gcv.service.mock.data";
 import ApiError from "../../../../shared/errors/api.error";
 import {SharedOrganizationService} from "../shared/organization/shared.organization.service";
@@ -29,7 +31,6 @@ describe("GCV Service", () => {
     let userAggregateRepository: jest.Mocked<UserAggregatePort>;
     let programAggregateRepository: jest.Mocked<ProgramAggregatePort>;
     let sharedProgramService: jest.Mocked<SharedProgramService>;
-
     beforeEach(async () => {
         const moduleReference: TestingModule = await Test.createTestingModule({
             providers: [
@@ -46,6 +47,7 @@ describe("GCV Service", () => {
                     provide: PROGRAM_AGGREGATE_PORT,
                     useValue: createMock<ProgramAggregatePort>(),
                 },
+
                 {
                     provide: UserSharedService,
                     useValue: createMock<UserSharedService>(),
@@ -617,6 +619,121 @@ describe("GCV Service", () => {
                     programId: "program-uuid",
                 },
             });
+        });
+    });
+
+    describe("Get Program Cycles", () => {
+        it("should fetch program cycles successfully", async () => {
+            const filter = {
+                programId: "uuid",
+                page: 1,
+                numberOfResults: 5,
+            };
+
+            sharedProgramService.getProgramCycles.mockResolvedValue({
+                cycles: CYCLES_ARRAY as any,
+                totalNumberOfCycles: 2,
+            });
+
+            const result = await gcvService.getProgramCycles(filter);
+
+            expect(result).toEqual({
+                status: 200,
+                message: "Program Cycle fetched successfully",
+                res: {
+                    cycles: CYCLES_ARRAY,
+                    totalNumberOfCycles: 2,
+                },
+            });
+        });
+    });
+
+    describe("GetCycleWithApplication", () => {
+        it("Get Cycle Details", async () => {
+            sharedProgramService.getCycleDetailsWithApplications.mockResolvedValue(
+                CYCLES_ARRAY[0] as any
+            );
+
+            const result =
+                await gcvService.getCycleWithApplications("cycleslug");
+
+            expect(result).toEqual({
+                status: 200,
+                message: "Cycle Details With Applications",
+                res: {
+                    cycle: CYCLES_ARRAY[0],
+                },
+            });
+        });
+
+        it("Cycle Not Found", async () => {
+            try {
+                sharedProgramService.getCycleDetailsWithApplications.mockResolvedValue(
+                    null
+                );
+
+                await gcvService.getCycleWithApplications("cycleslug");
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).message).toBe("Cycle Not Found");
+            }
+        });
+    });
+
+    describe("getApplicationDetails", () => {
+        it("Get Application Details", async () => {
+            sharedProgramService.getApplicationDetailsWithSlug.mockResolvedValue(
+                saved_Application as any
+            );
+
+            const result = await gcvService.getApplicationDetails(
+                "cycleSlug",
+                "appSlug"
+            );
+            expect(result).toEqual({
+                status: 200,
+                message: "Cycle Details With Applications",
+                res: {
+                    application: saved_Application,
+                },
+            });
+        });
+
+        it("Application Not Found", async () => {
+            try {
+                sharedProgramService.getApplicationDetailsWithSlug.mockResolvedValue(
+                    null
+                );
+
+                await gcvService.getApplicationDetails("cycleSlug", "appSlug");
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).message).toBe(
+                    "Application Not Found"
+                );
+            }
+        });
+
+        it("Application Cycle MisMatch", async () => {
+            try {
+                const application = JSON.parse(
+                    JSON.stringify(saved_Application)
+                );
+                application.cycle.slug = "new Slug";
+                sharedProgramService.getApplicationDetailsWithSlug.mockResolvedValue(
+                    application as any
+                );
+
+                await gcvService.getApplicationDetails("cycleSlug", "appSlug");
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe(
+                    "Application Doesn't Belongs to the Cycle"
+                );
+            }
         });
     });
 });

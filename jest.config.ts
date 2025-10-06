@@ -179,16 +179,13 @@ const jestConfig: Config = {
         "^.+\\.tsx?$": [
             "ts-jest",
             {
-                tsconfig: "tsconfig.json",
+                tsconfig: "tsconfig.test.json",
             },
         ],
     },
 
     // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation
-    // transformIgnorePatterns: [
-    //   "/node_modules/",
-    //   "\\.pnp\\.[^\\/]+$"
-    // ],
+    transformIgnorePatterns: ["/node_modules/", "\\.pnp\\.[^\\/]+$"],
 
     // An array of regexp pattern strings that are matched against all modules before the module loader will automatically return a mock for them
     // unmockedModulePathPatterns: undefined,

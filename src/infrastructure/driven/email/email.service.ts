@@ -23,7 +23,7 @@ export class EmailService implements EmailServicePort {
         try {
             // eslint-disable-next-line
             const {data: _data, error} = await this.resend.emails.send({
-                from: "<your-email@example.com>",
+                from: "Acme <onboarding@resend.dev>",
                 to,
                 subject,
                 html: body,

@@ -2,8 +2,11 @@ import {CycleStatus} from "../../constants/status.constants";
 import {TRL} from "../../constants/trl.constants";
 
 const dummyCycle = {
-    id: "e7a3b2e5-8d4b-41ef-9d5c-f93bde2a7f11",
+    id: "uuid",
     programId: "f3d2a8c1-7d8e-4b2a-93b6-1d3e5f8a9c11",
+    program: {
+        managerId: "uuid",
+    },
     round: {
         year: 2025,
         type: "Spring",
@@ -143,6 +146,7 @@ const SAVED_PROGRAM = {
     minTRL: "TRL_3",
     maxTRL: "TRL_7",
     slug: "ai-innovation-challenge-a12f3b45",
+    managerId: "uuid",
     createdAt: "2025-01-01T10:00:00.000Z",
     updatedAt: "2025-02-15T15:30:00.000Z",
 };
@@ -218,4 +222,29 @@ const CYCLES_ARRAY = [
     },
 ];
 
-export {dummyCycle, inputCycle, SAVED_PROGRAM, CYCLES_ARRAY};
+const saved_Application = {
+    id: "uuid",
+    userId: "uuid",
+    applicantId: "uuid",
+    cycleId: "uuid",
+    stepNumber: 1,
+    teamMateInvites: [{email: "inthrak04@gmail.com"}],
+    cycle: {
+        name: "Cycle 123",
+        slug: "cycleSlug",
+        program: {
+            name: "ProgramName",
+            managerId: "uuid",
+        },
+    },
+    basicDetails: {
+        title: "AI-powered Healthcare Assistant",
+        summary: "An AI system that helps doctors with faster diagnostics.",
+        problem: "Healthcare diagnostics are slow and error-prone.",
+        solution: "Use AI algorithms to assist in diagnosis and reduce errors.",
+        innovation:
+            "First system integrating AI and IoT for real-time diagnostics.",
+    },
+};
+
+export {dummyCycle, inputCycle, SAVED_PROGRAM, CYCLES_ARRAY, saved_Application};

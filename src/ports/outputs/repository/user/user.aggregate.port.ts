@@ -2,6 +2,7 @@ import {FindOptionsWhere} from "typeorm";
 import {User} from "../../../../core/domain/aggregates/user.aggregate";
 import {UserAggregateDTO} from "./user.aggregate.dto";
 import {UserRoles} from "../../../../core/domain/constants/userRoles.constants";
+import {UpdateProfileDTO} from "../../../../infrastructure/driving/dtos/user.dto";
 
 export interface UserAggregatePort {
     save(user: Partial<UserAggregateDTO>): Promise<User>;
@@ -21,6 +22,11 @@ export interface UserAggregatePort {
         numberOfUser: number
     ): Promise<{users: User[]; totalNumberOfUsers: number}>;
     updateUserRole(id: string, roles: UserRoles[]): Promise<boolean>;
+    updateProfile(
+        oldUser: User,
+        updateDetails: UpdateProfileDTO
+    ): Promise<User>;
+    getUserApplication(userId: string): Promise<User | null>;
     deleteUser(id: string): Promise<boolean>;
 }
 export const USER_AGGREGATE_PORT = Symbol("UserAggregatePort");

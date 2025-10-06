@@ -276,4 +276,32 @@ export class ProgramAggregateRepository implements ProgramAggregatePort {
             throw new ApiError(502, "Failed to find program", "Database Error");
         }
     }
+
+    /**
+     *
+     * @param program the old program details
+     * @param status status of the program which should be added
+     * @returns true if success
+     */
+    async updateProgramStatus(
+        program: Program,
+        status: ProgramStatus
+    ): Promise<boolean> {
+        try {
+            program.status = status;
+
+            await this.programRepository.save(program);
+
+            return true;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Failed to update program status",
+                "Database Error"
+            );
+        }
+    }
 }

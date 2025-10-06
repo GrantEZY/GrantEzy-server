@@ -5,26 +5,30 @@ import {DatabaseConnection} from "../../infrastructure/driven/database/connectio
 import {CacheConnection} from "../../infrastructure/driven/cache/connection";
 import {ConfigConnection} from "../../infrastructure/driven/env/connection";
 import {AuthModule} from "./auth/auth.module";
+import {UserModule} from "./user/user.module";
 import {OutputPortModule} from "../../ports/outputs/output.port.module";
 import {AdminModule} from "./admin/admin.module";
 import {SharedModule} from "./shared/shared.module";
 import {GCVModule} from "./gcv/gcv.module";
+import {ApplicantModule} from "./applicant/applicant.module";
 import {ProgramManagerModule} from "./progam-manager/pm.module";
 import {QueueConnection} from "../../infrastructure/driven/queue/connection";
-import {QueueFeatureConnection} from "../../infrastructure/driven/queue/connection";
+import {CoApplicantModule} from "./co-applicant/co.applicant.module";
 @Module({
     imports: [
         ConfigConnection,
         DatabaseConnection,
         CacheConnection,
         QueueConnection,
-        QueueFeatureConnection,
         SharedModule,
         OutputPortModule,
+        UserModule,
         AuthModule,
         AdminModule,
         GCVModule,
         ProgramManagerModule,
+        ApplicantModule,
+        CoApplicantModule,
     ],
     controllers: [AppController],
     providers: [AppService],

@@ -10,6 +10,8 @@ import {UserAggregatePort} from "../../../../ports/outputs/repository/user/user.
 import {UserRoles} from "../../../../core/domain/constants/userRoles.constants";
 import {slugify} from "../../../../shared/helpers/slug.generator";
 import {v4 as uuid} from "uuid";
+import {ExperienceDTO, UpdateProfileDTO} from "../../../driving/dtos/user.dto";
+import {Experience} from "../../../../core/domain/value-objects/experience.object";
 @Injectable()
 export class UserAggregateRepository implements UserAggregatePort {
     constructor(
@@ -222,6 +224,72 @@ export class UserAggregateRepository implements UserAggregatePort {
         }
     }
 
+    /**
+     *
+     * @param oldUser the old user entity
+     * @param updateDetails updatedDetails of the user
+     * @returns updated User
+     */
+    async updateProfile(
+        oldUser: User,
+        updateDetails: UpdateProfileDTO
+    ): Promise<User> {
+        try {
+            const {
+                firstName,
+                lastName,
+                experiences,
+                commitment,
+                email,
+                phone,
+                address,
+            } = updateDetails;
+
+            oldUser.person.firstName = firstName ?? oldUser.person.firstName;
+            oldUser.person.lastName = lastName ?? oldUser.person.lastName;
+
+            if (email || phone || address) {
+                const contact = new Contact(
+                    email ?? oldUser.contact?.email,
+                    phone ?? oldUser.contact?.phone,
+                    address ?? oldUser.contact?.address
+                );
+                oldUser.contact = contact;
+            }
+
+            oldUser.commitment = commitment ?? oldUser.commitment;
+
+            if (experiences && experiences.length > 0) {
+                // eslint-disable-next-line
+                const newExperiences: Experience[] = experiences.map(
+                    (exp: ExperienceDTO) => {
+                        return new Experience(
+                            exp.company,
+                            exp.position,
+                            new Date(exp.startDate),
+                            exp.description,
+                            exp.endDate ? new Date(exp.endDate) : undefined
+                        );
+                    }
+                );
+                oldUser.experiences = newExperiences;
+            }
+
+            const savedUser = await this.userRepository.save(oldUser);
+
+            return savedUser;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Failed to update profile",
+                "Database Error"
+            );
+        }
+    }
+
     private updateGCVMemberStatus(roles: UserRoles[]): boolean {
         if (
             roles.includes(UserRoles.DIRECTOR) ||
@@ -301,6 +369,34 @@ export class UserAggregateRepository implements UserAggregatePort {
             throw new ApiError(
                 502,
                 "User Details deleting Error",
+                "Database Error"
+            );
+        }
+    }
+
+    /**
+     *
+     * @param userId the user id of the user
+     * @returns
+     */
+    async getUserApplication(userId: string): Promise<User | null> {
+        try {
+            const userwithApplicationDetails =
+                await this.userRepository.findOne({
+                    where: {
+                        personId: userId,
+                    },
+                    relations: ["myApplications", "linkedApplications"],
+                });
+
+            return userwithApplicationDetails;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Error in fetching user applications",
                 "Database Error"
             );
         }

@@ -3,9 +3,9 @@ import {
     Controller,
     Delete,
     Get,
+    Query,
     Patch,
     Post,
-    Query,
     Res,
 } from "@nestjs/common";
 import {ApiResponse, ApiTags} from "@nestjs/swagger";
@@ -15,11 +15,16 @@ import {ProgramManagerControllerPort} from "../../../../../ports/inputs/controll
 import {
     CreateCycleDTO,
     DeleteCycleDTO,
-    GetProgramCyclesDTO,
+    GetCycleDetailsDTO,
+    GetApplicationDetailsDTO,
+    GetPMProgramCyclesDTO,
 } from "../../../dtos/pm.dto";
 import ApiError from "../../../../../shared/errors/api.error";
 import {UpdateCycleDTO} from "../../../dtos/shared/shared.program.dto";
 import {CYCLE_RESPONSES} from "../../../../../config/swagger/docs/pm.swagger";
+import {CurrentUser} from "../../../../../shared/decorators/currentuser.decorator";
+import {AccessTokenJwt} from "../../../../../shared/types/jwt.types";
+
 @ApiTags("ProgramManager")
 @Controller("pm")
 export class ProgramManagerController implements ProgramManagerControllerPort {
@@ -33,11 +38,15 @@ export class ProgramManagerController implements ProgramManagerControllerPort {
     @ApiResponse(CYCLE_RESPONSES.CREATE.BUDGET_EXCEEDS)
     async createCycle(
         @Body() createCycleDTO: CreateCycleDTO,
+        @CurrentUser() user: AccessTokenJwt,
         @Res() response: Response
     ): Promise<Response> {
         try {
-            const result =
-                await this.programManagerService.createCycle(createCycleDTO);
+            const id = user.userData.payload.id;
+            const result = await this.programManagerService.createCycle(
+                createCycleDTO,
+                id
+            );
             return response.status(result.status).json(result);
         } catch (error) {
             return this.handleError(error, response);
@@ -46,15 +55,19 @@ export class ProgramManagerController implements ProgramManagerControllerPort {
 
     @Get("/get-program-cycles")
     @ApiResponse(CYCLE_RESPONSES.PROGRAM_CYCLES_READ.SUCCESS)
+    @ApiResponse(CYCLE_RESPONSES.PROGRAM_CYCLES_READ.CONFLICT)
+    @ApiResponse(CYCLE_RESPONSES.PROGRAM_CYCLES_READ.NO_CYCLES_FOUND)
     async getProgramCycles(
-        @Query() getProgramCycle: GetProgramCyclesDTO,
+        @Query() getProgramCycle: GetPMProgramCyclesDTO,
+        @CurrentUser() user: AccessTokenJwt,
         @Res() response: Response
     ): Promise<Response> {
         try {
-            const result =
-                await this.programManagerService.getProgramCycles(
-                    getProgramCycle
-                );
+            const id = user.userData.payload.id;
+            const result = await this.programManagerService.getProgramCycles(
+                getProgramCycle,
+                id
+            );
             return response.status(result.status).json(result);
         } catch (error) {
             return this.handleError(error, response);
@@ -89,6 +102,54 @@ export class ProgramManagerController implements ProgramManagerControllerPort {
             const result =
                 await this.programManagerService.deleteProgramCycle(
                     deleteCycle
+                );
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Get("/get-cycle-details")
+    @ApiResponse(CYCLE_RESPONSES.CYCLE_WITH_APPLICATIONS.SUCCESS)
+    @ApiResponse(CYCLE_RESPONSES.CYCLE_WITH_APPLICATIONS.NOT_FOUND)
+    @ApiResponse(CYCLE_RESPONSES.CYCLE_WITH_APPLICATIONS.FORBIDDEN)
+    async getCycleDetails(
+        @Query() parameters: GetCycleDetailsDTO,
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+
+            const result =
+                await this.programManagerService.getCycleWithApplications(
+                    parameters.cycleSlug,
+                    id
+                );
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Get("/get-application-details")
+    @ApiResponse(CYCLE_RESPONSES.APPLICATION_DETAILS.SUCCESS)
+    @ApiResponse(CYCLE_RESPONSES.APPLICATION_DETAILS.APPLICATION_MISMATCH)
+    @ApiResponse(CYCLE_RESPONSES.APPLICATION_DETAILS.APPLICATION_NOT_FOUND)
+    @ApiResponse(CYCLE_RESPONSES.APPLICATION_DETAILS.CYCLE_NOT_FOUND)
+    @ApiResponse(CYCLE_RESPONSES.APPLICATION_DETAILS.FORBIDDEN)
+    async getApplicationDetails(
+        @Query() parameters: GetApplicationDetailsDTO,
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+            const result =
+                await this.programManagerService.getApplicationDetails(
+                    parameters.cycleSlug,
+                    parameters.applicationSlug,
+                    id
                 );
             return response.status(result.status).json(result);
         } catch (error) {

@@ -16,6 +16,12 @@ import {
     CycleAggregatePort,
     CYCLE_AGGREGATE_PORT,
 } from "../../../../../ports/outputs/repository/cycle/cycle.aggregate.port";
+import {GrantApplicationStatus} from "../../../constants/status.constants";
+import {GrantApplication} from "../../../aggregates/grantapplication.aggregate";
+import {
+    GRANT_APPLICATION_AGGREGATE_PORT,
+    GrantApplicationAggregatePort,
+} from "../../../../../ports/outputs/repository/grantapplication/grantapplication.aggregate.port";
 
 @Injectable()
 export class SharedProgramService {
@@ -24,7 +30,10 @@ export class SharedProgramService {
         private readonly programAggregateRepository: ProgramAggregatePort,
 
         @Inject(CYCLE_AGGREGATE_PORT)
-        private readonly cycleAggregateRepository: CycleAggregatePort
+        private readonly cycleAggregateRepository: CycleAggregatePort,
+
+        @Inject(GRANT_APPLICATION_AGGREGATE_PORT)
+        private readonly applicationRepository: GrantApplicationAggregatePort
     ) {}
 
     async UpdateProgramDetails(
@@ -100,6 +109,41 @@ export class SharedProgramService {
             return await this.cycleAggregateRepository.findCycleByslug(
                 cycleSlug
             );
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async getCycleDetailsWithApplications(
+        cycleSlug: string
+    ): Promise<Cycle | null> {
+        try {
+            const cycle =
+                await this.cycleAggregateRepository.getCycleDetailsWithApplications(
+                    cycleSlug
+                );
+            if (cycle) {
+                cycle.applications = cycle.applications.filter(
+                    (application) =>
+                        application.status !== GrantApplicationStatus.DRAFT
+                );
+            }
+            return cycle;
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async getApplicationDetailsWithSlug(
+        applicationSlug: string
+    ): Promise<GrantApplication | null> {
+        try {
+            const application =
+                await this.applicationRepository.getUserCreatedApplicationWithSlug(
+                    applicationSlug
+                );
+
+            return application;
         } catch (error) {
             this.handleError(error);
         }

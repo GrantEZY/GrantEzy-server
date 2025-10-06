@@ -34,7 +34,13 @@ import {
     UpdateProgramDTO,
 } from "../../../../infrastructure/driving/dtos/shared/shared.program.dto";
 import {SharedProgramService} from "../shared/program/shared.program.service";
+import {GetProgramCyclesDTO} from "../../../../infrastructure/driving/dtos/pm.dto";
 
+import {
+    GetApplicationDetailsResponse,
+    GetCycleDetailsResponse,
+    GetProgramCyclesResponse,
+} from "../../../../infrastructure/driven/response-dtos/pm.response-dto";
 @Injectable()
 /**
  * This is the GCV only service
@@ -362,6 +368,89 @@ export class GCVService {
                     "Internal Error"
                 );
             }
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async getProgramCycles(
+        getCycleDto: GetProgramCyclesDTO
+    ): Promise<GetProgramCyclesResponse> {
+        try {
+            const {cycles, totalNumberOfCycles} =
+                await this.sharedProgramService.getProgramCycles(getCycleDto);
+
+            return {
+                status: 200,
+                message: "Program Cycle fetched successfully",
+                res: {
+                    cycles,
+                    totalNumberOfCycles,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async getCycleWithApplications(
+        cycleSlug: string
+    ): Promise<GetCycleDetailsResponse> {
+        try {
+            const cycle =
+                await this.sharedProgramService.getCycleDetailsWithApplications(
+                    cycleSlug
+                );
+
+            if (!cycle) {
+                throw new ApiError(404, "Cycle Not Found", "Conflict Error");
+            }
+
+            return {
+                status: 200,
+                message: "Cycle Details With Applications",
+                res: {
+                    cycle,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async getApplicationDetails(
+        cycleSlug: string,
+        applicationSlug: string
+    ): Promise<GetApplicationDetailsResponse> {
+        try {
+            const application =
+                await this.sharedProgramService.getApplicationDetailsWithSlug(
+                    applicationSlug
+                );
+
+            if (!application) {
+                throw new ApiError(
+                    404,
+                    "Application Not Found",
+                    "Conflict Error"
+                );
+            }
+
+            if (application.cycle.slug != cycleSlug) {
+                throw new ApiError(
+                    403,
+                    "Application Doesn't Belongs to the Cycle",
+                    "Conflict Error"
+                );
+            }
+
+            return {
+                status: 200,
+                message: "Cycle Details With Applications",
+                res: {
+                    application,
+                },
+            };
         } catch (error) {
             this.handleError(error);
         }

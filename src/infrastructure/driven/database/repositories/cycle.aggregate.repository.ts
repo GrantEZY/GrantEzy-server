@@ -300,4 +300,29 @@ export class CycleAggregateRepository implements CycleAggregatePort {
             );
         }
     }
+
+    /**
+     *
+     * @param slug cycle slug with Cycle
+     * @returns Cycle if present
+     */
+    async getCycleDetailsWithApplications(slug: string): Promise<Cycle | null> {
+        try {
+            return await this.cycleRepository.findOne({
+                where: {
+                    slug,
+                },
+                relations: ["applications"],
+            });
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Find Cycle Database Error",
+                "Database Error"
+            );
+        }
+    }
 }

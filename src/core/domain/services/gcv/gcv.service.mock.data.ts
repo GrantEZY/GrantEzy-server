@@ -96,6 +96,101 @@ const SAVED_ORGANIZATION = {
     createdAt: new Date(),
     updatedAt: new Date(),
 };
+const CYCLES_ARRAY = [
+    {
+        id: "uuid",
+        programId: "4b7d1f33-0f2e-4b7a-91e3-5f58f3c9d4ab",
+        round: {
+            year: 2025,
+            type: "Spring",
+        },
+        budget: {
+            amount: 500000,
+            currency: "USD",
+        },
+        duration: {
+            startDate: "2025-01-01T00:00:00Z",
+            endDate: "2025-06-30T23:59:59Z",
+        },
+        trlCriteria: {
+            TRL_1: {
+                requirements: ["Understand basic principles"],
+                evidence: ["Research whitepaper"],
+                metrics: ["Readiness index"],
+            },
+            TRL_2: {
+                requirements: ["Proof of concept demonstrated"],
+                evidence: ["Prototype demo"],
+                metrics: ["Prototype performance"],
+            },
+        },
+        scoringScheme: {
+            technical: {minScore: 1, maxScore: 10, weightage: 0.3},
+            market: {minScore: 1, maxScore: 10, weightage: 0.25},
+            financial: {minScore: 1, maxScore: 10, weightage: 0.2},
+            team: {minScore: 1, maxScore: 10, weightage: 0.15},
+            innovation: {minScore: 1, maxScore: 10, weightage: 0.1},
+        },
+    },
+    {
+        programId: "6c91f2e1-2b3c-4d4a-8f6a-7b9d2a1c8e22",
+        round: {
+            year: 2025,
+            type: "Fall",
+        },
+        budget: {
+            amount: 750000,
+            currency: "EUR",
+        },
+        duration: {
+            startDate: "2025-07-01T00:00:00Z",
+            endDate: "2025-12-31T23:59:59Z",
+        },
+        trlCriteria: {
+            TRL_1: {
+                requirements: ["Identify fundamental concept"],
+                evidence: ["Initial research document"],
+                metrics: ["Concept validation score"],
+            },
+            TRL_3: {
+                requirements: ["Validated in lab environment"],
+                evidence: ["Lab experiment results"],
+                metrics: ["Success rate"],
+            },
+        },
+        scoringScheme: {
+            technical: {minScore: 1, maxScore: 10, weightage: 0.25},
+            market: {minScore: 1, maxScore: 10, weightage: 0.25},
+            financial: {minScore: 1, maxScore: 10, weightage: 0.2},
+            team: {minScore: 1, maxScore: 10, weightage: 0.15},
+            innovation: {minScore: 1, maxScore: 10, weightage: 0.15},
+        },
+    },
+];
+
+const saved_Application = {
+    id: "uuid",
+    userId: "uuid",
+    applicantId: "uuid",
+    cycleId: "uuid",
+    stepNumber: 1,
+    teamMateInvites: [{email: "inthrak04@gmail.com"}],
+    cycle: {
+        name: "Cycle 123",
+        program: {
+            name: "ProgramName",
+        },
+        slug: "cycleSlug",
+    },
+    basicDetails: {
+        title: "AI-powered Healthcare Assistant",
+        summary: "An AI system that helps doctors with faster diagnostics.",
+        problem: "Healthcare diagnostics are slow and error-prone.",
+        solution: "Use AI algorithms to assist in diagnosis and reduce errors.",
+        innovation:
+            "First system integrating AI and IoT for real-time diagnostics.",
+    },
+};
 
 const PROGRAMS_ARRAY = [SAVED_PROGRAM, SAVED_PROGRAM, SAVED_PROGRAM];
 
@@ -105,4 +200,6 @@ export {
     SAVED_ORGANIZATION,
     SAVED_PROGRAM,
     PROGRAMS_ARRAY,
+    CYCLES_ARRAY,
+    saved_Application,
 };

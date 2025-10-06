@@ -109,6 +109,7 @@ export class User {
 
     @OneToMany(() => GrantApplication, (application) => application.applicant, {
         cascade: false,
+        eager: false,
     })
     myApplications: GrantApplication[];
 
@@ -117,6 +118,7 @@ export class User {
         (application) => application.teammates,
         {
             cascade: false,
+            eager: false,
         }
     )
     linkedApplications: GrantApplication[];
