@@ -343,10 +343,6 @@ describe("Program Manager Service", () => {
 
     describe("getApplicationDetails", () => {
         it("Get Application Details", async () => {
-            cycleAggregaterepository.findCycleByslug.mockResolvedValue(
-                dummyCycle as any
-            );
-
             sharedProgramService.getApplicationDetailsWithSlug.mockResolvedValue(
                 saved_Application as any
             );
@@ -365,28 +361,10 @@ describe("Program Manager Service", () => {
             });
         });
 
-        it("Cycle Not Found", async () => {
-            try {
-                cycleAggregaterepository.findCycleByslug.mockResolvedValue(
-                    null
-                );
-
-                await programManagerService.getApplicationDetails(
-                    "cycleSlug",
-                    "appSlug",
-                    "uuid"
-                );
-            } catch (error) {
-                expect(error).toBeInstanceOf(ApiError);
-                expect((error as ApiError).status).toBe(404);
-                expect((error as ApiError).message).toBe("Cycle Not Found");
-            }
-        });
-
         it("Cycle Not Available For the User", async () => {
             try {
-                cycleAggregaterepository.findCycleByslug.mockResolvedValue(
-                    dummyCycle as any
+                sharedProgramService.getApplicationDetailsWithSlug.mockResolvedValue(
+                    saved_Application as any
                 );
 
                 await programManagerService.getApplicationDetails(
@@ -405,9 +383,6 @@ describe("Program Manager Service", () => {
 
         it("Application Not Found", async () => {
             try {
-                cycleAggregaterepository.findCycleByslug.mockResolvedValue(
-                    dummyCycle as any
-                );
                 sharedProgramService.getApplicationDetailsWithSlug.mockResolvedValue(
                     null
                 );
@@ -428,13 +403,12 @@ describe("Program Manager Service", () => {
 
         it("Application Cycle Mismatch", async () => {
             try {
-                const newCycle = JSON.parse(JSON.stringify(dummyCycle));
-                newCycle.id = "sdfg";
-                cycleAggregaterepository.findCycleByslug.mockResolvedValue(
-                    newCycle as any
+                const application = JSON.parse(
+                    JSON.stringify(saved_Application)
                 );
+                application.cycle.slug = "newSlug";
                 sharedProgramService.getApplicationDetailsWithSlug.mockResolvedValue(
-                    saved_Application as any
+                    application as any
                 );
 
                 await programManagerService.getApplicationDetails(

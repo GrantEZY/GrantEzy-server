@@ -231,8 +231,10 @@ const saved_Application = {
     teamMateInvites: [{email: "inthrak04@gmail.com"}],
     cycle: {
         name: "Cycle 123",
+        slug: "cycleSlug",
         program: {
             name: "ProgramName",
+            managerId: "uuid",
         },
     },
     basicDetails: {

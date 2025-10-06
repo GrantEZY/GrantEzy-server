@@ -228,28 +228,12 @@ export class ProgramManagerService {
         }
     }
 
-    // TODO  logic could be improved
     async getApplicationDetails(
         cycleSlug: string,
         applicationSlug: string,
         userId: string
     ): Promise<GetApplicationDetailsResponse> {
         try {
-            const cycle =
-                await this.cycleAggregateRepository.findCycleByslug(cycleSlug);
-
-            if (!cycle) {
-                throw new ApiError(404, "Cycle Not Found", "Conflict Error");
-            }
-
-            if (cycle.program?.managerId != userId) {
-                throw new ApiError(
-                    403,
-                    "Only Program Manager can access the Program",
-                    "Conflict Error"
-                );
-            }
-
             const application =
                 await this.sharedProgramService.getApplicationDetailsWithSlug(
                     applicationSlug
@@ -263,10 +247,19 @@ export class ProgramManagerService {
                 );
             }
 
-            if (application?.cycleId != cycle.id) {
+            if (application?.cycle.slug != cycleSlug) {
                 throw new ApiError(
                     403,
                     "Application Doesn't Belongs to the Cycle",
+                    "Conflict Error"
+                );
+            }
+            const cycle = application.cycle;
+
+            if (cycle.program?.managerId != userId) {
+                throw new ApiError(
+                    403,
+                    "Only Program Manager can access the Program",
                     "Conflict Error"
                 );
             }

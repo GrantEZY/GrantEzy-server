@@ -41,10 +41,6 @@ import {
     GetCycleDetailsResponse,
     GetProgramCyclesResponse,
 } from "../../../../infrastructure/driven/response-dtos/pm.response-dto";
-import {
-    CYCLE_AGGREGATE_PORT,
-    CycleAggregatePort,
-} from "../../../../ports/outputs/repository/cycle/cycle.aggregate.port";
 @Injectable()
 /**
  * This is the GCV only service
@@ -55,8 +51,6 @@ export class GCVService {
         private readonly userAggregateRepository: UserAggregatePort,
         @Inject(PROGRAM_AGGREGATE_PORT)
         private readonly programAggregateRepository: ProgramAggregatePort,
-        @Inject(CYCLE_AGGREGATE_PORT)
-        private readonly cycleAggregateRepository: CycleAggregatePort,
         private readonly userSharedService: UserSharedService,
         private readonly sharedOrganizationService: SharedOrganizationService,
         private readonly sharedProgramService: SharedProgramService
@@ -429,13 +423,6 @@ export class GCVService {
         applicationSlug: string
     ): Promise<GetApplicationDetailsResponse> {
         try {
-            const cycle =
-                await this.cycleAggregateRepository.findCycleByslug(cycleSlug);
-
-            if (!cycle) {
-                throw new ApiError(404, "Cycle Not Found", "Conflict Error");
-            }
-
             const application =
                 await this.sharedProgramService.getApplicationDetailsWithSlug(
                     applicationSlug
@@ -449,7 +436,7 @@ export class GCVService {
                 );
             }
 
-            if (application?.cycleId != cycle.id) {
+            if (application.cycle.slug != cycleSlug) {
                 throw new ApiError(
                     403,
                     "Application Doesn't Belongs to the Cycle",

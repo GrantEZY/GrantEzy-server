@@ -23,10 +23,6 @@ import {
 } from "../../../../ports/outputs/repository/program/program.aggregate.port";
 import {SharedProgramService} from "../shared/program/shared.program.service";
 import {UserRoles} from "../../constants/userRoles.constants";
-import {
-    CycleAggregatePort,
-    CYCLE_AGGREGATE_PORT,
-} from "../../../../ports/outputs/repository/cycle/cycle.aggregate.port";
 
 describe("GCV Service", () => {
     let gcvService: GCVService;
@@ -35,7 +31,6 @@ describe("GCV Service", () => {
     let userAggregateRepository: jest.Mocked<UserAggregatePort>;
     let programAggregateRepository: jest.Mocked<ProgramAggregatePort>;
     let sharedProgramService: jest.Mocked<SharedProgramService>;
-    let cycleAggregateRepository: jest.Mocked<CycleAggregatePort>;
     beforeEach(async () => {
         const moduleReference: TestingModule = await Test.createTestingModule({
             providers: [
@@ -52,10 +47,7 @@ describe("GCV Service", () => {
                     provide: PROGRAM_AGGREGATE_PORT,
                     useValue: createMock<ProgramAggregatePort>(),
                 },
-                {
-                    provide: CYCLE_AGGREGATE_PORT,
-                    useValue: createMock<CycleAggregatePort>(),
-                },
+
                 {
                     provide: UserSharedService,
                     useValue: createMock<UserSharedService>(),
@@ -83,9 +75,6 @@ describe("GCV Service", () => {
         sharedProgramService = moduleReference.get(
             SharedProgramService
         ) as jest.Mocked<SharedProgramService>;
-        cycleAggregateRepository = moduleReference.get(
-            CYCLE_AGGREGATE_PORT
-        ) as jest.Mocked<CycleAggregatePort>;
     });
 
     it("To be Defined", () => {
@@ -694,10 +683,6 @@ describe("GCV Service", () => {
 
     describe("getApplicationDetails", () => {
         it("Get Application Details", async () => {
-            cycleAggregateRepository.findCycleByslug.mockResolvedValue(
-                CYCLES_ARRAY[0] as any
-            );
-
             sharedProgramService.getApplicationDetailsWithSlug.mockResolvedValue(
                 saved_Application as any
             );
@@ -715,25 +700,8 @@ describe("GCV Service", () => {
             });
         });
 
-        it("Cycle Not Found", async () => {
-            try {
-                cycleAggregateRepository.findCycleByslug.mockResolvedValue(
-                    null
-                );
-
-                await gcvService.getApplicationDetails("cycleSlug", "appSlug");
-            } catch (error) {
-                expect(error).toBeInstanceOf(ApiError);
-                expect((error as ApiError).status).toBe(404);
-                expect((error as ApiError).message).toBe("Cycle Not Found");
-            }
-        });
-
         it("Application Not Found", async () => {
             try {
-                cycleAggregateRepository.findCycleByslug.mockResolvedValue(
-                    CYCLES_ARRAY[0] as any
-                );
                 sharedProgramService.getApplicationDetailsWithSlug.mockResolvedValue(
                     null
                 );
@@ -750,13 +718,12 @@ describe("GCV Service", () => {
 
         it("Application Cycle MisMatch", async () => {
             try {
-                const newCycle = JSON.parse(JSON.stringify(CYCLES_ARRAY[0]));
-                newCycle.id = "sdfg";
-                cycleAggregateRepository.findCycleByslug.mockResolvedValue(
-                    newCycle as any
+                const application = JSON.parse(
+                    JSON.stringify(saved_Application)
                 );
+                application.cycle.slug = "new Slug";
                 sharedProgramService.getApplicationDetailsWithSlug.mockResolvedValue(
-                    saved_Application as any
+                    application as any
                 );
 
                 await gcvService.getApplicationDetails("cycleSlug", "appSlug");

@@ -180,6 +180,7 @@ const saved_Application = {
         program: {
             name: "ProgramName",
         },
+        slug: "cycleSlug",
     },
     basicDetails: {
         title: "AI-powered Healthcare Assistant",
