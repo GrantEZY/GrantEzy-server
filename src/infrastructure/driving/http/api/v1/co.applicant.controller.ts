@@ -1,4 +1,4 @@
-import {Controller, Get, Param, Res} from "@nestjs/common";
+import {Controller, Get, Query, Res} from "@nestjs/common";
 import {ApiTags, ApiResponse} from "@nestjs/swagger";
 import {CoApplicantService} from "../../../../../core/domain/services/co-applicant/co.applicant.service";
 import {CoApplicantControllerPort} from "../../../../../ports/inputs/controllers/co.applicant.controller.port";
@@ -18,7 +18,7 @@ export class CoApplicantController implements CoApplicantControllerPort {
     @ApiResponse(CO_APPLICANT_RESPONSES.GET_APPLICATION_DETAILS.NOT_FOUND)
     @ApiResponse(CO_APPLICANT_RESPONSES.GET_APPLICATION_DETAILS.FORBIDDEN)
     async getApplicationDetails(
-        @Param() parameter: CoApplicantApplicationDTO,
+        @Query() parameter: CoApplicantApplicationDTO,
         @CurrentUser() user: AccessTokenJwt,
         @Res() response: Response
     ): Promise<Response> {

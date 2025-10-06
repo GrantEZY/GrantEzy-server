@@ -3,10 +3,9 @@ import {
     Controller,
     Delete,
     Get,
-    Param,
+    Query,
     Patch,
     Post,
-    Query,
     Res,
 } from "@nestjs/common";
 import {ApiResponse, ApiTags} from "@nestjs/swagger";
@@ -111,7 +110,7 @@ export class ProgramManagerController implements ProgramManagerControllerPort {
     @ApiResponse(CYCLE_RESPONSES.CYCLE_WITH_APPLICATIONS.NOT_FOUND)
     @ApiResponse(CYCLE_RESPONSES.CYCLE_WITH_APPLICATIONS.FORBIDDEN)
     async getCycleDetails(
-        @Param() parameters: GetCycleDetailsDTO,
+        @Query() parameters: GetCycleDetailsDTO,
         @CurrentUser() user: AccessTokenJwt,
         @Res() response: Response
     ): Promise<Response> {
@@ -136,7 +135,7 @@ export class ProgramManagerController implements ProgramManagerControllerPort {
     @ApiResponse(CYCLE_RESPONSES.APPLICATION_DETAILS.CYCLE_NOT_FOUND)
     @ApiResponse(CYCLE_RESPONSES.APPLICATION_DETAILS.FORBIDDEN)
     async getApplicationDetails(
-        @Param() parameters: GetApplicationDetailsDTO,
+        @Query() parameters: GetApplicationDetailsDTO,
         @CurrentUser() user: AccessTokenJwt,
         @Res() response: Response
     ): Promise<Response> {

@@ -6,7 +6,7 @@ import {
     Get,
     Delete,
     Patch,
-    Param,
+    Query,
 } from "@nestjs/common";
 import {Response} from "express";
 import ApiError from "../../../../../shared/errors/api.error";
@@ -214,7 +214,7 @@ export class ApplicantController implements ApplicantControllerPort {
     )
     async getApplicationDetailsWithCycle(
         @CurrentUser() user: AccessTokenJwt,
-        @Param() parameter: GetApplicationWithCycleDetailsDTO,
+        @Query() parameter: GetApplicationWithCycleDetailsDTO,
         @Res() response: Response
     ): Promise<Response> {
         try {
@@ -237,7 +237,7 @@ export class ApplicantController implements ApplicantControllerPort {
     @ApiResponse(APPLICATION_RESPONSES.GET_USER_CREATED_APPLICATION.FORBIDDEN)
     async getUserCreatedApplicationDetails(
         @CurrentUser() user: AccessTokenJwt,
-        @Param() parameter: GetUserCreatedApplicationDTO,
+        @Query() parameter: GetUserCreatedApplicationDTO,
         @Res() response: Response
     ): Promise<Response> {
         try {
