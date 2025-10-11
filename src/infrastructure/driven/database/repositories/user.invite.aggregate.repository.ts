@@ -32,9 +32,10 @@ export class UserInviteAggregateRepository implements UserInviteAggregatePort {
      * @param applicationId applicationId of the application for which invite has been made
      * @param emails invitedTeamMatesEmail
      */
-    async addTeamMatesInvites(
+    async addApplicationInvites(
         applicationId: string,
-        emails: string[]
+        emails: string[],
+        as: InviteAs
     ): Promise<Record<string, string>> {
         try {
             const details: Record<string, string> = {};
@@ -56,7 +57,7 @@ export class UserInviteAggregateRepository implements UserInviteAggregatePort {
                     const invite = this.userInviteRepository.create({
                         applicationId,
                         email,
-                        inviteAs: InviteAs.TEAMMATE,
+                        inviteAs: as,
                         status: InviteStatus.SENT,
                         verificationId: savedVerification.id,
                     });

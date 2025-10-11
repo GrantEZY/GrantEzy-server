@@ -430,10 +430,12 @@ export class ApplicantService {
             }
 
             const details =
-                await this.userInviteAggregateRepository.addTeamMatesInvites(
+                await this.userInviteAggregateRepository.addApplicationInvites(
                     applicationId,
-                    emails
+                    emails,
+                    InviteAs.TEAMMATE
                 );
+
             const cycle = await this.cycleAggregateRepository.findById(
                 application.cycleId
             );

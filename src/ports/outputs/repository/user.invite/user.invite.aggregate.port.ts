@@ -1,9 +1,13 @@
 import {UserInvite} from "../../../../core/domain/aggregates/user.invite.aggregate";
-import {InviteStatus} from "../../../../core/domain/constants/invite.constants";
+import {
+    InviteAs,
+    InviteStatus,
+} from "../../../../core/domain/constants/invite.constants";
 export interface UserInviteAggregatePort {
-    addTeamMatesInvites(
+    addApplicationInvites(
         applicationId: string,
-        email: string[]
+        email: string[],
+        as: InviteAs
     ): Promise<Record<string, string>>;
 
     getUserInvite(tokenHash: string): Promise<UserInvite | null>;
