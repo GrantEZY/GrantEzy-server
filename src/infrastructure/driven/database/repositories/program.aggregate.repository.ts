@@ -172,6 +172,59 @@ export class ProgramAggregateRepository implements ProgramAggregatePort {
             throw new ApiError(502, "Failed to get program", "Database Error");
         }
     }
+
+    /**
+     *
+     * @param page the page number for pagination
+     * @param numberOfResults number of results per page
+     * @returns list of active programs
+     * @throws ApiError if there is an issue during the delete operation.
+     */
+    async getActivePrograms(
+        page: number,
+        numberOfResults: number
+    ): Promise<Program[]> {
+        try {
+            const programs = await this.programRepository.find({
+                where: {
+                    status: ProgramStatus.ACTIVE,
+                },
+                skip: (page - 1) * numberOfResults,
+                take: numberOfResults,
+                order: {
+                    createdAt: "DESC",
+                },
+            });
+
+            return programs;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(502, "Failed to get program", "Database Error");
+        }
+    }
+
+    /**
+     *
+     * @param slug the slug of the program
+     * @returns program if found otherwise null
+     * @throws ApiError , if error occured while fetching
+     */
+    async findByslug(slug: string): Promise<Program | null> {
+        try {
+            const program = await this.programRepository.findOne({
+                where: {slug},
+            });
+            return program;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(502, "Failed to find program", "Database Error");
+        }
+    }
+
     /**
      *
      * @param updateDetails DTO for updating the program details

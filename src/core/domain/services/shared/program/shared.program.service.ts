@@ -85,6 +85,20 @@ export class SharedProgramService {
         }
     }
 
+    async getActivePrograms(
+        page: number,
+        numberOfResults: number
+    ): Promise<Program[]> {
+        try {
+            return await this.programAggregateRepository.getActivePrograms(
+                page,
+                numberOfResults
+            );
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
     async getProgramCycles(
         getProgramData: GetProgramCyclesDTO
     ): Promise<{cycles: Cycle[]; totalNumberOfCycles: number}> {
