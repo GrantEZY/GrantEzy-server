@@ -18,6 +18,7 @@ import {
     GetCycleDetailsDTO,
     GetApplicationDetailsDTO,
     GetPMProgramCyclesDTO,
+    InviteReviewerDTO,
 } from "../../../dtos/pm.dto";
 import ApiError from "../../../../../shared/errors/api.error";
 import {UpdateCycleDTO} from "../../../dtos/shared/shared.program.dto";
@@ -149,6 +150,30 @@ export class ProgramManagerController implements ProgramManagerControllerPort {
                 await this.programManagerService.getApplicationDetails(
                     parameters.cycleSlug,
                     parameters.applicationSlug,
+                    id
+                );
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Post("/invite-application-reviewer")
+    @ApiResponse(CYCLE_RESPONSES.INVITE_REVIEWER.SUCCESS)
+    @ApiResponse(CYCLE_RESPONSES.INVITE_REVIEWER.APPLICATION_NOT_FOUND)
+    @ApiResponse(CYCLE_RESPONSES.INVITE_REVIEWER.CYCLE_NOT_FOUND)
+    @ApiResponse(CYCLE_RESPONSES.INVITE_REVIEWER.USER_NOT_FOUND)
+    @ApiResponse(CYCLE_RESPONSES.INVITE_REVIEWER.UNAUTHORIZED_MANAGER)
+    async inviteApplicationReviewer(
+        @Body() body: InviteReviewerDTO,
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+            const result =
+                await this.programManagerService.inviteReviewerForApplication(
+                    body,
                     id
                 );
             return response.status(result.status).json(result);

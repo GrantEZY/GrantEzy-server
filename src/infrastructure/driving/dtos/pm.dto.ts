@@ -12,6 +12,7 @@ import {
     IsInt,
     Max,
     ValidateNested,
+    IsEmail,
 } from "class-validator";
 import {ApiProperty, ApiPropertyOptional} from "@nestjs/swagger";
 import {Type} from "class-transformer";
@@ -349,4 +350,20 @@ export class GetPMProgramCyclesDTO {
     @Min(1)
     @Type(() => Number)
     numberOfResults: number;
+}
+
+export class InviteReviewerDTO {
+    @ApiProperty({
+        description: "UUID of the application to which reviewer is invited",
+        example: "4b7d1f33-0f2e-4b7a-91e3-5f58f3c9d4ab",
+    })
+    @IsUUID()
+    applicationId: string;
+
+    @ApiProperty({
+        description: "Email of the reviewer to be invited",
+        example: "reviewer@example.com",
+    })
+    @IsEmail()
+    email: string;
 }

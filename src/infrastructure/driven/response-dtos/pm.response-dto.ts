@@ -27,6 +27,11 @@ export class GetCycleDetails {
 export class GetApplicationDetails {
     application: GrantApplication;
 }
+
+export class CreateReviewInvite {
+    email: string;
+    applicationId: string;
+}
 export class CreateCycleResponse extends ApiResponse(CreateCycleData) {}
 export class GetProgramCyclesResponse extends ApiResponse(
     GetProgramCyclesData
@@ -36,4 +41,7 @@ export class UpdateCycleResponse extends ApiResponse(UpdateCycleData) {}
 export class GetCycleDetailsResponse extends ApiResponse(GetCycleDetails) {}
 export class GetApplicationDetailsResponse extends ApiResponse(
     GetApplicationDetails
+) {}
+export class CreateReviewInviteResponse extends ApiResponse(
+    CreateReviewInvite
 ) {}

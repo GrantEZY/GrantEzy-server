@@ -8,11 +8,13 @@ import {
     CreateCycleDTO,
     DeleteCycleDTO,
     GetPMProgramCyclesDTO,
+    InviteReviewerDTO,
 } from "../../../../infrastructure/driving/dtos/pm.dto";
 import ApiError from "../../../../shared/errors/api.error";
 import {SharedProgramService} from "../shared/program/shared.program.service";
 import {
     CreateCycleResponse,
+    CreateReviewInviteResponse,
     DeleteCycleResponse,
     GetApplicationDetailsResponse,
     GetCycleDetailsResponse,
@@ -23,8 +25,23 @@ import {
     ProgramAggregatePort,
     PROGRAM_AGGREGATE_PORT,
 } from "../../../../ports/outputs/repository/program/program.aggregate.port";
+import {
+    UserInviteAggregatePort,
+    USER_INVITE_AGGREGATE_PORT,
+} from "../../../../ports/outputs/repository/user.invite/user.invite.aggregate.port";
+import {
+    GrantApplicationAggregatePort,
+    GRANT_APPLICATION_AGGREGATE_PORT,
+} from "../../../../ports/outputs/repository/grantapplication/grantapplication.aggregate.port";
 import {UpdateCycleDTO} from "../../../../infrastructure/driving/dtos/shared/shared.program.dto";
 import {ProgramStatus} from "../../constants/status.constants";
+import {InviteAs} from "../../constants/invite.constants";
+import {CycleInviteQueue} from "../../../../infrastructure/driven/queue/queues/cycle.invite.queue";
+import {
+    USER_AGGREGATE_PORT,
+    UserAggregatePort,
+} from "../../../../ports/outputs/repository/user/user.aggregate.port";
+import {UserRoles} from "../../constants/userRoles.constants";
 @Injectable()
 export class ProgramManagerService {
     constructor(
@@ -32,7 +49,14 @@ export class ProgramManagerService {
         private readonly cycleAggregateRepository: CycleAggregatePort,
         @Inject(PROGRAM_AGGREGATE_PORT)
         private readonly programAggregateRepository: ProgramAggregatePort,
-        private readonly sharedProgramService: SharedProgramService
+        @Inject(USER_INVITE_AGGREGATE_PORT)
+        private readonly userInviteAggregateRepository: UserInviteAggregatePort,
+        @Inject(GRANT_APPLICATION_AGGREGATE_PORT)
+        private readonly applicationRepository: GrantApplicationAggregatePort,
+        @Inject(USER_AGGREGATE_PORT)
+        private readonly userAggregateRepository: UserAggregatePort,
+        private readonly sharedProgramService: SharedProgramService,
+        private readonly cycleInviteQueue: CycleInviteQueue
     ) {}
 
     async createCycle(
@@ -278,6 +302,102 @@ export class ProgramManagerService {
                 message: "Cycle Details With Applications",
                 res: {
                     application,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async inviteReviewerForApplication(
+        inviteDetails: InviteReviewerDTO,
+        userId: string
+    ): Promise<CreateReviewInviteResponse> {
+        try {
+            const {applicationId, email} = inviteDetails;
+
+            const application =
+                await this.applicationRepository.findById(applicationId);
+
+            if (!application) {
+                throw new ApiError(
+                    404,
+                    "Application Not Found",
+                    "Conflict Error"
+                );
+            }
+
+            const cycle = await this.cycleAggregateRepository.findById(
+                application.cycleId
+            );
+
+            if (!cycle) {
+                throw new ApiError(404, "Cycle Not Found", "Conflict Error");
+            }
+
+            const user = await this.userAggregateRepository.findById(
+                userId,
+                false
+            );
+
+            if (!user) {
+                throw new ApiError(404, "User Not Found", "Conflict Error");
+            }
+
+            if (cycle.program?.managerId != userId) {
+                throw new ApiError(
+                    403,
+                    "Only Program Manager can access the Program",
+                    "Conflict Error"
+                );
+            }
+
+            // const isAlreadyInvited =
+            //     await this.userInviteAggregateRepository.getUserInviteForApplication(
+            //         email,
+            //         application.id,
+            //         InviteAs.REVIEWER
+            //     );
+
+            // if (isAlreadyInvited) {
+            //     throw new ApiError(
+            //         409,
+            //         "Reviewer Already Invited for the Application",
+            //         "Conflict Error"
+            //     );
+            // }
+
+            const details =
+                await this.userInviteAggregateRepository.addApplicationInvites(
+                    application.id,
+                    [email],
+                    InviteAs.REVIEWER
+                );
+
+            const inviteResponse = await this.cycleInviteQueue.UserCycleInvite({
+                email,
+                invitedBy: user.person.firstName,
+                role: UserRoles.REVIEWER,
+                programName: cycle.program?.details.name ?? "Program",
+                round: cycle.round,
+                applicationName: application.basicDetails.title,
+                token: details[email],
+            });
+
+            if (!inviteResponse.status) {
+                throw new ApiError(
+                    500,
+                    "Failed to send invite email",
+                    "Server Error"
+                );
+            }
+
+            return {
+                status: 200,
+                message: "Reviewer Invited Successfully",
+                res: {
+                    email,
+                    applicationId: application.id,
                 },
             };
         } catch (error) {

@@ -97,6 +97,33 @@ export class UserInviteAggregateRepository implements UserInviteAggregatePort {
         }
     }
 
+    async getUserInviteForApplication(
+        email: string,
+        applicationId: string,
+        as: InviteAs
+    ): Promise<UserInvite | null> {
+        try {
+            const invite = await this.userInviteRepository.findOne({
+                where: {
+                    email,
+                    applicationId,
+                    inviteAs: as,
+                },
+            });
+
+            return invite;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Failed to fetch invited user for application",
+                "Database Error"
+            );
+        }
+    }
+
     async updateUserInviteStatus(
         invite: UserInvite,
         status: InviteStatus

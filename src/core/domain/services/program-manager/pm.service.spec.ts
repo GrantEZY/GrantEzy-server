@@ -7,9 +7,22 @@ import {
     ProgramAggregatePort,
     PROGRAM_AGGREGATE_PORT,
 } from "../../../../ports/outputs/repository/program/program.aggregate.port";
+import {
+    GrantApplicationAggregatePort,
+    GRANT_APPLICATION_AGGREGATE_PORT,
+} from "../../../../ports/outputs/repository/grantapplication/grantapplication.aggregate.port";
 import {SharedProgramService} from "../shared/program/shared.program.service";
 import ApiError from "../../../../shared/errors/api.error";
 import {ProgramManagerService} from "./pm.service";
+import {
+    UserAggregatePort,
+    USER_AGGREGATE_PORT,
+} from "../../../../ports/outputs/repository/user/user.aggregate.port";
+import {CycleInviteQueue} from "../../../../infrastructure/driven/queue/queues/cycle.invite.queue";
+import {
+    UserInviteAggregatePort,
+    USER_INVITE_AGGREGATE_PORT,
+} from "../../../../ports/outputs/repository/user.invite/user.invite.aggregate.port";
 import {createMock} from "@golevelup/ts-jest";
 import {
     inputCycle,
@@ -22,6 +35,10 @@ describe("Program Manager Service", () => {
     let programManagerService: ProgramManagerService;
     let cycleAggregaterepository: jest.Mocked<CycleAggregatePort>;
     let programAggregaterepository: jest.Mocked<ProgramAggregatePort>;
+    let userInviteAggregateRepository: jest.Mocked<UserInviteAggregatePort>;
+    let userAggregateRepository: jest.Mocked<UserAggregatePort>;
+    let cycleInviteQueue: jest.Mocked<CycleInviteQueue>;
+    let applicationAggregateRepository: jest.Mocked<GrantApplicationAggregatePort>;
     let sharedProgramService: jest.Mocked<SharedProgramService>;
 
     beforeEach(async () => {
@@ -40,6 +57,22 @@ describe("Program Manager Service", () => {
                     provide: PROGRAM_AGGREGATE_PORT,
                     useValue: createMock<ProgramAggregatePort>(),
                 },
+                {
+                    provide: GRANT_APPLICATION_AGGREGATE_PORT,
+                    useValue: createMock<GrantApplicationAggregatePort>(),
+                },
+                {
+                    provide: USER_INVITE_AGGREGATE_PORT,
+                    useValue: createMock<UserInviteAggregatePort>(),
+                },
+                {
+                    provide: USER_AGGREGATE_PORT,
+                    useValue: createMock<UserAggregatePort>(),
+                },
+                {
+                    provide: CycleInviteQueue,
+                    useValue: createMock<CycleInviteQueue>(),
+                },
             ],
         }).compile();
 
@@ -47,6 +80,18 @@ describe("Program Manager Service", () => {
         cycleAggregaterepository = moduleReference.get(
             CYCLE_AGGREGATE_PORT
         ) as jest.Mocked<CycleAggregatePort>;
+        userInviteAggregateRepository = moduleReference.get(
+            USER_INVITE_AGGREGATE_PORT
+        ) as jest.Mocked<UserInviteAggregatePort>;
+        userAggregateRepository = moduleReference.get(
+            USER_AGGREGATE_PORT
+        ) as jest.Mocked<UserAggregatePort>;
+        cycleInviteQueue = moduleReference.get(
+            CycleInviteQueue
+        ) as jest.Mocked<CycleInviteQueue>;
+        applicationAggregateRepository = moduleReference.get(
+            GRANT_APPLICATION_AGGREGATE_PORT
+        ) as jest.Mocked<GrantApplicationAggregatePort>;
 
         programAggregaterepository = moduleReference.get(
             PROGRAM_AGGREGATE_PORT
@@ -452,6 +497,48 @@ describe("Program Manager Service", () => {
                     "Application Doesn't Belongs to the Cycle"
                 );
             }
+        });
+    });
+
+    describe("Invite Reviewer For Application", () => {
+        it("Invite Reviewer - success", async () => {
+            applicationAggregateRepository.findById.mockResolvedValue(
+                saved_Application as any
+            );
+            userAggregateRepository.findById.mockResolvedValue({
+                id: "uuid",
+                person: {firstName: "John"},
+            } as any);
+
+            cycleAggregaterepository.findById.mockResolvedValue(
+                dummyCycle as any
+            );
+
+            userInviteAggregateRepository.addApplicationInvites.mockResolvedValue(
+                {"inthrak04@gmail.com": "token"} as any
+            );
+
+            cycleInviteQueue.UserCycleInvite.mockResolvedValue({
+                status: true,
+            } as any);
+
+            const result =
+                await programManagerService.inviteReviewerForApplication(
+                    {
+                        applicationId: "uuid",
+                        email: "inthrak04@gmail.com",
+                    },
+                    "uuid"
+                );
+
+            expect(result).toEqual({
+                status: 200,
+                message: "Reviewer Invited Successfully",
+                res: {
+                    email: "inthrak04@gmail.com",
+                    applicationId: saved_Application.id,
+                },
+            });
         });
     });
 });

@@ -12,6 +12,12 @@ export interface UserInviteAggregatePort {
 
     getUserInvite(tokenHash: string): Promise<UserInvite | null>;
 
+    getUserInviteForApplication(
+        email: string,
+        applicationId: string,
+        as: InviteAs
+    ): Promise<UserInvite | null>;
+
     updateUserInviteStatus(
         invite: UserInvite,
         status: InviteStatus

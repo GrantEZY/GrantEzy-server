@@ -211,4 +211,91 @@ export const CYCLE_RESPONSES = {
       },
     },
   },
+   INVITE_REVIEWER: {
+    SUCCESS: {
+      status: 200,
+      description: "Reviewer invited successfully for the application",
+      example: {
+        status: 200,
+        message: "Reviewer Invited Successfully",
+        res: {
+          email: "reviewer@example.com",
+          applicationId: "uuid-of-application",
+        },
+      },
+    },
+
+    APPLICATION_NOT_FOUND: {
+      status: 404,
+      description: "Application with the given ID was not found",
+      example: {
+        status: 404,
+        message: "Application Not Found",
+        res: null,
+      },
+    },
+
+    CYCLE_NOT_FOUND: {
+      status: 404,
+      description: "Associated cycle for the application was not found",
+      example: {
+        status: 404,
+        message: "Cycle Not Found",
+        res: null,
+      },
+    },
+
+    USER_NOT_FOUND: {
+      status: 404,
+      description: "Inviting user (Program Manager) not found in the system",
+      example: {
+        status: 404,
+        message: "User Not Found",
+        res: null,
+      },
+    },
+
+    UNAUTHORIZED_MANAGER: {
+      status: 403,
+      description:
+        "The user is not authorized to send reviewer invites (only Program Manager can access)",
+      example: {
+        status: 403,
+        message: "Only Program Manager can access the Program",
+        res: null,
+      },
+    },
+
+    ALREADY_INVITED: {
+      status: 409,
+      description:
+        "Reviewer already invited for this application (duplicate invite attempt)",
+      example: {
+        status: 409,
+        message: "Reviewer Already Invited for the Application",
+        res: null,
+      },
+    },
+
+    EMAIL_SEND_FAILED: {
+      status: 500,
+      description: "Failed to send invite email to the reviewer",
+      example: {
+        status: 500,
+        message: "Failed to send invite email",
+        res: null,
+      },
+    },
+
+    INTERNAL_ERROR: {
+      status: 500,
+      description:
+        "Unexpected error occurred while inviting reviewer for the application",
+      example: {
+        status: 500,
+        message: "Internal Server Error",
+        res: null,
+      },
+    },
+  },
 };
