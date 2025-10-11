@@ -3,6 +3,8 @@ import {
     SubmitInviteStatusDTO,
 } from "../../../infrastructure/driving/dtos/co.applicant.dto";
 import {Response} from "express";
+import {SubmitReviewDTO} from "../../../infrastructure/driving/dtos/reviewer.dto";
+import {AccessTokenJwt} from "../../../shared/types/jwt.types";
 export interface ReviewerControllerPort {
     getTokenDetails(
         parameter: GetTokenDetailsDTO,
@@ -11,6 +13,12 @@ export interface ReviewerControllerPort {
 
     updateInviteStatus(
         body: SubmitInviteStatusDTO,
+        response: Response
+    ): Promise<Response>;
+
+    submitApplicationReview(
+        body: SubmitReviewDTO,
+        user: AccessTokenJwt,
         response: Response
     ): Promise<Response>;
 

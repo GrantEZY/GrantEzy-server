@@ -135,4 +135,53 @@ export const REVIEWER_RESPONSES = {
       },
     },
   },
+
+   SUBMIT_REVIEW: {
+    SUCCESS: {
+      status: 200,
+      description: "Review submitted successfully by the reviewer",
+      example: {
+        status: 200,
+        message: "Review Submitted Successfully",
+        res: {
+          reviewId: "uuid-of-review",
+          applicationId: "uuid-of-application",
+          status: "COMPLETED",
+        },
+      },
+    },
+
+    REVIEW_NOT_FOUND: {
+      status: 404,
+      description:
+        "The review record for this user and application was not found",
+      example: {
+        status: 404,
+        message: "Review Not Found",
+        res: null,
+      },
+    },
+
+    REVIEW_ALREADY_COMPLETED: {
+      status: 400,
+      description:
+        "The review was already marked as completed; cannot resubmit",
+      example: {
+        status: 400,
+        message: "Review Already Completed",
+        res: null,
+      },
+    },
+
+    INTERNAL_ERROR: {
+      status: 500,
+      description:
+        "Unexpected error while submitting the review for the application",
+      example: {
+        status: 500,
+        message: "Internal Server Error",
+        res: null,
+      },
+    },
+  },
 };

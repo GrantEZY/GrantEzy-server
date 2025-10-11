@@ -8,7 +8,10 @@ import {
     GrantApplicationAggregatePort,
     GRANT_APPLICATION_AGGREGATE_PORT,
 } from "../../../../ports/outputs/repository/grantapplication/grantapplication.aggregate.port";
-import {GrantApplicationStatus} from "../../constants/status.constants";
+import {
+    GrantApplicationStatus,
+    ReviewStatus,
+} from "../../constants/status.constants";
 import {
     ReviewerAggregatePort,
     REVIEW_AGGREGATE_PORT,
@@ -17,6 +20,11 @@ import {
     UserAggregatePort,
     USER_AGGREGATE_PORT,
 } from "../../../../ports/outputs/repository/user/user.aggregate.port";
+import {SubmitReviewDTO} from "../../../../infrastructure/driving/dtos/reviewer.dto";
+import {
+    SubmitReviewResponse,
+    UpdateReviewInviteResponse,
+} from "../../../../infrastructure/driven/response-dtos/reviewer.response-dto";
 @Injectable()
 export class ReviewerService {
     constructor(
@@ -50,7 +58,9 @@ export class ReviewerService {
         }
     }
 
-    async updateInviteStatus(inviteStatus: SubmitInviteStatusDTO) {
+    async updateInviteStatus(
+        inviteStatus: SubmitInviteStatusDTO
+    ): Promise<UpdateReviewInviteResponse> {
         try {
             const {
                 status: isUpdated,
@@ -135,6 +145,56 @@ export class ReviewerService {
                     applicationId: application.id,
                     status: inviteStatus.status,
                     reviewId: null,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async submitReview(
+        reviewDetails: SubmitReviewDTO,
+        userId: string
+    ): Promise<SubmitReviewResponse> {
+        try {
+            const {applicationId, scores, budget, recommendation} =
+                reviewDetails;
+            const review =
+                await this.reviewerAggregateRepository.getUserApplicationReview(
+                    userId,
+                    applicationId
+                );
+            if (!review) {
+                throw new ApiError(404, "Review Not Found", "Not Found");
+            }
+
+            if (review.status === ReviewStatus.COMPLETED) {
+                throw new ApiError(
+                    400,
+                    "Review Already Completed",
+                    "Bad Request"
+                );
+            }
+
+            const updatedReview =
+                await this.reviewerAggregateRepository.modifyReview(review, {
+                    scores,
+                    budget,
+                    recommendation,
+                });
+
+            await this.reviewerAggregateRepository.changeReviewStatus(
+                updatedReview,
+                ReviewStatus.COMPLETED
+            );
+
+            return {
+                status: 200,
+                message: "Review Submitted Successfully",
+                res: {
+                    reviewId: updatedReview.id,
+                    applicationId: updatedReview.applicationId,
+                    status: ReviewStatus.COMPLETED,
                 },
             };
         } catch (error) {

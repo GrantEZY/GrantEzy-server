@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
+import {MoneyDTO} from "../../../infrastructure/driving/dtos/pm.dto";
 export class ProjectMetrics {
     readonly plannedBudget: Money;
     readonly actualSpent: Money;
@@ -44,3 +45,7 @@ export class Money {
         };
     }
 }
+
+export const MoneyBuilder = (money: MoneyDTO): Money => {
+    return new Money(money.amount, money.currency);
+};

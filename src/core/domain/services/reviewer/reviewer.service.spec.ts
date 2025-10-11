@@ -251,4 +251,100 @@ describe("Reviewer", () => {
             });
         });
     });
+
+    describe("Submit Application Review", () => {
+        it("Successful Application Review Submission", async () => {
+            reviewAggregateRepository.getUserApplicationReview.mockResolvedValue(
+                createReviewMock as any
+            );
+
+            reviewAggregateRepository.modifyReview.mockResolvedValue({
+                ...createReviewMock,
+                recommendation: "APPROVE",
+                scores: {
+                    technical: 10,
+                },
+                budget: 50000,
+            } as any);
+
+            reviewAggregateRepository.changeReviewStatus.mockResolvedValue({
+                ...createReviewMock,
+                recommendation: "APPROVE",
+                status: "COMPLETED",
+                scores: {
+                    technical: 10,
+                },
+                budget: 50000,
+            } as any);
+
+            const result = await reviewService.submitReview(
+                {
+                    applicationId: "app-id",
+                    scores: {technical: 10},
+                    budget: 50000,
+                    recommendation: "APPROVE",
+                } as any,
+                "uuid"
+            );
+
+            expect(result).toEqual({
+                status: 200,
+                message: "Review Submitted Successfully",
+                res: {
+                    reviewId: createReviewMock.id,
+                    applicationId: createReviewMock.applicationId,
+                    status: "COMPLETED",
+                },
+            });
+        });
+
+        it("Review Not Found for the User and Application", async () => {
+            try {
+                reviewAggregateRepository.getUserApplicationReview.mockResolvedValue(
+                    null
+                );
+
+                await reviewService.submitReview(
+                    {
+                        applicationId: "app-id",
+                        scores: {technical: 10},
+                        budget: 50000,
+                        recommendation: "APPROVE",
+                    } as any,
+                    "uuid"
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).message).toBe("Review Not Found");
+            }
+        });
+
+        it("Review Already Completed", async () => {
+            try {
+                reviewAggregateRepository.getUserApplicationReview.mockResolvedValue(
+                    {
+                        ...createReviewMock,
+                        status: "COMPLETED",
+                    } as any
+                );
+
+                await reviewService.submitReview(
+                    {
+                        applicationId: "app-id",
+                        scores: {technical: 10},
+                        budget: 50000,
+                        recommendation: "APPROVE",
+                    } as any,
+                    "uuid"
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(400);
+                expect((error as ApiError).message).toBe(
+                    "Review Already Completed"
+                );
+            }
+        });
+    });
 });

@@ -1,5 +1,6 @@
 import {Review} from "../../../../core/domain/aggregates/review.aggregate";
-
+import {ReviewStatus} from "../../../../core/domain/constants/status.constants";
+import {UpdateReviewDTO} from "../../../../infrastructure/driving/dtos/reviewer.dto";
 export interface ReviewerAggregatePort {
     addReviewerToApplication(
         userId: string,
@@ -10,6 +11,13 @@ export interface ReviewerAggregatePort {
         userId: string,
         applicationId: string
     ): Promise<Review | null>;
+
+    modifyReview(
+        review: Review,
+        updateDetails: UpdateReviewDTO
+    ): Promise<Review>;
+
+    changeReviewStatus(review: Review, status: ReviewStatus): Promise<Review>;
 
     getReviewById(reviewId: string): Promise<Review | null>;
 }

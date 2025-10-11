@@ -7,6 +7,9 @@ import ApiError from "../../../../shared/errors/api.error";
 import {v4 as uuid} from "uuid";
 import {slugify} from "../../../../shared/helpers/slug.generator";
 import {ReviewStatus} from "../../../../core/domain/constants/status.constants";
+import {UpdateReviewDTO} from "../../../driving/dtos/reviewer.dto";
+import {ScoreBuilder} from "../../../../core/domain/value-objects/review.scores.object";
+import {MoneyBuilder} from "../../../../core/domain/value-objects/project.metrics.object";
 @Injectable()
 export class ReviewAggregateRepository implements ReviewerAggregatePort {
     constructor(
@@ -67,6 +70,57 @@ export class ReviewAggregateRepository implements ReviewerAggregatePort {
             throw new ApiError(
                 502,
                 "Failed to get user application review",
+                "Database"
+            );
+        }
+    }
+
+    async modifyReview(
+        review: Review,
+        updateDetails: UpdateReviewDTO
+    ): Promise<Review> {
+        try {
+            const {scores, recommendation, budget} = updateDetails;
+
+            if (scores) {
+                const reviewScores = ScoreBuilder(scores);
+                review.scores = reviewScores;
+            }
+
+            if (recommendation) {
+                review.recommendation = recommendation;
+            }
+
+            if (budget) {
+                const reviewBudget = MoneyBuilder(budget);
+                review.suggestedBudget = reviewBudget;
+            }
+
+            const updatedReview = await this.reviewRepository.save(review);
+
+            return updatedReview;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(502, "Failed to modify review", "Database");
+        }
+    }
+
+    async changeReviewStatus(
+        review: Review,
+        status: ReviewStatus
+    ): Promise<Review> {
+        try {
+            review.status = status;
+            return await this.reviewRepository.save(review);
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Failed to change review status",
                 "Database"
             );
         }

@@ -10,6 +10,9 @@ import {
 } from "../../../dtos/co.applicant.dto";
 import {REVIEWER_RESPONSES} from "../../../../../config/swagger/docs/reviewer.swagger";
 import {ApiResponse} from "@nestjs/swagger";
+import {AccessTokenJwt} from "../../../../../shared/types/jwt.types";
+import {SubmitReviewDTO} from "../../../dtos/reviewer.dto";
+import {CurrentUser} from "../../../../../shared/decorators/currentuser.decorator";
 @Controller("reviewer")
 @ApiTags("Reviewer")
 export class ReviewerController implements ReviewerControllerPort {
@@ -47,6 +50,24 @@ export class ReviewerController implements ReviewerControllerPort {
     ): Promise<Response> {
         try {
             const result = await this.reviewService.updateInviteStatus(body);
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Post("/submit-application-review")
+    @ApiResponse(REVIEWER_RESPONSES.SUBMIT_REVIEW.SUCCESS)
+    @ApiResponse(REVIEWER_RESPONSES.SUBMIT_REVIEW.REVIEW_ALREADY_COMPLETED)
+    @ApiResponse(REVIEWER_RESPONSES.SUBMIT_REVIEW.REVIEW_NOT_FOUND)
+    async submitApplicationReview(
+        @Body() body: SubmitReviewDTO,
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+            const result = await this.reviewService.submitReview(body, id);
             return response.status(result.status).json(result);
         } catch (error) {
             return this.handleError(error, response);
