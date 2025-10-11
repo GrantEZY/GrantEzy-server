@@ -248,7 +248,7 @@ export class ReviewerService {
             if (review.reviewerId != userId) {
                 throw new ApiError(
                     403,
-                    "User is not reviewer",
+                    "User is not a reviewer",
                     "Mismatch Error"
                 );
             }

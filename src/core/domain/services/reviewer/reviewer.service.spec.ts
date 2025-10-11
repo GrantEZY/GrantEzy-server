@@ -347,4 +347,93 @@ describe("Reviewer", () => {
             }
         });
     });
+
+    describe("Get User Reviews", () => {
+        it("Successful fetch Of User Reviews", async () => {
+            const userReviews = [
+                createReviewMock,
+                createReviewMock,
+                createReviewMock,
+            ];
+            reviewAggregateRepository.getUserReviews.mockResolvedValue(
+                userReviews as any
+            );
+
+            const result = await reviewService.getUserReviews(
+                {page: 1, numberOfResults: 10},
+                "uuid"
+            );
+
+            expect(result).toEqual({
+                status: 200,
+                message: "User Reviews Fetch",
+                res: {
+                    reviews: userReviews,
+                },
+            });
+        });
+    });
+
+    describe("Review Details", () => {
+        it("Successful Fetch Of Review Detail", async () => {
+            const review = JSON.parse(JSON.stringify(createReviewMock));
+
+            review.application = saved_Application;
+            reviewAggregateRepository.findBySlug.mockResolvedValue(
+                review as any
+            );
+
+            const result = await reviewService.getReviewDetails(
+                {reviewSlug: "slug"},
+                "reviewer-uuid"
+            );
+
+            expect(result).toEqual(
+                expect.objectContaining({
+                    status: 200,
+                    message: "Review Details Fetched Successfully",
+                    res: expect.objectContaining({
+                        review: expect.objectContaining({
+                            id: createReviewMock.id,
+                            reviewerId: createReviewMock.reviewerId,
+                            applicationId: createReviewMock.applicationId,
+                        }),
+                        application: saved_Application,
+                    }),
+                })
+            );
+        });
+
+        it("Review Not Found", async () => {
+            try {
+                reviewAggregateRepository.findBySlug.mockResolvedValue(null);
+                await reviewService.getReviewDetails(
+                    {reviewSlug: "slug"},
+                    "reviewer-uuid"
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).message).toBe("Review Not Found");
+            }
+        });
+
+        it("User is not a Reviewer", async () => {
+            try {
+                reviewAggregateRepository.findBySlug.mockResolvedValue(
+                    createReviewMock as any
+                );
+                await reviewService.getReviewDetails(
+                    {reviewSlug: "slug"},
+                    "reviewer!uuid"
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe(
+                    "User is not a reviewer"
+                );
+            }
+        });
+    });
 });
