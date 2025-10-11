@@ -27,6 +27,12 @@ export interface ReviewerAggregatePort {
         numberOfResults: number
     ): Promise<Review[]>;
 
+    getUserReviews(
+        userId: string,
+        page: number,
+        numberOfResults: number
+    ): Promise<Review[]>;
+
     getReviewById(reviewId: string): Promise<Review | null>;
 }
 

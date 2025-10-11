@@ -20,10 +20,16 @@ import {
     UserAggregatePort,
     USER_AGGREGATE_PORT,
 } from "../../../../ports/outputs/repository/user/user.aggregate.port";
-import {SubmitReviewDTO} from "../../../../infrastructure/driving/dtos/reviewer.dto";
 import {
+    GetReviewDetailsDTO,
+    GetUserReviewsDTO,
+    SubmitReviewDTO,
+} from "../../../../infrastructure/driving/dtos/reviewer.dto";
+import {
+    GetUserReviewsResponse,
     SubmitReviewResponse,
     UpdateReviewInviteResponse,
+    GetReviewDetailsResponse,
 } from "../../../../infrastructure/driven/response-dtos/reviewer.response-dto";
 @Injectable()
 export class ReviewerService {
@@ -195,6 +201,64 @@ export class ReviewerService {
                     reviewId: updatedReview.id,
                     applicationId: updatedReview.applicationId,
                     status: ReviewStatus.COMPLETED,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async getUserReviews(
+        filter: GetUserReviewsDTO,
+        userId: string
+    ): Promise<GetUserReviewsResponse> {
+        try {
+            const reviews =
+                await this.reviewerAggregateRepository.getUserReviews(
+                    userId,
+                    filter.page,
+                    filter.numberOfResults
+                );
+
+            return {
+                status: 200,
+                message: "User Reviews Fetch",
+                res: {
+                    reviews,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async getReviewDetails(
+        details: GetReviewDetailsDTO,
+        userId: string
+    ): Promise<GetReviewDetailsResponse> {
+        try {
+            const review = await this.reviewerAggregateRepository.findBySlug(
+                details.reviewSlug
+            );
+
+            if (!review) {
+                throw new ApiError(404, "Review Not Found", "Not Found");
+            }
+
+            if (review.reviewerId != userId) {
+                throw new ApiError(
+                    403,
+                    "User is not reviewer",
+                    "Mismatch Error"
+                );
+            }
+
+            return {
+                status: 200,
+                message: "Review Details Fetched Successfully",
+                res: {
+                    review,
+                    application: review.application,
                 },
             };
         } catch (error) {

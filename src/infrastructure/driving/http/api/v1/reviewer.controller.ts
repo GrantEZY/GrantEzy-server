@@ -13,6 +13,10 @@ import {ApiResponse} from "@nestjs/swagger";
 import {AccessTokenJwt} from "../../../../../shared/types/jwt.types";
 import {SubmitReviewDTO} from "../../../dtos/reviewer.dto";
 import {CurrentUser} from "../../../../../shared/decorators/currentuser.decorator";
+import {
+    GetUserReviewsDTO,
+    GetReviewDetailsDTO,
+} from "../../../dtos/reviewer.dto";
 @Controller("reviewer")
 @ApiTags("Reviewer")
 export class ReviewerController implements ReviewerControllerPort {
@@ -68,6 +72,48 @@ export class ReviewerController implements ReviewerControllerPort {
         try {
             const id = user.userData.payload.id;
             const result = await this.reviewService.submitReview(body, id);
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Get("/get-user-reviews")
+    @ApiResponse(REVIEWER_RESPONSES.GET_USER_REVIEWS.SUCCESS)
+    async getUserReviews(
+        @Query() parameters: GetUserReviewsDTO,
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+
+            const result = await this.reviewService.getUserReviews(
+                parameters,
+                id
+            );
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Get("/get-review-details")
+    @ApiResponse(REVIEWER_RESPONSES.GET_REVIEW_DETAILS.SUCCESS)
+    @ApiResponse(REVIEWER_RESPONSES.GET_REVIEW_DETAILS.REVIEW_NOT_FOUND)
+    @ApiResponse(REVIEWER_RESPONSES.GET_REVIEW_DETAILS.REVIEW_NOT_FOUND)
+    async getReviewDetails(
+        @Query() parameters: GetReviewDetailsDTO,
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+
+            const result = await this.reviewService.getReviewDetails(
+                parameters,
+                id
+            );
             return response.status(result.status).json(result);
         } catch (error) {
             return this.handleError(error, response);

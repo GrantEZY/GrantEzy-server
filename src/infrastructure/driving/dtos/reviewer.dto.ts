@@ -5,6 +5,8 @@ import {
     IsNumber,
     IsEnum,
     IsPositive,
+    IsInt,
+    Min,
 } from "class-validator";
 import {InviteStatus} from "../../../core/domain/constants/invite.constants";
 import {Recommendation} from "../../../core/domain/constants/recommendation.constants";
@@ -84,4 +86,32 @@ export class UpdateReviewDTO {
     recommendation?: Recommendation;
 
     scores?: ScoresDTO;
+}
+
+export class GetUserReviewsDTO {
+    @IsInt()
+    @IsPositive()
+    @Type(() => Number)
+    @ApiProperty({
+        description: "Page Number for pagination",
+        example: 1,
+    })
+    page: number;
+
+    @ApiProperty({
+        description: "Number Of Results per page for pagination",
+        example: 1,
+    })
+    @IsInt()
+    @Min(1)
+    @Type(() => Number)
+    numberOfResults: number;
+}
+
+export class GetReviewDetailsDTO {
+    @ApiProperty({
+        description: "Review Slug",
+        example: "q3u4th938th3p48hoi9",
+    })
+    reviewSlug: string;
 }

@@ -184,4 +184,110 @@ export const REVIEWER_RESPONSES = {
       },
     },
   },
+    GET_USER_REVIEWS: {
+    SUCCESS: {
+      status: 200,
+      description: "Fetched all reviews assigned to the logged-in reviewer",
+      example: {
+        status: 200,
+        message: "User Reviews Fetch",
+        res: {
+          reviews: [
+            {
+              id: "uuid-of-review",
+              slug: "review-slug",
+              application: {
+                id: "uuid-of-application",
+                title: "Application Title",
+                cycle: {
+                  id: "uuid-of-cycle",
+                  slug: "cycle-slug",
+                },
+              },
+              status: "IN_PROGRESS",
+              createdAt: "2025-10-10T12:00:00.000Z",
+            },
+          ],
+        },
+      },
+    },
+    NO_REVIEWS_FOUND: {
+      status: 404,
+      description: "No reviews found for this reviewer",
+      example: {
+        status: 404,
+        message: "No Reviews Found",
+        res: [],
+      },
+    },
+    INTERNAL_ERROR: {
+      status: 500,
+      description:
+        "Unexpected error occurred while fetching reviews for the reviewer",
+      example: {
+        status: 500,
+        message: "Internal Server Error",
+        res: null,
+      },
+    },
+  },
+
+  GET_REVIEW_DETAILS: {
+    SUCCESS: {
+      status: 200,
+      description: "Fetched review details for the logged-in reviewer",
+      example: {
+        status: 200,
+        message: "Review Details Fetched Successfully",
+        res: {
+          review: {
+            id: "uuid-of-review",
+            slug: "review-slug",
+            reviewerId: "uuid-of-reviewer",
+            recommendation: "APPROVE",
+            scores: {
+              impact: 8,
+              feasibility: 7,
+              innovation: 9,
+            },
+            comments: "Excellent proposal execution",
+          },
+          application: {
+            id: "uuid-of-application",
+            title: "Grant for Community Development",
+            problem: "Lack of infrastructure in rural areas",
+            cycleSlug: "cycle-2025",
+          },
+        },
+      },
+    },
+    REVIEW_NOT_FOUND: {
+      status: 404,
+      description: "Review with the given slug not found for this reviewer",
+      example: {
+        status: 404,
+        message: "Review Not Found",
+        res: null,
+      },
+    },
+    UNAUTHORIZED_USER: {
+      status: 403,
+      description: "The logged-in user is not the assigned reviewer",
+      example: {
+        status: 403,
+        message: "User is not reviewer",
+        res: null,
+      },
+    },
+    INTERNAL_ERROR: {
+      status: 500,
+      description:
+        "Unexpected error occurred while fetching the review details",
+      example: {
+        status: 500,
+        message: "Internal Server Error",
+        res: null,
+      },
+    },
+  },
 };
