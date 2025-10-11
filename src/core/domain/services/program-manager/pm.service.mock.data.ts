@@ -250,4 +250,24 @@ const saved_Application = {
     },
 };
 
-export {dummyCycle, inputCycle, SAVED_PROGRAM, CYCLES_ARRAY, saved_Application};
+const createReviewMock = {
+    id: "review-uuid",
+    applicationId: "application-uuid",
+    reviewerId: "reviewer-uuid",
+};
+
+const ApplicationReviews = [
+    createReviewMock,
+    createReviewMock,
+    createReviewMock,
+];
+
+export {
+    dummyCycle,
+    inputCycle,
+    SAVED_PROGRAM,
+    CYCLES_ARRAY,
+    saved_Application,
+    createReviewMock,
+    ApplicationReviews,
+};

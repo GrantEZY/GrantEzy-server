@@ -460,7 +460,7 @@ export class ProgramManagerService {
 
             return {
                 status: 200,
-                message: "Application Reviews fetched successfully",
+                message: "Application Reviews Fetched Successfully",
                 res: {
                     application,
                     reviews: applicationReviews,
