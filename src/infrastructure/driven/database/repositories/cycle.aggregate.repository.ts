@@ -128,6 +128,28 @@ export class CycleAggregateRepository implements CycleAggregatePort {
         }
     }
 
+    async getProgramActiveCycle(programId: string): Promise<Cycle | null> {
+        try {
+            const cycle = await this.cycleRepository.findOne({
+                where: {
+                    programId,
+                    status: CycleStatus.OPEN,
+                },
+            });
+
+            return cycle;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Find Cycle Database Error",
+                "Database Error"
+            );
+        }
+    }
+
     /**
      *
      * @param slug slug of the cycle to be found

@@ -11,6 +11,7 @@ import {AdminModule} from "./admin/admin.module";
 import {SharedModule} from "./shared/shared.module";
 import {GCVModule} from "./gcv/gcv.module";
 import {ApplicantModule} from "./applicant/applicant.module";
+import {PublicModule} from "./public/public.module";
 import {ProgramManagerModule} from "./progam-manager/pm.module";
 import {QueueConnection} from "../../infrastructure/driven/queue/connection";
 import {CoApplicantModule} from "./co-applicant/co.applicant.module";
@@ -29,6 +30,7 @@ import {CoApplicantModule} from "./co-applicant/co.applicant.module";
         ProgramManagerModule,
         ApplicantModule,
         CoApplicantModule,
+        PublicModule,
     ],
     controllers: [AppController],
     providers: [AppService],
