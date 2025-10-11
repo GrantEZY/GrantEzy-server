@@ -302,4 +302,16 @@ describe("Shared Program Service", () => {
             expect(result).toEqual(saved_Application);
         });
     });
+
+    describe("Get Active Programs", () => {
+        it("should return active programs", async () => {
+            programAggregateRepository.getActivePrograms.mockResolvedValue(
+                PROGRAMS_ARRAY as any
+            );
+
+            const result = await sharedProgramService.getActivePrograms(1, 10);
+
+            expect(result).toEqual(PROGRAMS_ARRAY);
+        });
+    });
 });

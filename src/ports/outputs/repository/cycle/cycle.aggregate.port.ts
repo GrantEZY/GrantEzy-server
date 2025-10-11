@@ -7,8 +7,9 @@ export interface CycleAggregatePort {
     findProgramCycles(
         programId: string,
         page: number,
-        totanumberOfResults: number
+        totalnumberOfResults: number
     ): Promise<{cycles: Cycle[]; totalNumberOfCycles: number}>;
+    getProgramActiveCycle(programId: string): Promise<Cycle | null>;
     getCycleDetailsWithApplications(slug: string): Promise<Cycle | null>;
     getProgramCycleWithRound(
         programId: string,

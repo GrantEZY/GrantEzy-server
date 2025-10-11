@@ -11,11 +11,16 @@ export interface ProgramAggregatePort {
     ): Promise<Program>;
     findById(id: string): Promise<Program | null>;
     findByName(name: string, organizationName: string): Promise<Program | null>;
+    findByslug(slug: string): Promise<Program | null>;
     getPrograms(
         filter: FindOptionsWhere<Program>,
         page: number,
         numberOfPrograms: number
     ): Promise<{programs: Program[]; totalNumberOfPrograms: number}>;
+    getActivePrograms(
+        page: number,
+        numberOfResults: number
+    ): Promise<Program[]>;
     deleteProgram(id: string): Promise<boolean>;
     updateProgram(
         updateDetails: UpdateProgramDTO,
