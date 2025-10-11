@@ -19,6 +19,14 @@ export interface ReviewerAggregatePort {
 
     changeReviewStatus(review: Review, status: ReviewStatus): Promise<Review>;
 
+    findBySlug(reviewSlug: string): Promise<Review | null>;
+
+    getApplicationReviews(
+        applicationId: string,
+        page: number,
+        numberOfResults: number
+    ): Promise<Review[]>;
+
     getReviewById(reviewId: string): Promise<Review | null>;
 }
 

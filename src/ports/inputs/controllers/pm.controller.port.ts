@@ -5,6 +5,8 @@ import {
     GetCycleDetailsDTO,
     GetPMProgramCyclesDTO,
     InviteReviewerDTO,
+    GetApplicationReviewsDTO,
+    GetApplicationReviewDetailsDTO,
 } from "../../../infrastructure/driving/dtos/pm.dto";
 import {Response} from "express";
 import {UpdateCycleDTO} from "../../../infrastructure/driving/dtos/shared/shared.program.dto";
@@ -45,5 +47,18 @@ export interface ProgramManagerControllerPort {
         user: AccessTokenJwt,
         response: Response
     ): Promise<Response>;
+
+    getApplicationReviews(
+        parameters: GetApplicationReviewsDTO,
+        user: AccessTokenJwt,
+        response: Response
+    ): Promise<Response>;
+
+    getApplicationReviewDetails(
+        parameters: GetApplicationReviewDetailsDTO,
+        user: AccessTokenJwt,
+        response: Response
+    ): Promise<Response>;
+
     handleError(error: unknown, response: Response): Response;
 }

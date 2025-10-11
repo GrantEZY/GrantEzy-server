@@ -17,8 +17,10 @@ import {
     CreateReviewInviteResponse,
     DeleteCycleResponse,
     GetApplicationDetailsResponse,
+    GetApplicationReviewsResponse,
     GetCycleDetailsResponse,
     GetProgramCyclesResponse,
+    GetReviewDetailsResponse,
     UpdateCycleResponse,
 } from "../../../../infrastructure/driven/response-dtos/pm.response-dto";
 import {
@@ -29,6 +31,10 @@ import {
     UserInviteAggregatePort,
     USER_INVITE_AGGREGATE_PORT,
 } from "../../../../ports/outputs/repository/user.invite/user.invite.aggregate.port";
+import {
+    ReviewerAggregatePort,
+    REVIEW_AGGREGATE_PORT,
+} from "../../../../ports/outputs/repository/review/review.aggregate.port";
 import {
     GrantApplicationAggregatePort,
     GRANT_APPLICATION_AGGREGATE_PORT,
@@ -55,6 +61,8 @@ export class ProgramManagerService {
         private readonly applicationRepository: GrantApplicationAggregatePort,
         @Inject(USER_AGGREGATE_PORT)
         private readonly userAggregateRepository: UserAggregatePort,
+        @Inject(REVIEW_AGGREGATE_PORT)
+        private readonly reviewerAggregateRepository: ReviewerAggregatePort,
         private readonly sharedProgramService: SharedProgramService,
         private readonly cycleInviteQueue: CycleInviteQueue
     ) {}
@@ -398,6 +406,120 @@ export class ProgramManagerService {
                 res: {
                     email,
                     applicationId: application.id,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async getApplicationReviews(
+        cycleSlug: string,
+        applicationSlug: string,
+        page: number,
+        numberOfResults: number,
+        userId: string
+    ): Promise<GetApplicationReviewsResponse> {
+        try {
+            const application =
+                await this.sharedProgramService.getApplicationDetailsWithSlug(
+                    applicationSlug
+                );
+
+            if (!application) {
+                throw new ApiError(
+                    404,
+                    "Application Not Found",
+                    "Conflict Error"
+                );
+            }
+
+            if (application?.cycle.slug != cycleSlug) {
+                throw new ApiError(
+                    403,
+                    "Application Doesn't Belongs to the Cycle",
+                    "Conflict Error"
+                );
+            }
+            const cycle = application.cycle;
+
+            if (cycle.program?.managerId != userId) {
+                throw new ApiError(
+                    403,
+                    "Only Program Manager can access the Program",
+                    "Conflict Error"
+                );
+            }
+
+            const applicationReviews =
+                await this.reviewerAggregateRepository.getApplicationReviews(
+                    application.id,
+                    page,
+                    numberOfResults
+                );
+
+            return {
+                status: 200,
+                message: "Application Reviews fetched successfully",
+                res: {
+                    application,
+                    reviews: applicationReviews,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async getReviewDetails(
+        cycleSlug: string,
+        applicationSlug: string,
+        reviewSlug: string,
+        userId: string
+    ): Promise<GetReviewDetailsResponse> {
+        try {
+            const application =
+                await this.sharedProgramService.getApplicationDetailsWithSlug(
+                    applicationSlug
+                );
+
+            if (!application) {
+                throw new ApiError(
+                    404,
+                    "Application Not Found",
+                    "Conflict Error"
+                );
+            }
+
+            if (application?.cycle.slug != cycleSlug) {
+                throw new ApiError(
+                    403,
+                    "Application Doesn't Belongs to the Cycle",
+                    "Conflict Error"
+                );
+            }
+            const cycle = application.cycle;
+
+            if (cycle.program?.managerId != userId) {
+                throw new ApiError(
+                    403,
+                    "Only Program Manager can access the Program",
+                    "Conflict Error"
+                );
+            }
+
+            const review =
+                await this.reviewerAggregateRepository.findBySlug(reviewSlug);
+
+            if (!review) {
+                throw new ApiError(404, "Review Not Found", "Not Found");
+            }
+
+            return {
+                status: 200,
+                message: "Review Fetched Successfully",
+                res: {
+                    review,
                 },
             };
         } catch (error) {

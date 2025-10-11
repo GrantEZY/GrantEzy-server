@@ -418,7 +418,12 @@ export class GrantApplicationRepository
                 where: {
                     id: applicationId,
                 },
-                relations: ["teamMateInvites", "cycle", "teammates"],
+                relations: [
+                    "teamMateInvites",
+                    "cycle",
+                    "teammates",
+                    "cycle.program",
+                ],
             });
 
             return application;
@@ -442,7 +447,12 @@ export class GrantApplicationRepository
                 where: {
                     slug: applicationSlug,
                 },
-                relations: ["teamMateInvites", "cycle", "teammates"],
+                relations: [
+                    "teamMateInvites",
+                    "cycle",
+                    "teammates",
+                    "cycle.program",
+                ],
             });
 
             return application;

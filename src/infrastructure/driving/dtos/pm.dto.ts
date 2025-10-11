@@ -367,3 +367,55 @@ export class InviteReviewerDTO {
     @IsEmail()
     email: string;
 }
+
+export class GetApplicationReviewsDTO {
+    @ApiProperty({
+        description: "Cycle Slug",
+        example: "34ruibrjgq94hq83t4p3498",
+    })
+    cycleSlug: string;
+
+    @ApiProperty({
+        description: "Application Slug",
+        example: "q3u4th938th3p48hoi9",
+    })
+    applicationSlug: string;
+
+    @IsInt()
+    @IsPositive()
+    @Type(() => Number)
+    @ApiProperty({
+        description: "Page Number for pagination",
+        example: 1,
+    })
+    page: number;
+
+    @ApiProperty({
+        description: "Number Of Results per page for pagination",
+        example: 1,
+    })
+    @IsInt()
+    @Min(1)
+    @Type(() => Number)
+    numberOfResults: number;
+}
+
+export class GetApplicationReviewDetailsDTO {
+    @ApiProperty({
+        description: "Cycle Slug",
+        example: "34ruibrjgq94hq83t4p3498",
+    })
+    cycleSlug: string;
+
+    @ApiProperty({
+        description: "Application Slug",
+        example: "q3u4th938th3p48hoi9",
+    })
+    applicationSlug: string;
+
+    @ApiProperty({
+        description: "Review Slug",
+        example: "q3u4th938th3p48hoi9",
+    })
+    reviewSlug: string;
+}

@@ -125,4 +125,47 @@ export class ReviewAggregateRepository implements ReviewerAggregatePort {
             );
         }
     }
+
+    async getApplicationReviews(
+        applicationId: string,
+        page: number,
+        numberOfResults: number
+    ): Promise<Review[]> {
+        try {
+            const reviews = await this.reviewRepository.find({
+                where: {applicationId},
+                skip: (page - 1) * numberOfResults,
+                take: numberOfResults,
+            });
+            return reviews;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Failed to get application reviews",
+                "Database"
+            );
+        }
+    }
+
+    async findBySlug(reviewSlug: string): Promise<Review | null> {
+        try {
+            const review = await this.reviewRepository.findOne({
+                where: {slug: reviewSlug},
+            });
+
+            return review;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Failed to get application review details",
+                "Database"
+            );
+        }
+    }
 }

@@ -299,3 +299,133 @@ export const CYCLE_RESPONSES = {
     },
   },
 };
+
+
+export const APPLICATION_REVIEW_RESPONSES = {
+  GET_APPLICATION_REVIEWS: {
+    SUCCESS: {
+      status: 200,
+      description: "Application reviews fetched successfully",
+      example: {
+        status: 200,
+        message: "Application Reviews fetched successfully",
+        res: {
+          application: {
+            id: "uuid-of-application",
+            title: "Application Title",
+            cycle: {
+              id: "uuid-of-cycle",
+              slug: "cycle-slug",
+            },
+            program: {
+              id: "uuid-of-program",
+              managerId: "uuid-of-manager",
+            },
+          },
+          reviews: [
+            {
+              id: "uuid-of-review",
+              reviewerId: "uuid-of-reviewer",
+              recommendation: "APPROVE",
+              scores: {
+                impact: 8,
+                feasibility: 7,
+                innovation: 9,
+              },
+              comments: "Great project overall!",
+            },
+          ],
+        },
+      },
+    },
+    APPLICATION_NOT_FOUND: {
+      status: 404,
+      description: "Application with the given slug was not found",
+      example: {
+        status: 404,
+        message: "Application Not Found",
+        res: null,
+      },
+    },
+    APPLICATION_MISMATCH: {
+      status: 403,
+      description: "The application does not belong to the specified cycle",
+      example: {
+        status: 403,
+        message: "Application Doesn't Belongs to the Cycle",
+        res: null,
+      },
+    },
+    UNAUTHORIZED_MANAGER: {
+      status: 403,
+      description: "Only Program Manager can access the program reviews",
+      example: {
+        status: 403,
+        message: "Only Program Manager can access the Program",
+        res: null,
+      },
+    },
+  },
+
+  GET_REVIEW_DETAILS: {
+    SUCCESS: {
+      status: 200,
+      description: "Specific review details fetched successfully",
+      example: {
+        status: 200,
+        message: "Review Fetched Successfully",
+        res: {
+          review: {
+            id: "uuid-of-review",
+            slug: "review-slug",
+            reviewerId: "uuid-of-reviewer",
+            applicationId: "uuid-of-application",
+            recommendation: "APPROVE",
+            scores: {
+              impact: 8,
+              feasibility: 7,
+              innovation: 9,
+            },
+            comments: "Excellent project execution",
+          },
+        },
+      },
+    },
+    REVIEW_NOT_FOUND: {
+      status: 404,
+      description: "Review with the given slug was not found",
+      example: {
+        status: 404,
+        message: "Review Not Found",
+        res: null,
+      },
+    },
+    APPLICATION_NOT_FOUND: {
+      status: 404,
+      description: "Application with the given slug was not found",
+      example: {
+        status: 404,
+        message: "Application Not Found",
+        res: null,
+      },
+    },
+    APPLICATION_MISMATCH: {
+      status: 403,
+      description: "Application does not belong to the specified cycle",
+      example: {
+        status: 403,
+        message: "Application Doesn't Belongs to the Cycle",
+        res: null,
+      },
+    },
+    UNAUTHORIZED_MANAGER: {
+      status: 403,
+      description: "Only Program Manager can access this review",
+      example: {
+        status: 403,
+        message: "Only Program Manager can access the Program",
+        res: null,
+      },
+    },
+  },
+};

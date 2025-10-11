@@ -19,10 +19,15 @@ import {
     GetApplicationDetailsDTO,
     GetPMProgramCyclesDTO,
     InviteReviewerDTO,
+    GetApplicationReviewsDTO,
+    GetApplicationReviewDetailsDTO,
 } from "../../../dtos/pm.dto";
 import ApiError from "../../../../../shared/errors/api.error";
 import {UpdateCycleDTO} from "../../../dtos/shared/shared.program.dto";
-import {CYCLE_RESPONSES} from "../../../../../config/swagger/docs/pm.swagger";
+import {
+    CYCLE_RESPONSES,
+    APPLICATION_REVIEW_RESPONSES,
+} from "../../../../../config/swagger/docs/pm.swagger";
 import {CurrentUser} from "../../../../../shared/decorators/currentuser.decorator";
 import {AccessTokenJwt} from "../../../../../shared/types/jwt.types";
 
@@ -176,6 +181,74 @@ export class ProgramManagerController implements ProgramManagerControllerPort {
                     body,
                     id
                 );
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Get("/get-application-reviews")
+    @ApiResponse(APPLICATION_REVIEW_RESPONSES.GET_APPLICATION_REVIEWS.SUCCESS)
+    @ApiResponse(
+        APPLICATION_REVIEW_RESPONSES.GET_APPLICATION_REVIEWS
+            .APPLICATION_NOT_FOUND
+    )
+    @ApiResponse(
+        APPLICATION_REVIEW_RESPONSES.GET_APPLICATION_REVIEWS
+            .APPLICATION_MISMATCH
+    )
+    @ApiResponse(
+        APPLICATION_REVIEW_RESPONSES.GET_APPLICATION_REVIEWS
+            .UNAUTHORIZED_MANAGER
+    )
+    async getApplicationReviews(
+        @Query() parameters: GetApplicationReviewsDTO,
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+            const result =
+                await this.programManagerService.getApplicationReviews(
+                    parameters.cycleSlug,
+                    parameters.applicationSlug,
+                    parameters.page,
+                    parameters.numberOfResults,
+                    id
+                );
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Get("/get-application-review-details")
+    @ApiResponse(APPLICATION_REVIEW_RESPONSES.GET_REVIEW_DETAILS.SUCCESS)
+    @ApiResponse(
+        APPLICATION_REVIEW_RESPONSES.GET_REVIEW_DETAILS.APPLICATION_NOT_FOUND
+    )
+    @ApiResponse(
+        APPLICATION_REVIEW_RESPONSES.GET_REVIEW_DETAILS.APPLICATION_MISMATCH
+    )
+    @ApiResponse(
+        APPLICATION_REVIEW_RESPONSES.GET_REVIEW_DETAILS.UNAUTHORIZED_MANAGER
+    )
+    @ApiResponse(
+        APPLICATION_REVIEW_RESPONSES.GET_REVIEW_DETAILS.REVIEW_NOT_FOUND
+    )
+    async getApplicationReviewDetails(
+        @Query() parameters: GetApplicationReviewDetailsDTO,
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+            const result = await this.programManagerService.getReviewDetails(
+                parameters.cycleSlug,
+                parameters.applicationSlug,
+                parameters.reviewSlug,
+                id
+            );
             return response.status(result.status).json(result);
         } catch (error) {
             return this.handleError(error, response);
