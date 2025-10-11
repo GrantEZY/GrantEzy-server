@@ -61,9 +61,14 @@ export class Review {
     })
     scores: Scores;
 
+    @Index()
+    @Column({type: "uuid"})
+    applicationId: string;
+
     @ManyToOne(() => GrantApplication, (application) => application.reviews, {
         eager: false,
     })
+    @JoinColumn({name: "applicationId"})
     application: GrantApplication;
 
     @Index()
