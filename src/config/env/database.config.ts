@@ -11,6 +11,8 @@ export const DatabaseConfig = registerAs(
         password: process.env.POSTGRES_SECRET,
         username: process.env.POSTGRES_USERNAME,
         synchronize: process.env.POSTGRES_SYNC === "true",
+        url: process.env.DATABASE_URL,
+        ssl: process.env.DATABASE_SSL_REQUIRED === "true",
         logging: true,
     })
 );

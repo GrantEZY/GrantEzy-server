@@ -12,11 +12,8 @@ export const DatabaseConnection = TypeOrmModule.forRootAsync({
         return {
             isGlobal: true,
             type: typeormConfig?.type,
-            host: typeormConfig.host,
-            port: typeormConfig.port,
-            username: typeormConfig.username,
-            password: String(typeormConfig.password),
-            database: typeormConfig.database,
+            url: typeormConfig.url,
+            ssl: typeormConfig.ssl,
             autoLoadEntities: true,
             entities: [
                 "dist/**/*.entity{.ts,.js}",
