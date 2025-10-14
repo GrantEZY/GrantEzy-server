@@ -33,6 +33,9 @@ import {UserInviteAggregateRepository} from "../../infrastructure/driven/databas
 import {Notification} from "../../core/domain/entities/notification.entity";
 import {UserNotifications} from "../../core/domain/aggregates/usernotifications.aggregate";
 import {VerificationTokenEntity} from "../../core/domain/entities/verification.entity";
+import {Review} from "../../core/domain/aggregates/review.aggregate";
+import {REVIEW_AGGREGATE_PORT} from "./repository/review/review.aggregate.port";
+import {ReviewAggregateRepository} from "../../infrastructure/driven/database/repositories/review.aggregate.repository";
 @Global()
 @Module({
     imports: [
@@ -48,6 +51,7 @@ import {VerificationTokenEntity} from "../../core/domain/entities/verification.e
             Notification,
             UserNotifications,
             VerificationTokenEntity,
+            Review,
         ]),
         JwtModule.register({}),
     ],
@@ -61,6 +65,10 @@ import {VerificationTokenEntity} from "../../core/domain/entities/verification.e
         {
             provide: ORGANIZATION_ENTITY_PORT,
             useClass: OrganizationEntityRepository,
+        },
+        {
+            provide: REVIEW_AGGREGATE_PORT,
+            useClass: ReviewAggregateRepository,
         },
         {
             provide: CYCLE_AGGREGATE_PORT,
@@ -87,6 +95,7 @@ import {VerificationTokenEntity} from "../../core/domain/entities/verification.e
         PROGRAM_AGGREGATE_PORT,
         ORGANIZATION_ENTITY_PORT,
         GRANT_APPLICATION_AGGREGATE_PORT,
+        REVIEW_AGGREGATE_PORT,
     ],
 })
 export class OutputPortModule {}

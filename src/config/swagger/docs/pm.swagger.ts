@@ -211,4 +211,221 @@ export const CYCLE_RESPONSES = {
       },
     },
   },
+   INVITE_REVIEWER: {
+    SUCCESS: {
+      status: 200,
+      description: "Reviewer invited successfully for the application",
+      example: {
+        status: 200,
+        message: "Reviewer Invited Successfully",
+        res: {
+          email: "reviewer@example.com",
+          applicationId: "uuid-of-application",
+        },
+      },
+    },
+
+    APPLICATION_NOT_FOUND: {
+      status: 404,
+      description: "Application with the given ID was not found",
+      example: {
+        status: 404,
+        message: "Application Not Found",
+        res: null,
+      },
+    },
+
+    CYCLE_NOT_FOUND: {
+      status: 404,
+      description: "Associated cycle for the application was not found",
+      example: {
+        status: 404,
+        message: "Cycle Not Found",
+        res: null,
+      },
+    },
+
+    USER_NOT_FOUND: {
+      status: 404,
+      description: "Inviting user (Program Manager) not found in the system",
+      example: {
+        status: 404,
+        message: "User Not Found",
+        res: null,
+      },
+    },
+
+    UNAUTHORIZED_MANAGER: {
+      status: 403,
+      description:
+        "The user is not authorized to send reviewer invites (only Program Manager can access)",
+      example: {
+        status: 403,
+        message: "Only Program Manager can access the Program",
+        res: null,
+      },
+    },
+
+    ALREADY_INVITED: {
+      status: 409,
+      description:
+        "Reviewer already invited for this application (duplicate invite attempt)",
+      example: {
+        status: 409,
+        message: "Reviewer Already Invited for the Application",
+        res: null,
+      },
+    },
+
+    EMAIL_SEND_FAILED: {
+      status: 500,
+      description: "Failed to send invite email to the reviewer",
+      example: {
+        status: 500,
+        message: "Failed to send invite email",
+        res: null,
+      },
+    },
+
+    INTERNAL_ERROR: {
+      status: 500,
+      description:
+        "Unexpected error occurred while inviting reviewer for the application",
+      example: {
+        status: 500,
+        message: "Internal Server Error",
+        res: null,
+      },
+    },
+  },
+};
+
+
+export const APPLICATION_REVIEW_RESPONSES = {
+  GET_APPLICATION_REVIEWS: {
+    SUCCESS: {
+      status: 200,
+      description: "Application reviews fetched successfully",
+      example: {
+        status: 200,
+        message: "Application Reviews fetched successfully",
+        res: {
+          application: {
+            id: "uuid-of-application",
+            title: "Application Title",
+            cycle: {
+              id: "uuid-of-cycle",
+              slug: "cycle-slug",
+            },
+            program: {
+              id: "uuid-of-program",
+              managerId: "uuid-of-manager",
+            },
+          },
+          reviews: [
+            {
+              id: "uuid-of-review",
+              reviewerId: "uuid-of-reviewer",
+              recommendation: "APPROVE",
+              scores: {
+                impact: 8,
+                feasibility: 7,
+                innovation: 9,
+              },
+              comments: "Great project overall!",
+            },
+          ],
+        },
+      },
+    },
+    APPLICATION_NOT_FOUND: {
+      status: 404,
+      description: "Application with the given slug was not found",
+      example: {
+        status: 404,
+        message: "Application Not Found",
+        res: null,
+      },
+    },
+    APPLICATION_MISMATCH: {
+      status: 403,
+      description: "The application does not belong to the specified cycle",
+      example: {
+        status: 403,
+        message: "Application Doesn't Belongs to the Cycle",
+        res: null,
+      },
+    },
+    UNAUTHORIZED_MANAGER: {
+      status: 403,
+      description: "Only Program Manager can access the program reviews",
+      example: {
+        status: 403,
+        message: "Only Program Manager can access the Program",
+        res: null,
+      },
+    },
+  },
+
+  GET_REVIEW_DETAILS: {
+    SUCCESS: {
+      status: 200,
+      description: "Specific review details fetched successfully",
+      example: {
+        status: 200,
+        message: "Review Fetched Successfully",
+        res: {
+          review: {
+            id: "uuid-of-review",
+            slug: "review-slug",
+            reviewerId: "uuid-of-reviewer",
+            applicationId: "uuid-of-application",
+            recommendation: "APPROVE",
+            scores: {
+              impact: 8,
+              feasibility: 7,
+              innovation: 9,
+            },
+            comments: "Excellent project execution",
+          },
+        },
+      },
+    },
+    REVIEW_NOT_FOUND: {
+      status: 404,
+      description: "Review with the given slug was not found",
+      example: {
+        status: 404,
+        message: "Review Not Found",
+        res: null,
+      },
+    },
+    APPLICATION_NOT_FOUND: {
+      status: 404,
+      description: "Application with the given slug was not found",
+      example: {
+        status: 404,
+        message: "Application Not Found",
+        res: null,
+      },
+    },
+    APPLICATION_MISMATCH: {
+      status: 403,
+      description: "Application does not belong to the specified cycle",
+      example: {
+        status: 403,
+        message: "Application Doesn't Belongs to the Cycle",
+        res: null,
+      },
+    },
+    UNAUTHORIZED_MANAGER: {
+      status: 403,
+      description: "Only Program Manager can access this review",
+      example: {
+        status: 403,
+        message: "Only Program Manager can access the Program",
+        res: null,
+      },
+    },
+  },
 };

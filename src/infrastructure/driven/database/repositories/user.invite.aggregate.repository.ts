@@ -32,9 +32,10 @@ export class UserInviteAggregateRepository implements UserInviteAggregatePort {
      * @param applicationId applicationId of the application for which invite has been made
      * @param emails invitedTeamMatesEmail
      */
-    async addTeamMatesInvites(
+    async addApplicationInvites(
         applicationId: string,
-        emails: string[]
+        emails: string[],
+        as: InviteAs
     ): Promise<Record<string, string>> {
         try {
             const details: Record<string, string> = {};
@@ -56,7 +57,7 @@ export class UserInviteAggregateRepository implements UserInviteAggregatePort {
                     const invite = this.userInviteRepository.create({
                         applicationId,
                         email,
-                        inviteAs: InviteAs.TEAMMATE,
+                        inviteAs: as,
                         status: InviteStatus.SENT,
                         verificationId: savedVerification.id,
                     });
@@ -73,16 +74,13 @@ export class UserInviteAggregateRepository implements UserInviteAggregatePort {
         }
     }
 
-    async getUserInvite(
-        applicationId: string,
-        email: string
-    ): Promise<UserInvite | null> {
+    async getUserInvite(tokenHash: string): Promise<UserInvite | null> {
         try {
             const invite = await this.userInviteRepository.findOne({
                 where: {
-                    applicationId,
-                    email,
-                    status: InviteStatus.SENT,
+                    verification: {
+                        token: tokenHash,
+                    },
                 },
             });
 
@@ -94,6 +92,57 @@ export class UserInviteAggregateRepository implements UserInviteAggregatePort {
             throw new ApiError(
                 502,
                 "Failed to fetch invite users",
+                "Database Error"
+            );
+        }
+    }
+
+    async getUserInviteForApplication(
+        email: string,
+        applicationId: string,
+        as: InviteAs
+    ): Promise<UserInvite | null> {
+        try {
+            const invite = await this.userInviteRepository.findOne({
+                where: {
+                    email,
+                    applicationId,
+                    inviteAs: as,
+                },
+            });
+
+            return invite;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Failed to fetch invited user for application",
+                "Database Error"
+            );
+        }
+    }
+
+    async updateUserInviteStatus(
+        invite: UserInvite,
+        status: InviteStatus
+    ): Promise<boolean> {
+        try {
+            invite.status = status;
+
+            invite.verification.validatedAt = new Date();
+
+            await this.userInviteRepository.save(invite);
+
+            return true;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Failed to update invite user status",
                 "Database Error"
             );
         }

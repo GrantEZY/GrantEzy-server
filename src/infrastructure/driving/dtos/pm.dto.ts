@@ -12,6 +12,7 @@ import {
     IsInt,
     Max,
     ValidateNested,
+    IsEmail,
 } from "class-validator";
 import {ApiProperty, ApiPropertyOptional} from "@nestjs/swagger";
 import {Type} from "class-transformer";
@@ -349,4 +350,72 @@ export class GetPMProgramCyclesDTO {
     @Min(1)
     @Type(() => Number)
     numberOfResults: number;
+}
+
+export class InviteReviewerDTO {
+    @ApiProperty({
+        description: "UUID of the application to which reviewer is invited",
+        example: "4b7d1f33-0f2e-4b7a-91e3-5f58f3c9d4ab",
+    })
+    @IsUUID()
+    applicationId: string;
+
+    @ApiProperty({
+        description: "Email of the reviewer to be invited",
+        example: "reviewer@example.com",
+    })
+    @IsEmail()
+    email: string;
+}
+
+export class GetApplicationReviewsDTO {
+    @ApiProperty({
+        description: "Cycle Slug",
+        example: "34ruibrjgq94hq83t4p3498",
+    })
+    cycleSlug: string;
+
+    @ApiProperty({
+        description: "Application Slug",
+        example: "q3u4th938th3p48hoi9",
+    })
+    applicationSlug: string;
+
+    @IsInt()
+    @IsPositive()
+    @Type(() => Number)
+    @ApiProperty({
+        description: "Page Number for pagination",
+        example: 1,
+    })
+    page: number;
+
+    @ApiProperty({
+        description: "Number Of Results per page for pagination",
+        example: 1,
+    })
+    @IsInt()
+    @Min(1)
+    @Type(() => Number)
+    numberOfResults: number;
+}
+
+export class GetApplicationReviewDetailsDTO {
+    @ApiProperty({
+        description: "Cycle Slug",
+        example: "34ruibrjgq94hq83t4p3498",
+    })
+    cycleSlug: string;
+
+    @ApiProperty({
+        description: "Application Slug",
+        example: "q3u4th938th3p48hoi9",
+    })
+    applicationSlug: string;
+
+    @ApiProperty({
+        description: "Review Slug",
+        example: "q3u4th938th3p48hoi9",
+    })
+    reviewSlug: string;
 }

@@ -15,6 +15,7 @@ import {PublicModule} from "./public/public.module";
 import {ProgramManagerModule} from "./progam-manager/pm.module";
 import {QueueConnection} from "../../infrastructure/driven/queue/connection";
 import {CoApplicantModule} from "./co-applicant/co.applicant.module";
+import {ReviewerModule} from "./reviewer/reviewer.module";
 @Module({
     imports: [
         ConfigConnection,
@@ -30,6 +31,7 @@ import {CoApplicantModule} from "./co-applicant/co.applicant.module";
         ProgramManagerModule,
         ApplicantModule,
         CoApplicantModule,
+        ReviewerModule,
         PublicModule,
     ],
     controllers: [AppController],

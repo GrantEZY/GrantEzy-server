@@ -9,6 +9,8 @@ export interface AppConfigTypes {
     RESEND_API: string;
     APP_EMAIL: string;
     ENCRYPTION_KEY: string;
+    GOOGLE_APP_PASSWORD: string;
+    GOOGLE_EMAIL: string;
 }
 
 export const AppConfig = registerAs(
@@ -22,5 +24,7 @@ export const AppConfig = registerAs(
         RESEND_API: process.env.RESEND_API ?? "",
         APP_EMAIL: process.env.APP_EMAIL ?? "",
         ENCRYPTION_KEY: process.env.ENCRYPTION_KEY ?? "",
+        GOOGLE_APP_PASSWORD: process.env.GOOGLE_APP_PASSWORD ?? "",
+        GOOGLE_EMAIL: process.env.GOOGLE_EMAIL ?? "",
     })
 );

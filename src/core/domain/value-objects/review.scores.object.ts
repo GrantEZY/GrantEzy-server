@@ -1,3 +1,5 @@
+import {ScoresDTO} from "../../../infrastructure/driving/dtos/reviewer.dto";
+
 export class Scores {
     technical: number;
     market: number;
@@ -29,3 +31,13 @@ export class Scores {
         };
     }
 }
+
+export const ScoreBuilder = (scores: ScoresDTO): Scores => {
+    return new Scores(
+        scores.technical,
+        scores.market,
+        scores.financial,
+        scores.team,
+        scores.innovation
+    );
+};

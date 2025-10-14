@@ -590,7 +590,7 @@ describe("Applicant ", () => {
                 saved_Application as any
             );
 
-            userinviteAggregateRepository.addTeamMatesInvites.mockResolvedValue(
+            userinviteAggregateRepository.addApplicationInvites.mockResolvedValue(
                 InviteArray as any
             );
             cycleAggregateRepository.findById.mockResolvedValue(
@@ -627,7 +627,7 @@ describe("Applicant ", () => {
                 saved_Application as any
             );
 
-            userinviteAggregateRepository.addTeamMatesInvites.mockResolvedValue(
+            userinviteAggregateRepository.addApplicationInvites.mockResolvedValue(
                 InviteArray as any
             );
 
@@ -746,7 +746,7 @@ describe("Applicant ", () => {
                     saved_Application as any
                 );
 
-                userinviteAggregateRepository.addTeamMatesInvites.mockResolvedValue(
+                userinviteAggregateRepository.addApplicationInvites.mockResolvedValue(
                     InviteArray as any
                 );
                 cycleAggregateRepository.findById.mockResolvedValue(null);
@@ -778,7 +778,7 @@ describe("Applicant ", () => {
                     saved_Application as any
                 );
 
-                userinviteAggregateRepository.addTeamMatesInvites.mockResolvedValue(
+                userinviteAggregateRepository.addApplicationInvites.mockResolvedValue(
                     InviteArray as any
                 );
 
@@ -815,7 +815,7 @@ describe("Applicant ", () => {
                     saved_Application as any
                 );
 
-                userinviteAggregateRepository.addTeamMatesInvites.mockResolvedValue(
+                userinviteAggregateRepository.addApplicationInvites.mockResolvedValue(
                     InviteArray as any
                 );
                 cycleAggregateRepository.findById.mockResolvedValue(

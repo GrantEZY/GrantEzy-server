@@ -430,10 +430,12 @@ export class ApplicantService {
             }
 
             const details =
-                await this.userInviteAggregateRepository.addTeamMatesInvites(
+                await this.userInviteAggregateRepository.addApplicationInvites(
                     applicationId,
-                    emails
+                    emails,
+                    InviteAs.TEAMMATE
                 );
+
             const cycle = await this.cycleAggregateRepository.findById(
                 application.cycleId
             );
@@ -458,7 +460,7 @@ export class ApplicantService {
                         programName: cycle.program?.details.name ?? "Program",
                         round: cycle.round,
                         applicationName: application.basicDetails.title,
-                        token: details[email] ?? null,
+                        token: details[email],
                     });
                 if (!userCycleInviteStatus.status) {
                     throw new ApiError(

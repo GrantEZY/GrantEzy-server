@@ -1,5 +1,6 @@
 import {Cycle} from "../../../core/domain/aggregates/cycle.aggregate";
 import {GrantApplication} from "../../../core/domain/aggregates/grantapplication.aggregate";
+import {Review} from "../../../core/domain/aggregates/review.aggregate";
 import {ApiResponse} from "../../../shared/types/response.type";
 
 export class CreateCycleData {
@@ -27,6 +28,20 @@ export class GetCycleDetails {
 export class GetApplicationDetails {
     application: GrantApplication;
 }
+
+export class CreateReviewInvite {
+    email: string;
+    applicationId: string;
+}
+
+export class GetApplicationReviews {
+    application: GrantApplication;
+    reviews: Review[];
+}
+
+export class GetReviewDetails {
+    review: Review;
+}
 export class CreateCycleResponse extends ApiResponse(CreateCycleData) {}
 export class GetProgramCyclesResponse extends ApiResponse(
     GetProgramCyclesData
@@ -37,3 +52,10 @@ export class GetCycleDetailsResponse extends ApiResponse(GetCycleDetails) {}
 export class GetApplicationDetailsResponse extends ApiResponse(
     GetApplicationDetails
 ) {}
+export class CreateReviewInviteResponse extends ApiResponse(
+    CreateReviewInvite
+) {}
+export class GetApplicationReviewsResponse extends ApiResponse(
+    GetApplicationReviews
+) {}
+export class GetReviewDetailsResponse extends ApiResponse(GetReviewDetails) {}

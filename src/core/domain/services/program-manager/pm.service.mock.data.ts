@@ -5,6 +5,9 @@ const dummyCycle = {
     id: "uuid",
     programId: "f3d2a8c1-7d8e-4b2a-93b6-1d3e5f8a9c11",
     program: {
+        details: {
+            name: "Program",
+        },
         managerId: "uuid",
     },
     round: {
@@ -247,4 +250,24 @@ const saved_Application = {
     },
 };
 
-export {dummyCycle, inputCycle, SAVED_PROGRAM, CYCLES_ARRAY, saved_Application};
+const createReviewMock = {
+    id: "review-uuid",
+    applicationId: "application-uuid",
+    reviewerId: "reviewer-uuid",
+};
+
+const ApplicationReviews = [
+    createReviewMock,
+    createReviewMock,
+    createReviewMock,
+];
+
+export {
+    dummyCycle,
+    inputCycle,
+    SAVED_PROGRAM,
+    CYCLES_ARRAY,
+    saved_Application,
+    createReviewMock,
+    ApplicationReviews,
+};

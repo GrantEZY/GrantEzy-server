@@ -1,19 +1,19 @@
-import {Resend} from "resend";
 import {EmailServicePort} from "../../../ports/outputs/email/email.service.port";
 import {Injectable} from "@nestjs/common";
 import {ConfigService} from "@nestjs/config";
 import {ConfigType} from "../../../config/env/app.types";
+import nodemailer from "nodemailer";
 @Injectable()
 /**
  * Email Service using Resend
  * Documentation: https://resend.com/docs
  */
 export class EmailService implements EmailServicePort {
-    private resend: Resend;
-
+    private email: string;
+    private appPassword: string;
     constructor(private readonly configService: ConfigService<ConfigType>) {
-        const apiKey = this.configService.get("app").RESEND_API;
-        this.resend = new Resend(apiKey as string);
+        this.email = this.configService.get("app").GOOGLE_EMAIL;
+        this.appPassword = this.configService.get("app").GOOGLE_APP_PASSWORD;
     }
     async sendEmail(
         to: string,
@@ -21,21 +21,33 @@ export class EmailService implements EmailServicePort {
         body: string
     ): Promise<boolean> {
         try {
-            // eslint-disable-next-line
-            const {data: _data, error} = await this.resend.emails.send({
-                from: "Acme <onboarding@resend.dev>",
-                to,
-                subject,
+            const transporter = this.createTransport();
+
+            await transporter.sendMail({
+                from: this.email,
+                to: to,
+                subject: subject,
                 html: body,
             });
-            if (error) {
-                console.error("Error sending email:", error);
-                return false;
-            }
+
             return true;
         } catch (error) {
             console.error("Error sending email:", error);
             return false;
         }
+    }
+
+    createTransport() {
+        const transporter = nodemailer.createTransport({
+            host: "smtp.ethereal.email",
+            port: 587,
+            secure: false,
+            auth: {
+                user: this.email,
+                pass: this.appPassword,
+            },
+        });
+
+        return transporter;
     }
 }

@@ -50,6 +50,12 @@ const dummyUserInvite = {
     updatedAt: new Date("2025-10-06T09:45:00.000Z"),
 };
 
+const createReviewMock = {
+    id: "review-uuid",
+    applicationId: "application-uuid",
+    reviewerId: "reviewer-uuid",
+};
+
 const SAVED_USER = {
     personId: "user-123",
     person: {
@@ -91,4 +97,4 @@ const SAVED_USER = {
     updatedAt: "2024-01-10T15:30:00.000Z",
 };
 
-export {saved_Application, dummyUserInvite, SAVED_USER};
+export {dummyUserInvite, saved_Application, createReviewMock, SAVED_USER};

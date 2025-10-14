@@ -1,3 +1,4 @@
+import {GrantApplication} from "../../../core/domain/aggregates/grantapplication.aggregate";
 import {User} from "../../../core/domain/aggregates/user.aggregate";
 import {UserRoles} from "../../../core/domain/constants/userRoles.constants";
 import {ApiResponse} from "../../../shared/types/response.type";
@@ -19,6 +20,12 @@ class UpdateUserResponseData {
 
 class DeleteUserResponseData {
     status: boolean;
+}
+
+export class GetUserInviteStatusDetailsResponse {
+    application: GrantApplication;
+    status: boolean;
+    email: string;
 }
 
 export class AddUserDataResponse extends ApiResponse(AddUserResponseData) {}
