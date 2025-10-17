@@ -8,9 +8,12 @@ export interface UserInviteAggregatePort {
         applicationId: string,
         email: string[],
         as: InviteAs
-    ): Promise<Record<string, string>>;
+    ): Promise<Record<string, string[]>>;
 
-    getUserInvite(tokenHash: string): Promise<UserInvite | null>;
+    getUserInvite(
+        slug: string,
+        isHashRequired: boolean
+    ): Promise<UserInvite | null>;
 
     getUserInviteForApplication(
         email: string,

@@ -429,13 +429,6 @@ export class ApplicantService {
                 );
             }
 
-            const details =
-                await this.userInviteAggregateRepository.addApplicationInvites(
-                    applicationId,
-                    emails,
-                    InviteAs.TEAMMATE
-                );
-
             const cycle = await this.cycleAggregateRepository.findById(
                 application.cycleId
             );
@@ -444,6 +437,13 @@ export class ApplicantService {
                 throw new ApiError(404, "Cycle Not Found", "Conflict Error");
             }
 
+            const details =
+                await this.userInviteAggregateRepository.addApplicationInvites(
+                    applicationId,
+                    emails,
+                    InviteAs.TEAMMATE
+                );
+
             if (emails.includes(user.contact.email)) {
                 throw new ApiError(
                     403,
@@ -451,6 +451,7 @@ export class ApplicantService {
                     "Conflict Error"
                 );
             }
+
             for (const email of emails) {
                 const userCycleInviteStatus =
                     await this.cycleInviteQueue.UserCycleInvite({
@@ -460,7 +461,8 @@ export class ApplicantService {
                         programName: cycle.program?.details.name ?? "Program",
                         round: cycle.round,
                         applicationName: application.basicDetails.title,
-                        token: details[email],
+                        token: details[email][0],
+                        slug: details[email][1],
                     });
                 if (!userCycleInviteStatus.status) {
                     throw new ApiError(

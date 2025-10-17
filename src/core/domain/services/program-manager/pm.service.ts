@@ -389,7 +389,8 @@ export class ProgramManagerService {
                 programName: cycle.program?.details.name ?? "Program",
                 round: cycle.round,
                 applicationName: application.basicDetails.title,
-                token: details[email],
+                token: details[email][0],
+                slug: details[email][1],
             });
 
             if (!inviteResponse.status) {

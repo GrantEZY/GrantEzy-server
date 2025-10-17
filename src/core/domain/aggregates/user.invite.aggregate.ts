@@ -45,6 +45,9 @@ export class UserInvite {
     @JoinColumn({name: "verificationId"})
     verification: VerificationTokenEntity;
 
+    @Column({unique: true, nullable: true})
+    slug: string;
+
     @Column({nullable: true})
     verificationId: string;
 

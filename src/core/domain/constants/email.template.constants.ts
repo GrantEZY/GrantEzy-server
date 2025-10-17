@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
+
 import {
     CycleInviteDTO,
     EmailBody,
@@ -29,7 +31,7 @@ export const InviteUserEmailTemplate: EmailTemplateType = {
           <td>${(values as InviteEmailDTO).password}</td>
         </tr>
           <tr>
-          <td><strong>Email:</strong></td>
+          <td><strong>Role:</strong></td>
           <td>${values.role as string}</td>
         </tr>
       </table>
@@ -86,7 +88,7 @@ export const CycleInviteEmailTemplate: EmailTemplateType = {
       </table>
 
       <p>
-        👉 <a href="${BASE_URL ?? "http://localhost"}/invite-accept-or-reject/${(values as CycleInviteDTO).token}"
+        👉 <a href="${BASE_URL ?? "http://localhost"}/invite-accept-or-reject/${(values as CycleInviteDTO).token}/${(values as CycleInviteDTO).slug}"
               style="background: #4CAF50; color: white; padding: 10px 16px;
                      text-decoration: none; border-radius: 5px; display: inline-block;">
             Accept Or Reject Invite

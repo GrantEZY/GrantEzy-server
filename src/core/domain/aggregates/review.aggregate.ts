@@ -40,6 +40,7 @@ export class Review {
             from: (value: {amount: number; currency: string}) =>
                 value ? new Money(value.amount, value.currency) : null,
         },
+        nullable: true,
     })
     suggestedBudget: Money;
 
@@ -58,6 +59,7 @@ export class Review {
                       )
                     : null,
         },
+        nullable: true,
     })
     scores: Scores;
 

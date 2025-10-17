@@ -6,6 +6,8 @@ import {
     UpdateDateColumn,
     OneToOne,
     JoinColumn,
+    ManyToOne,
+    Index,
 } from "typeorm";
 import {ProjectStatus} from "../constants/status.constants";
 import {Money} from "../value-objects/project.metrics.object";
@@ -13,6 +15,8 @@ import {Duration} from "../value-objects/duration.object";
 import {ProjectProgress} from "../value-objects/project.progress.object";
 import {ProjectMetrics} from "../value-objects/project.metrics.object";
 import {User} from "./user.aggregate";
+import {Cycle} from "./cycle.aggregate";
+import {GrantApplication} from "./grantapplication.aggregate";
 
 @Entity({name: "projects"})
 export class Project {
@@ -88,6 +92,32 @@ export class Project {
         },
     })
     metrics: ProjectMetrics;
+
+    @Column({type: "uuid"})
+    applicationId: string;
+
+    @OneToOne(
+        () => GrantApplication,
+        (application: GrantApplication) => application.project,
+        {
+            onDelete: "CASCADE",
+            eager: false,
+        }
+    )
+    @JoinColumn({name: "applicationId"})
+    application: GrantApplication | null;
+
+    @Index()
+    @Column({type: "uuid"})
+    cycleId: string;
+
+    @ManyToOne(() => Cycle, (cycle: Cycle) => cycle.projects, {
+        onDelete: "SET NULL",
+        cascade: false,
+        eager: false,
+    })
+    @JoinColumn({name: "cycleId"})
+    cycle: Cycle | null;
 
     @Column()
     mentorId: string;

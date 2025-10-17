@@ -13,6 +13,8 @@ import {
     PasswordHasherPort,
     PASSWORD_HASHER_PORT,
 } from "../../../../ports/outputs/crypto/hash.port";
+import {v4 as uuid} from "uuid";
+import {slugify} from "../../../../shared/helpers/slug.generator";
 @Injectable()
 /**
  * This file contains the repo  structure for user invite aggregate
@@ -36,9 +38,10 @@ export class UserInviteAggregateRepository implements UserInviteAggregatePort {
         applicationId: string,
         emails: string[],
         as: InviteAs
-    ): Promise<Record<string, string>> {
+    ): Promise<Record<string, string[]>> {
         try {
-            const details: Record<string, string> = {};
+            const details: Record<string, string[]> = {};
+
             await Promise.all(
                 emails.map(async (email) => {
                     const {token, hash} =
@@ -46,23 +49,24 @@ export class UserInviteAggregateRepository implements UserInviteAggregatePort {
                     const validTill = new Date(
                         Date.now() + 24 * 60 * 60 * 1000 * 7
                     );
-
+                    const id = uuid(); // eslint-disable-line
+                    const slug = slugify(id);
                     const verification = this.verificationRepository.create({
                         token: hash,
                         validTill,
                     });
                     const savedVerification =
                         await this.verificationRepository.save(verification);
-
                     const invite = this.userInviteRepository.create({
                         applicationId,
                         email,
                         inviteAs: as,
                         status: InviteStatus.SENT,
+                        slug,
                         verificationId: savedVerification.id,
                     });
                     await this.userInviteRepository.save(invite);
-                    details[email] = token;
+                    details[email] = [token, slug];
                 })
             );
             return details;
@@ -74,15 +78,26 @@ export class UserInviteAggregateRepository implements UserInviteAggregatePort {
         }
     }
 
-    async getUserInvite(tokenHash: string): Promise<UserInvite | null> {
+    async getUserInvite(
+        slug: string,
+        isHashRequired: boolean
+    ): Promise<UserInvite | null> {
         try {
-            const invite = await this.userInviteRepository.findOne({
-                where: {
-                    verification: {
-                        token: tokenHash,
+            let invite: UserInvite | null;
+            if (isHashRequired) {
+                invite = await this.userInviteRepository
+                    .createQueryBuilder("invite")
+                    .leftJoinAndSelect("invite.verification", "verification")
+                    .addSelect("verification.token")
+                    .where("invite.slug = :slug", {slug})
+                    .getOne();
+            } else {
+                invite = await this.userInviteRepository.findOne({
+                    where: {
+                        slug,
                     },
-                },
-            });
+                });
+            }
 
             return invite;
         } catch (error) {

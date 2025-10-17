@@ -50,7 +50,8 @@ export class CoApplicantController implements CoApplicantControllerPort {
     ): Promise<Response> {
         try {
             const result = await this.coApplicantService.getTokenDetails(
-                parameter.token
+                parameter.token,
+                parameter.slug
             );
             return response.status(result.status).json(result);
         } catch (error) {

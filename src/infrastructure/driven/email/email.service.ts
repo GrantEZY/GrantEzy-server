@@ -2,19 +2,22 @@ import {EmailServicePort} from "../../../ports/outputs/email/email.service.port"
 import {Injectable} from "@nestjs/common";
 import {ConfigService} from "@nestjs/config";
 import {ConfigType} from "../../../config/env/app.types";
-import nodemailer from "nodemailer";
+import * as nodemailer from "nodemailer";
+
 @Injectable()
 /**
- * Email Service using Resend
- * Documentation: https://resend.com/docs
+ * Email Service using Gmail SMTP
+ * Documentation: https://support.google.com/accounts/answer/185833
  */
 export class EmailService implements EmailServicePort {
     private email: string;
     private appPassword: string;
+
     constructor(private readonly configService: ConfigService<ConfigType>) {
         this.email = this.configService.get("app").GOOGLE_EMAIL;
         this.appPassword = this.configService.get("app").GOOGLE_APP_PASSWORD;
     }
+
     async sendEmail(
         to: string,
         subject: string,
@@ -39,9 +42,7 @@ export class EmailService implements EmailServicePort {
 
     createTransport() {
         const transporter = nodemailer.createTransport({
-            host: "smtp.ethereal.email",
-            port: 587,
-            secure: false,
+            host: "smtp.gmail.com",
             auth: {
                 user: this.email,
                 pass: this.appPassword,

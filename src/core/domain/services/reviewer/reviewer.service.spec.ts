@@ -80,7 +80,7 @@ describe("Reviewer", () => {
                 invite: dummyUserInvite,
             } as any);
 
-            const result = await reviewService.getTokenDetails("hash");
+            const result = await reviewService.getTokenDetails("hash", "slug");
 
             expect(result).toEqual({
                 status: 200,
@@ -107,7 +107,7 @@ describe("Reviewer", () => {
                     }
                 );
 
-                await reviewService.getTokenDetails("hash");
+                await reviewService.getTokenDetails("hash", "slug");
             } catch (error) {
                 expect(error).toBeInstanceOf(ApiError);
                 expect((error as ApiError).status).toBe(404);

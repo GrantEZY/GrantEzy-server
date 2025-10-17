@@ -15,8 +15,13 @@ export class GetTokenDetailsDTO {
         description: "token for verification purpose",
         example: "sgfksdjfgnsldkfjgsndlfkgjndkjf",
     })
-    @IsUUID()
     token: string;
+
+    @ApiProperty({
+        description: "slug for verification purpose",
+        example: "sgfksdjfgnsldkfjgsndlfkgjndkjf",
+    })
+    slug: string;
 }
 
 export class SubmitInviteStatusDTO {
@@ -24,8 +29,13 @@ export class SubmitInviteStatusDTO {
         description: "token for verification purpose",
         example: "sgfksdjfgnsldkfjgsndlfkgjndkjf",
     })
-    @IsUUID()
     token: string;
+
+    @ApiProperty({
+        description: "slug for verification purpose",
+        example: "sgfksdjfgnsldkfjgsndlfkgjndkjf",
+    })
+    slug: string;
 
     @ApiProperty({
         description: "Invite Response Status",
