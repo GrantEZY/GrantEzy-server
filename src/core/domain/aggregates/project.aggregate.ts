@@ -101,7 +101,7 @@ export class Project {
         (application: GrantApplication) => application.project,
         {
             onDelete: "CASCADE",
-            eager: true,
+            eager: false,
         }
     )
     @JoinColumn({name: "applicationId"})
