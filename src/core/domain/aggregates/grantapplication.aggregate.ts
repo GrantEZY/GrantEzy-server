@@ -33,6 +33,7 @@ import {BudgetComponent} from "../value-objects/quotedbudget.object";
 import {ApplicationDocumentsObject} from "../value-objects/applicationdocuments.object";
 import {DocumentObject} from "../value-objects/document.object";
 import {UserInvite} from "./user.invite.aggregate";
+import {Project} from "./project.aggregate";
 
 @Entity({name: "grant-applications"})
 @Unique(["applicantId", "cycleId"])
