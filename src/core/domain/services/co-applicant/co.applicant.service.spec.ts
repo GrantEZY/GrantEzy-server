@@ -123,7 +123,10 @@ describe("CoApplicantService", () => {
                 invite: dummyUserInvite,
             } as any);
 
-            const result = await coApplicationService.getTokenDetails("hash");
+            const result = await coApplicationService.getTokenDetails(
+                "hash",
+                "slug"
+            );
 
             expect(result).toEqual({
                 status: 200,
@@ -150,7 +153,7 @@ describe("CoApplicantService", () => {
                     }
                 );
 
-                await coApplicationService.getTokenDetails("hash");
+                await coApplicationService.getTokenDetails("hash", "slug");
             } catch (error) {
                 expect(error).toBeInstanceOf(ApiError);
                 expect((error as ApiError).status).toBe(404);
@@ -178,6 +181,7 @@ describe("CoApplicantService", () => {
             const result =
                 await coApplicationService.updateTeamMateInviteStatus({
                     token: "token",
+                    slug: "slug",
                     status: InviteStatus.ACCEPTED,
                 });
 
@@ -201,6 +205,7 @@ describe("CoApplicantService", () => {
             const result =
                 await coApplicationService.updateTeamMateInviteStatus({
                     token: "token",
+                    slug: "slug",
                     status: InviteStatus.REJECTED,
                 });
 
@@ -230,6 +235,7 @@ describe("CoApplicantService", () => {
 
                 await coApplicationService.updateTeamMateInviteStatus({
                     token: "token",
+                    slug: "slug",
                     status: InviteStatus.REJECTED,
                 });
             } catch (error) {
@@ -253,6 +259,7 @@ describe("CoApplicantService", () => {
 
                 await coApplicationService.updateTeamMateInviteStatus({
                     token: "token",
+                    slug: "slug",
                     status: InviteStatus.ACCEPTED,
                 });
             } catch (error) {

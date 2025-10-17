@@ -160,6 +160,7 @@ describe("Shared Application Service", () => {
 
             const result = await sharedApplicationService.getInviteResponse(
                 "token",
+                "slug",
                 InviteStatus.ACCEPTED,
                 InviteAs.TEAMMATE
             );
@@ -211,6 +212,7 @@ describe("Shared Application Service", () => {
 
                 await sharedApplicationService.getInviteResponse(
                     "token",
+                    "slug",
                     InviteStatus.ACCEPTED,
                     InviteAs.TEAMMATE
                 );

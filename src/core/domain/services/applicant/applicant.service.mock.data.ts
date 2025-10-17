@@ -1,4 +1,4 @@
-import {InviteAs, InviteStatus} from "../../constants/invite.constants";
+import {InviteAs} from "../../constants/invite.constants";
 
 const dummyApplicantData = {
     cycleSlug: "4b7d1f330f2e4b7a91e35f58f3c9d4ab",
@@ -74,10 +74,10 @@ const cycleData = {
     },
 };
 
-const InviteArray = [
-    {email: "inthrak04@gmail.com", status: InviteStatus.SENT},
-    {email: "tylerdurden@gmail.com", status: InviteStatus.SENT},
-];
+const InviteResponse = {
+    "alice@example.com": ["token", "slug"],
+    "bob@example.com": ["token", "slug"],
+};
 
 const applicationsArray = [
     saved_Application,
@@ -382,7 +382,7 @@ export {
     budgetAndTechnicalDetails,
     revenueDetails,
     riskAndMileStones,
-    InviteArray,
+    InviteResponse,
     SAVED_USER,
     SAVED_CYCLE,
 };

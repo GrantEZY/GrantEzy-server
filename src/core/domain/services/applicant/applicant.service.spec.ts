@@ -17,7 +17,7 @@ import {
     budgetAndTechnicalDetails,
     cycleData,
     dummyApplicantData,
-    InviteArray,
+    InviteResponse,
     revenueDetails,
     riskAndMileStones,
     saved_Application,
@@ -591,7 +591,7 @@ describe("Applicant ", () => {
             );
 
             userinviteAggregateRepository.addApplicationInvites.mockResolvedValue(
-                InviteArray as any
+                InviteResponse as any
             );
             cycleAggregateRepository.findById.mockResolvedValue(
                 SAVED_CYCLE as any
@@ -628,7 +628,7 @@ describe("Applicant ", () => {
             );
 
             userinviteAggregateRepository.addApplicationInvites.mockResolvedValue(
-                InviteArray as any
+                InviteResponse as any
             );
 
             applicationAggregateRepository.modifyApplicationStatus.mockResolvedValue(
@@ -747,7 +747,7 @@ describe("Applicant ", () => {
                 );
 
                 userinviteAggregateRepository.addApplicationInvites.mockResolvedValue(
-                    InviteArray as any
+                    InviteResponse as any
                 );
                 cycleAggregateRepository.findById.mockResolvedValue(null);
 
@@ -779,7 +779,7 @@ describe("Applicant ", () => {
                 );
 
                 userinviteAggregateRepository.addApplicationInvites.mockResolvedValue(
-                    InviteArray as any
+                    InviteResponse as any
                 );
 
                 applicationAggregateRepository.modifyApplicationStatus.mockResolvedValue(
@@ -816,7 +816,7 @@ describe("Applicant ", () => {
                 );
 
                 userinviteAggregateRepository.addApplicationInvites.mockResolvedValue(
-                    InviteArray as any
+                    InviteResponse as any
                 );
                 cycleAggregateRepository.findById.mockResolvedValue(
                     SAVED_CYCLE as any
