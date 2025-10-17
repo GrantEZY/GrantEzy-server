@@ -16,6 +16,7 @@ import {ProjectProgress} from "../value-objects/project.progress.object";
 import {ProjectMetrics} from "../value-objects/project.metrics.object";
 import {User} from "./user.aggregate";
 import {Cycle} from "./cycle.aggregate";
+import {GrantApplication} from "./grantapplication.aggregate";
 
 @Entity({name: "projects"})
 export class Project {
@@ -92,9 +93,19 @@ export class Project {
     })
     metrics: ProjectMetrics;
 
-    @Index()
     @Column({type: "uuid"})
     applicationId: string;
+
+    @OneToOne(
+        () => GrantApplication,
+        (application: GrantApplication) => application.project,
+        {
+            onDelete: "CASCADE",
+            eager: true,
+        }
+    )
+    @JoinColumn({name: "applicationId"})
+    application: GrantApplication | null;
 
     @Index()
     @Column({type: "uuid"})

@@ -12,6 +12,7 @@ import {
     JoinTable,
     Unique,
     OneToMany,
+    OneToOne,
 } from "typeorm";
 import {User} from "./user.aggregate";
 import {Cycle} from "./cycle.aggregate";
@@ -402,6 +403,9 @@ export class GrantApplication {
 
     @OneToMany(() => Review, (review) => review.application, {eager: false})
     reviews: Review[];
+
+    @OneToOne(() => Project, (project) => project.application, {eager: true})
+    project: Project | null;
 
     @Column({type: "enum", enum: TRL, nullable: true})
     currentTRL: TRL;
