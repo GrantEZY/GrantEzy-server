@@ -1,4 +1,4 @@
-import {Body, Controller, Get, Post, Query, Res} from "@nestjs/common";
+import {Body, Controller, Get, Patch, Post, Query, Res} from "@nestjs/common";
 import {ReviewerService} from "../../../../../core/domain/services/reviewer/reviewer.service";
 import {ApiTags} from "@nestjs/swagger";
 import ApiError from "../../../../../shared/errors/api.error";
@@ -43,7 +43,7 @@ export class ReviewerController implements ReviewerControllerPort {
         }
     }
 
-    @Post("/update-invite-status")
+    @Patch("/update-invite-status")
     @ApiResponse(REVIEWER_RESPONSES.UPDATE_REVIEW_INVITE.SUCCESS_ACCEPTED)
     @ApiResponse(REVIEWER_RESPONSES.UPDATE_REVIEW_INVITE.SUCCESS_REJECTED)
     @ApiResponse(REVIEWER_RESPONSES.UPDATE_REVIEW_INVITE.USER_NOT_FOUND)
