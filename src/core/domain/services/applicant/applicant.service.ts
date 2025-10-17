@@ -498,7 +498,6 @@ export class ApplicantService {
                 },
             };
         } catch (error) {
-            console.log(error);
             this.handleError(error);
         }
     }
