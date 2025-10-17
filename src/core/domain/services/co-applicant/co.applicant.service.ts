@@ -75,10 +75,16 @@ export class CoApplicantService {
         }
     }
 
-    async getTokenDetails(token: string): Promise<TokenVerificationResponse> {
+    async getTokenDetails(
+        token: string,
+        slug: string
+    ): Promise<TokenVerificationResponse> {
         try {
             const {application, invite} =
-                await this.sharedApplicationService.getTokenDetails(token);
+                await this.sharedApplicationService.getTokenDetails(
+                    token,
+                    slug
+                );
 
             return {
                 status: 200,
@@ -106,6 +112,7 @@ export class CoApplicantService {
                 email,
             } = await this.sharedApplicationService.getInviteResponse(
                 inviteStatus.token,
+                inviteStatus.slug,
                 inviteStatus.status,
                 InviteAs.TEAMMATE
             );

@@ -34,6 +34,9 @@ export class CycleInviteBodyDTO {
     token: string;
 
     @IsString()
+    slug: string;
+
+    @IsString()
     applicationName: string;
 
     @IsString()
@@ -66,6 +69,9 @@ export class CycleInviteDTO {
 
     @IsString()
     applicationName: string;
+
+    @IsString()
+    slug: string;
 
     @IsString()
     invitedBy: string;

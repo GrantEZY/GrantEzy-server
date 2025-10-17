@@ -451,6 +451,7 @@ export class ApplicantService {
                     "Conflict Error"
                 );
             }
+
             for (const email of emails) {
                 const userCycleInviteStatus =
                     await this.cycleInviteQueue.UserCycleInvite({
@@ -460,7 +461,8 @@ export class ApplicantService {
                         programName: cycle.program?.details.name ?? "Program",
                         round: cycle.round,
                         applicationName: application.basicDetails.title,
-                        token: details[email],
+                        token: details[email][0],
+                        slug: details[email][1],
                     });
                 if (!userCycleInviteStatus.status) {
                     throw new ApiError(

@@ -75,8 +75,10 @@ describe("Shared Application Service", () => {
                 saved_Application as any
             );
 
-            const result =
-                await sharedApplicationService.getTokenDetails("token");
+            const result = await sharedApplicationService.getTokenDetails(
+                "token",
+                "slug"
+            );
 
             expect(result).toEqual({
                 application: saved_Application,
@@ -131,7 +133,7 @@ describe("Shared Application Service", () => {
 
                 applicationAggregateRepository.findById.mockResolvedValue(null);
 
-                await sharedApplicationService.getTokenDetails("token");
+                await sharedApplicationService.getTokenDetails("token", "slug");
             } catch (error) {
                 expect(error).toBeInstanceOf(ApiError);
                 expect((error as ApiError).status).toBe(404);

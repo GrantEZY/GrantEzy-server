@@ -28,15 +28,25 @@ export class SharedApplicationService {
     ) {}
 
     async getTokenDetails(
-        token: string
+        token: string,
+        slug: string
     ): Promise<{application: GrantApplication; invite: UserInvite}> {
         try {
-            const hash = await this.hasherPort.hash(token);
-
             const invite =
-                await this.userInviteAggregateRepository.getUserInvite(hash);
+                await this.userInviteAggregateRepository.getUserInvite(
+                    slug,
+                    true
+                );
 
             if (!invite) {
+                throw new ApiError(404, "Invite Not Found", "Conflict Error");
+            }
+            const isValid = await this.hasherPort.compare(
+                token,
+                invite.verification.token ?? ""
+            );
+
+            if (!isValid) {
                 throw new ApiError(404, "Token Not Valid", "Token Error");
             }
 
@@ -74,15 +84,26 @@ export class SharedApplicationService {
 
     async getInviteResponse(
         token: string,
+        slug: string,
         status: InviteStatus.ACCEPTED | InviteStatus.REJECTED,
         type: InviteAs
     ): Promise<GetUserInviteStatusDetailsResponse> {
         try {
-            const hash = await this.hasherPort.hash(token);
-
             const invite =
-                await this.userInviteAggregateRepository.getUserInvite(hash);
-            if (!invite || invite.inviteAs != type) {
+                await this.userInviteAggregateRepository.getUserInvite(
+                    slug,
+                    true
+                );
+
+            if (!invite) {
+                throw new ApiError(404, "Invite Not Found", "Conflict Error");
+            }
+            const isValid = await this.hasherPort.compare(
+                token,
+                invite.verification.token ?? ""
+            );
+
+            if (!isValid || !invite || invite.inviteAs != type) {
                 throw new ApiError(404, "Token Not Valid", "Token Error");
             }
 

@@ -34,7 +34,8 @@ export class ReviewerController implements ReviewerControllerPort {
     ): Promise<Response> {
         try {
             const result = await this.reviewService.getTokenDetails(
-                parameter.token
+                parameter.token,
+                parameter.slug
             );
             return response.status(result.status).json(result);
         } catch (error) {
