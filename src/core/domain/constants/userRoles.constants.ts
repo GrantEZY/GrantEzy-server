@@ -14,3 +14,8 @@ export enum UserRoles {
     REVIEWER = "REVIEWER",
     NORMAL_USER = "NORMAL_USER",
 }
+
+export enum ProjectUserRoles {
+    LEADER = "LEADER",
+    TEAMMATE = "TEAMMATE",
+}
