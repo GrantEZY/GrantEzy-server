@@ -21,6 +21,7 @@ import {
     GetCycleDetailsResponse,
     GetProgramCyclesResponse,
     GetReviewDetailsResponse,
+    ProgramManagerDetailsResponse,
     UpdateCycleResponse,
 } from "../../../../infrastructure/driven/response-dtos/pm.response-dto";
 import {
@@ -133,6 +134,33 @@ export class ProgramManagerService {
                     programId: updatedProgram.id,
                     cycleId: cycle.id,
                 },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async getProgramManagerProgram(
+        userId: string
+    ): Promise<ProgramManagerDetailsResponse> {
+        try {
+            const program =
+                await this.programAggregateRepository.getProgramByManagerId(
+                    userId
+                );
+
+            if (!program) {
+                throw new ApiError(
+                    403,
+                    "Only Program Manager can access the Program",
+                    "Conflict Error"
+                );
+            }
+
+            return {
+                status: 200,
+                message: "Program Manager Program Details",
+                res: {program},
             };
         } catch (error) {
             this.handleError(error);

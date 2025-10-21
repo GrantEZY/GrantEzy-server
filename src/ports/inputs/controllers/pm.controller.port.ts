@@ -48,6 +48,11 @@ export interface ProgramManagerControllerPort {
         response: Response
     ): Promise<Response>;
 
+    getProgramManagerProgram(
+        user: AccessTokenJwt,
+        response: Response
+    ): Promise<Response>;
+
     getApplicationReviews(
         parameters: GetApplicationReviewsDTO,
         user: AccessTokenJwt,

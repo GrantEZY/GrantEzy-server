@@ -73,6 +73,29 @@ export const CYCLE_RESPONSES = {
     },
   },
 
+  PROGRAM_READ: {
+  SUCCESS_PROGRAM_FETCH: {
+    status: 200,
+    message: "Program Manager Program Fetch",
+    example: {
+      status: 200,
+      message: "Program Manager Program Details",
+      res: {
+        program: "Program Details",
+      },
+    },
+  },
+  PROGRAM_NOT_FOUND: {
+    status: 404,
+    description: "The program with the given ID was not found",
+    example: {
+      status: 404,
+      message: "Program Not Found",
+      res: null,
+    },
+  },
+},
+
   PROGRAM_CYCLES_READ: {
     SUCCESS: {
       status: 200,
