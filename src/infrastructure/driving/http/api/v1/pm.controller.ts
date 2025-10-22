@@ -115,6 +115,24 @@ export class ProgramManagerController implements ProgramManagerControllerPort {
         }
     }
 
+    @Get("/get-pm-program")
+    @ApiResponse(CYCLE_RESPONSES.PROGRAM_READ.SUCCESS_PROGRAM_FETCH)
+    @ApiResponse(CYCLE_RESPONSES.PROGRAM_READ.PROGRAM_NOT_FOUND)
+    async getProgramManagerProgram(
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+
+            const result =
+                await this.programManagerService.getProgramManagerProgram(id);
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
     @Get("/get-cycle-details")
     @ApiResponse(CYCLE_RESPONSES.CYCLE_WITH_APPLICATIONS.SUCCESS)
     @ApiResponse(CYCLE_RESPONSES.CYCLE_WITH_APPLICATIONS.NOT_FOUND)
