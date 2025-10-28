@@ -10,16 +10,26 @@ import {
     PasswordHasherPort,
 } from "../../../../ports/outputs/crypto/hash.port";
 import {JWT_PORT, JwtPort} from "../../../../ports/outputs/crypto/jwt.port";
-import {LOGIN_DATA, REGISTER_USER, SAVED_USER} from "./auth.service.mock.data";
+import {
+    ForgotPasswordEntity,
+    LOGIN_DATA,
+    REGISTER_USER,
+    SAVED_USER,
+} from "./auth.service.mock.data";
 import ApiError from "../../../../shared/errors/api.error";
 import {UserRoles} from "../../constants/userRoles.constants";
-
+import {EmailQueue} from "../../../../infrastructure/driven/queue/queues/email.queue";
+import {
+    ForgotPasswordAggregatePort,
+    FORGOT_PASSWORD_PORT,
+} from "../../../../ports/outputs/repository/forgotpassword/forgotpassword.aggregate.port";
 describe("AuthService", () => {
     let authService: AuthService;
     let userAggregateRepository: jest.Mocked<UserAggregatePort>;
     let passwordHasher: jest.Mocked<PasswordHasherPort>;
     let jwtRepository: jest.Mocked<JwtPort>;
-
+    let emailQueue: jest.Mocked<EmailQueue>;
+    let forgotPasswordRepository: jest.Mocked<ForgotPasswordAggregatePort>;
     beforeEach(async () => {
         const moduleReference: TestingModule = await Test.createTestingModule({
             providers: [
@@ -36,6 +46,14 @@ describe("AuthService", () => {
                     provide: JWT_PORT,
                     useValue: createMock<JwtPort>(),
                 },
+                {
+                    provide: FORGOT_PASSWORD_PORT,
+                    useValue: createMock<ForgotPasswordAggregatePort>(),
+                },
+                {
+                    provide: EmailQueue,
+                    useValue: createMock<EmailQueue>(),
+                },
             ],
         }).compile();
 
@@ -43,6 +61,10 @@ describe("AuthService", () => {
         userAggregateRepository = moduleReference.get(USER_AGGREGATE_PORT);
         passwordHasher = moduleReference.get(PASSWORD_HASHER_PORT);
         jwtRepository = moduleReference.get(JWT_PORT);
+        emailQueue = moduleReference.get(EmailQueue) as jest.Mocked<EmailQueue>;
+        forgotPasswordRepository = moduleReference.get(
+            FORGOT_PASSWORD_PORT
+        ) as jest.Mocked<ForgotPasswordAggregatePort>;
     });
 
     it("should be defined", () => {
@@ -283,6 +305,176 @@ describe("AuthService", () => {
                 expect((error as ApiError).message).toBe(
                     "Error in logging out the User"
                 );
+            }
+        });
+    });
+
+    describe("Forgot Password", () => {
+        it("Successful Forgot Password Registration", async () => {
+            forgotPasswordRepository.getEntityByEmail.mockResolvedValue(null);
+
+            userAggregateRepository.findByEmail.mockResolvedValue(
+                SAVED_USER as any
+            );
+
+            forgotPasswordRepository.createForgotPasswordForEmail.mockResolvedValue(
+                {token: "token", slug: "slug"}
+            );
+
+            emailQueue.addForgotPasswordEmailToQueue.mockResolvedValue({
+                status: true,
+            } as any);
+
+            const result = await authService.forgotPassword({
+                email: "john.doe@example.com",
+            });
+
+            expect(result).toEqual({
+                status: 201,
+                message: "Forgot Password Email Sent",
+                res: {
+                    status: true,
+                },
+            });
+        });
+
+        it("SuccessFully for already sent request", async () => {
+            forgotPasswordRepository.getEntityByEmail.mockResolvedValue(
+                ForgotPasswordEntity as any
+            );
+
+            forgotPasswordRepository.updateToken.mockResolvedValue({
+                token: "token",
+            } as any);
+
+            emailQueue.addForgotPasswordEmailToQueue.mockResolvedValue({
+                status: true,
+            } as any);
+
+            const result = await authService.forgotPassword({
+                email: "john.doe@example.com",
+            });
+
+            expect(result).toEqual({
+                status: 201,
+                message: "Forgot Password Email Sent",
+                res: {
+                    status: true,
+                },
+            });
+
+            expect(forgotPasswordRepository.updateToken).toHaveBeenCalled();
+        });
+
+        it("User Not Found", async () => {
+            try {
+                forgotPasswordRepository.getEntityByEmail.mockResolvedValue(
+                    null
+                );
+
+                userAggregateRepository.findByEmail.mockResolvedValue(null);
+
+                await authService.forgotPassword({
+                    email: "john.doe@example.com",
+                });
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).message).toBe("User Not Found");
+            }
+        });
+    });
+
+    describe("Update Password", () => {
+        it("Successful Updation of Password", async () => {
+            forgotPasswordRepository.getEntityBySlug.mockResolvedValue(
+                ForgotPasswordEntity as any
+            );
+
+            passwordHasher.compare.mockResolvedValue(true);
+
+            userAggregateRepository.findByEmail.mockResolvedValue(
+                SAVED_USER as any
+            );
+
+            passwordHasher.hash.mockResolvedValue("hashed-pass");
+
+            userAggregateRepository.updateUserPassword.mockResolvedValue(true);
+
+            forgotPasswordRepository.deleteAEntity.mockResolvedValue(true);
+
+            const result = await authService.updatePassword({
+                token: "token",
+                slug: "slug",
+                newPassword: "password",
+            });
+
+            expect(result).toEqual({
+                status: 204,
+                message: "Password Updated",
+                res: {
+                    status: true,
+                },
+            });
+        });
+
+        it("Request Not Found", async () => {
+            try {
+                forgotPasswordRepository.getEntityBySlug.mockResolvedValue(
+                    null
+                );
+
+                await authService.updatePassword({
+                    token: "token",
+                    slug: "slug",
+                    newPassword: "password",
+                });
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).message).toBe(
+                    "Forgot Password Request Not Initiated"
+                );
+            }
+        });
+
+        it("Token Not Valid", async () => {
+            try {
+                forgotPasswordRepository.getEntityBySlug.mockResolvedValue(
+                    ForgotPasswordEntity as any
+                );
+
+                passwordHasher.compare.mockResolvedValue(false);
+
+                await authService.updatePassword({
+                    token: "token",
+                    slug: "slug",
+                    newPassword: "password",
+                });
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe("Token is not valid");
+            }
+        });
+
+        it("TimeLimit has exceeded", async () => {
+            try {
+                const deplayedEntity = JSON.parse(
+                    JSON.stringify(ForgotPasswordEntity)
+                );
+                deplayedEntity.verification.validTill = new Date(
+                    "2015-10-13T10:00:00.000Z"
+                );
+                forgotPasswordRepository.getEntityBySlug.mockResolvedValue(
+                    deplayedEntity as any
+                );
+
+                passwordHasher.compare.mockResolvedValue(true);
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe("Token is not valid");
             }
         });
     });

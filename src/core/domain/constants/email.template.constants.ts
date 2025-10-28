@@ -4,6 +4,7 @@ import {
     CycleInviteDTO,
     EmailBody,
     InviteEmailDTO,
+    ForgotPasswordEmailDTO,
 } from "../../../infrastructure/driving/dtos/queue/queue.dto";
 
 const BASE_URL = process.env.CLIENT_URL;
@@ -32,7 +33,7 @@ export const InviteUserEmailTemplate: EmailTemplateType = {
         </tr>
           <tr>
           <td><strong>Role:</strong></td>
-          <td>${values.role as string}</td>
+          <td>${(values as InviteEmailDTO).role as string}</td>
         </tr>
       </table>
 
@@ -71,7 +72,7 @@ export const CycleInviteEmailTemplate: EmailTemplateType = {
         </tr>
         <tr>
           <td><strong>Role:</strong></td>
-          <td>${values.role}</td>
+          <td>${(values as CycleInviteDTO).role}</td>
         </tr>
         <tr>
           <td><strong>Program:</strong></td>
@@ -97,10 +98,56 @@ export const CycleInviteEmailTemplate: EmailTemplateType = {
 
       <p style="margin-top: 20px;">
         Once logged in, you’ll be able to access the cycle application and perform your role as
-        <strong>${values.role}</strong>.
+        <strong>${(values as CycleInviteDTO).role}</strong>.
       </p>
 
       <p>Best regards,<br/>The GrantEzy Team</p>
+    </div>
+  `,
+};
+
+export const ForgotPasswordEmailTemplate: EmailTemplateType = {
+    subject: `Reset your password for GrantEzy`,
+    body: (values: EmailBody) => `
+    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+      <h2 style="color: #2c3e50;">Password Reset Request 🔒</h2>
+
+      <p>Hello,</p>
+      <p>
+        We received a request to reset the password for your <strong>GrantEzy</strong> account associated with
+        <strong>${values.email}</strong>.
+      </p>
+
+      <p style="margin: 16px 0;">
+        Click the button below to reset your password. This link will expire in 30 minutes for security reasons.
+      </p>
+
+      <p>
+        👉 <a href="${BASE_URL ?? "http://localhost"}/reset-password/${(values as ForgotPasswordEmailDTO).token}/${(values as ForgotPasswordEmailDTO).slug}"
+              style="background: #4CAF50; color: white; padding: 10px 16px;
+                     text-decoration: none; border-radius: 5px; display: inline-block;">
+            Reset My Password
+        </a>
+      </p>
+
+      <p style="margin-top: 20px;">
+        If you did not request a password reset, you can safely ignore this email —
+        your account will remain secure.
+      </p>
+
+      <p style="margin-top: 30px;">
+        Best regards,<br/>
+        <strong>The GrantEzy Team</strong>
+      </p>
+
+      <hr style="margin-top: 30px; border: none; border-top: 1px solid #eee;">
+      <p style="font-size: 12px; color: #777;">
+        If the button above doesn't work, copy and paste this link into your browser:
+        <br/>
+        <a href="${BASE_URL ?? "http://localhost"}/reset-password/${(values as ForgotPasswordEmailDTO).token}/${(values as ForgotPasswordEmailDTO).slug}" style="color: #4CAF50;">
+          ${BASE_URL ?? "http://localhost"}/reset-password/${(values as ForgotPasswordEmailDTO).token}/${(values as ForgotPasswordEmailDTO).slug}
+        </a>
+      </p>
     </div>
   `,
 };

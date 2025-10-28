@@ -2,13 +2,14 @@ import {
     CycleInviteEmailTemplate,
     EmailTemplateType,
     InviteUserEmailTemplate,
+    ForgotPasswordEmailTemplate,
 } from "./email.template.constants";
 
 export enum EmailNotifications {
     VERIFY_EMAIL = "Verify your email",
     RESET_PASSWORD = "Reset your password",
     WELCOME = "Welcome to GrantEzy!",
-    PASSWORD_CHANGED = "Your password has been changed",
+    FORGOT_PASSWORD = "Your password has been requested to change",
     PROGRAM_ENROLLMENT = "You've been enrolled in a new program",
     PROGRAM_COMPLETION = "Congratulations on completing your program!",
     CYCLE_INVITE_REQUEST = "We value your invite",
@@ -43,4 +44,5 @@ export const EmailNotificationTemplateMapper: Record<
 > = {
     [EmailNotifications.INVITE_USER]: InviteUserEmailTemplate,
     [EmailNotifications.CYCLE_INVITE_REQUEST]: CycleInviteEmailTemplate,
+    [EmailNotifications.FORGOT_PASSWORD]: ForgotPasswordEmailTemplate,
 };

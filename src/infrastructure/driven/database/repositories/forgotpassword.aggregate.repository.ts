@@ -5,6 +5,8 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import {VerificationTokenEntity} from "../../../../core/domain/entities/verification.entity";
 import ApiError from "../../../../shared/errors/api.error";
+import {v4 as uuid} from "uuid";
+import {slugify} from "../../../../shared/helpers/slug.generator";
 import {
     PasswordHasherPort,
     PASSWORD_HASHER_PORT,
@@ -24,14 +26,28 @@ export class ForgotPasswordAggregateRepository
     ) {}
 
     async getEntityByEmail(
-        email: string
+        email: string,
+        isHashRequired: boolean
     ): Promise<ForgotPasswordAggregate | null> {
         try {
-            const entity = await this.forgotPasswordRepository.findOne({
-                where: {
-                    email,
-                },
-            });
+            let entity: ForgotPasswordAggregate | null;
+            if (isHashRequired) {
+                entity = await this.forgotPasswordRepository
+                    .createQueryBuilder("forgotPass")
+                    .leftJoinAndSelect(
+                        "forgotPass.verification",
+                        "verification"
+                    )
+                    .addSelect("verification.token")
+                    .where("forgotPass.email = :email", {email})
+                    .getOne();
+            } else {
+                entity = await this.forgotPasswordRepository.findOne({
+                    where: {
+                        email,
+                    },
+                });
+            }
 
             return entity;
         } catch (error) {
@@ -46,7 +62,70 @@ export class ForgotPasswordAggregateRepository
         }
     }
 
-    async createForgotPasswordForEmail(email: string): Promise<string> {
+    async updateToken(
+        verification: VerificationTokenEntity
+    ): Promise<{token: string; verification: VerificationTokenEntity}> {
+        try {
+            const {token, hash} = await this.cryptoRepository.generateToken();
+            verification.token = hash;
+            verification.validTill = new Date(Date.now() + 60 * 60 * 1000);
+
+            const updatedVerification =
+                await this.verificationTokenRepository.save(verification);
+
+            return {token, verification: updatedVerification};
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Error in updating invite",
+                "database error"
+            );
+        }
+    }
+
+    async getEntityBySlug(
+        slug: string,
+        isHashRequired: boolean
+    ): Promise<ForgotPasswordAggregate | null> {
+        try {
+            let entity: ForgotPasswordAggregate | null;
+            if (isHashRequired) {
+                entity = await this.forgotPasswordRepository
+                    .createQueryBuilder("forgotPass")
+                    .leftJoinAndSelect(
+                        "forgotPass.verification",
+                        "verification"
+                    )
+                    .addSelect("verification.token")
+                    .where("forgotPass.slug = :slug", {slug})
+                    .getOne();
+            } else {
+                entity = await this.forgotPasswordRepository.findOne({
+                    where: {
+                        slug,
+                    },
+                });
+            }
+
+            return entity;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Error in fetching invite",
+                "database error"
+            );
+        }
+    }
+
+    async createForgotPasswordForEmail(
+        email: string
+    ): Promise<{token: string; slug: string}> {
         try {
             const {token, hash} = await this.cryptoRepository.generateToken();
             const validTill = new Date(Date.now() + 60 * 60 * 1000);
@@ -59,14 +138,18 @@ export class ForgotPasswordAggregateRepository
             const savedVerification =
                 await this.verificationTokenRepository.save(verification);
 
+            const id = uuid(); // eslint-disable-line
+            const slug = slugify(id);
+
             const entity = this.forgotPasswordRepository.create({
                 email,
                 verification: savedVerification,
+                slug,
             });
 
             await this.forgotPasswordRepository.save(entity);
 
-            return token;
+            return {token, slug};
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;
@@ -79,10 +162,10 @@ export class ForgotPasswordAggregateRepository
         }
     }
 
-    async deleteAEntity(email: string): Promise<boolean> {
+    async deleteAEntity(slug: string): Promise<boolean> {
         try {
             await this.forgotPasswordRepository.delete({
-                email,
+                slug,
             });
 
             return true;

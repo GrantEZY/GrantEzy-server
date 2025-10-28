@@ -5,12 +5,13 @@ import {
     JoinColumn,
     CreateDateColumn,
     UpdateDateColumn,
+    PrimaryColumn,
 } from "typeorm";
 import {VerificationTokenEntity} from "../entities/verification.entity";
 
 @Entity({name: "forgotPassword"})
 export class ForgotPasswordAggregate {
-    @Column({type: "string", unique: true})
+    @PrimaryColumn({unique: true})
     email: string;
 
     @OneToOne(() => VerificationTokenEntity, {
@@ -20,7 +21,7 @@ export class ForgotPasswordAggregate {
     @JoinColumn({name: "verificationId"})
     verification: VerificationTokenEntity;
 
-    @Column({unique: true, nullable: true})
+    @Column({unique: true})
     slug: string;
 
     @CreateDateColumn()

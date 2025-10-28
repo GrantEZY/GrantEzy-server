@@ -401,4 +401,26 @@ export class UserAggregateRepository implements UserAggregatePort {
             );
         }
     }
+
+    async updateUserPassword(
+        person: Person,
+        passwordHash: string
+    ): Promise<boolean> {
+        try {
+            person.password_hash = passwordHash;
+
+            await this.personRepository.save(person);
+
+            return true;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Error in updating user password",
+                "Database Error"
+            );
+        }
+    }
 }
