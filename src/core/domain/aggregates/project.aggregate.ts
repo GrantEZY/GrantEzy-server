@@ -29,7 +29,6 @@ export class Project {
 
     @Column({
         type: "jsonb",
-        nullable: true,
         transformer: {
             to: (value: QuotedBudget | null) => (value ? value.toJSON() : null),
             from: (value: {
@@ -130,7 +129,6 @@ export class Project {
 
     @Column({
         type: "jsonb",
-        nullable: true,
         transformer: {
             to: (value: Duration) => (value ? value.toJSON() : null),
             from: (value: {startDate: Date; endDate: Date | null}) =>
@@ -167,7 +165,6 @@ export class Project {
 
     @Column({
         type: "jsonb",
-        nullable: true,
         transformer: {
             to: (value: ProjectMetrics) => (value ? value.toJSON() : null),
             from: (value: {

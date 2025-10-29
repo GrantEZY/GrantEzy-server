@@ -39,6 +39,9 @@ import {ReviewAggregateRepository} from "../../infrastructure/driven/database/re
 import {FORGOT_PASSWORD_PORT} from "./repository/forgotpassword/forgotpassword.aggregate.port";
 import {ForgotPasswordAggregate} from "../../core/domain/aggregates/forgotpassword.aggregate";
 import {ForgotPasswordAggregateRepository} from "../../infrastructure/driven/database/repositories/forgotpassword.aggregate.repository";
+import {Project} from "../../core/domain/aggregates/project.aggregate";
+import {PROJECT_AGGREGATE_PORT} from "./repository/project/project.aggregate.port";
+import {ProjectAggregateRepository} from "../../infrastructure/driven/database/repositories/project.aggregate.repository";
 @Global()
 @Module({
     imports: [
@@ -56,6 +59,7 @@ import {ForgotPasswordAggregateRepository} from "../../infrastructure/driven/dat
             VerificationTokenEntity,
             Review,
             ForgotPasswordAggregate,
+            Project,
         ]),
         JwtModule.register({}),
     ],
@@ -90,6 +94,10 @@ import {ForgotPasswordAggregateRepository} from "../../infrastructure/driven/dat
             provide: FORGOT_PASSWORD_PORT,
             useClass: ForgotPasswordAggregateRepository,
         },
+        {
+            provide: PROJECT_AGGREGATE_PORT,
+            useClass: ProjectAggregateRepository,
+        },
     ],
     exports: [
         USER_AGGREGATE_PORT,
@@ -105,6 +113,7 @@ import {ForgotPasswordAggregateRepository} from "../../infrastructure/driven/dat
         GRANT_APPLICATION_AGGREGATE_PORT,
         REVIEW_AGGREGATE_PORT,
         FORGOT_PASSWORD_PORT,
+        PROJECT_AGGREGATE_PORT,
     ],
 })
 export class OutputPortModule {}

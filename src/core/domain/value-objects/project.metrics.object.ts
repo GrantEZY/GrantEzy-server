@@ -51,3 +51,17 @@ export class Money {
 export const MoneyBuilder = (money: MoneyDTO): Money => {
     return new Money(money.amount, money.currency);
 };
+
+export const ProjectMetricsBuilder = (
+    plannedBudget: QuotedBudget,
+    actualSpent: QuotedBudget | null,
+    plannedDuration: Duration,
+    actualDuration: Duration | null
+): ProjectMetrics => {
+    return new ProjectMetrics(
+        plannedBudget,
+        actualSpent,
+        plannedDuration,
+        actualDuration
+    );
+};

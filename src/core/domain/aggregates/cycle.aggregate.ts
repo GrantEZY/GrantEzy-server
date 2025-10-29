@@ -125,6 +125,9 @@ export class Cycle {
     })
     scoringScheme: ScoringScheme;
 
+    @Column({type: "bool", default: true})
+    isApplicationAccepted: boolean;
+
     @OneToMany(() => GrantApplication, (application) => application.cycle, {
         onDelete: "NO ACTION",
         cascade: false,

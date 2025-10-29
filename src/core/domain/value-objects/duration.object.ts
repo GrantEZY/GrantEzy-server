@@ -1,3 +1,5 @@
+import {DurationDTO} from "../../../infrastructure/driving/dtos/pm.dto";
+
 export class Duration {
     startDate: Date;
     endDate: Date | null;
@@ -13,4 +15,8 @@ export class Duration {
             endDate: this.endDate,
         };
     }
+}
+
+export function DurationObjectBuilder(duration: DurationDTO): Duration {
+    return new Duration(duration.startDate, duration.endDate ?? null);
 }
