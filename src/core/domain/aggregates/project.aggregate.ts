@@ -28,26 +28,29 @@ export class Project {
 
     @Column({
         type: "jsonb",
+        nullable: true,
         transformer: {
             to: (value: Money) => (value ? value.toJSON() : null),
             from: (value: {amount: number; currency: string}) =>
                 value ? new Money(value.amount, value.currency) : null,
         },
     })
-    allotedBudget: Money;
+    allotedBudget: Money | null;
 
     @Column({
         type: "jsonb",
+        nullable: true,
         transformer: {
             to: (value: Duration) => (value ? value.toJSON() : null),
             from: (value: {startDate: Date; endDate: Date | null}) =>
                 value ? new Duration(value.startDate, value.endDate) : null,
         },
     })
-    duration: Duration;
+    duration: Duration | null;
 
     @Column({
         type: "jsonb",
+        nullable: true,
         transformer: {
             to: (value: ProjectProgress) => (value ? value.toJSON() : null),
             from: (value: {
@@ -66,50 +69,55 @@ export class Project {
                     : null,
         },
     })
-    progress: ProjectProgress;
+    progress: ProjectProgress | null;
 
     @Column({unique: true, nullable: true})
-    slug: string;
+    slug: string | null;
 
     @Column({
         type: "jsonb",
+        nullable: true,
         transformer: {
             to: (value: ProjectMetrics) => (value ? value.toJSON() : null),
             from: (value: {
-                plannedBudget: Money;
-                actualSpent: Money;
+                plannedBudget: {amount: number; currency: string};
+                actualSpent: {amount: number; currency: string};
                 plannedDuration: number;
                 actualDuration: number;
             }) =>
                 value
                     ? new ProjectMetrics(
-                          value.plannedBudget,
-                          value.actualSpent,
+                          new Money(
+                              value.plannedBudget.amount,
+                              value.plannedBudget.currency
+                          ),
+                          new Money(
+                              value.actualSpent.amount,
+                              value.actualSpent.currency
+                          ),
                           value.plannedDuration,
                           value.actualDuration
                       )
                     : null,
         },
     })
-    metrics: ProjectMetrics;
+    metrics: ProjectMetrics | null;
+
+    // --- Relations ---
 
     @Column({type: "uuid"})
     applicationId: string;
 
-    @OneToOne(
-        () => GrantApplication,
-        (application: GrantApplication) => application.project,
-        {
-            onDelete: "CASCADE",
-            eager: false,
-        }
-    )
+    @OneToOne(() => GrantApplication, {
+        onDelete: "CASCADE",
+        eager: false,
+    })
     @JoinColumn({name: "applicationId"})
     application: GrantApplication | null;
 
     @Index()
-    @Column({type: "uuid"})
-    cycleId: string;
+    @Column({type: "uuid", nullable: true})
+    cycleId: string | null;
 
     @ManyToOne(() => Cycle, (cycle: Cycle) => cycle.projects, {
         onDelete: "SET NULL",
@@ -119,8 +127,8 @@ export class Project {
     @JoinColumn({name: "cycleId"})
     cycle: Cycle | null;
 
-    @Column()
-    mentorId: string;
+    @Column({type: "uuid", nullable: true})
+    mentorId: string | null;
 
     @OneToOne(() => User, {
         onDelete: "SET NULL",
@@ -128,11 +136,13 @@ export class Project {
         eager: true,
     })
     @JoinColumn({name: "mentorId"})
-    mentor: User;
+    mentor: User | null;
 
-    @CreateDateColumn()
+    // --- Timestamps ---
+
+    @CreateDateColumn({type: "timestamp with time zone"})
     createdAt: Date;
 
-    @UpdateDateColumn()
+    @UpdateDateColumn({type: "timestamp with time zone"})
     updatedAt: Date;
 }
