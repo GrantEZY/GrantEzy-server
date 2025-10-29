@@ -3,6 +3,7 @@ import {
     EmailTemplateType,
     InviteUserEmailTemplate,
     ForgotPasswordEmailTemplate,
+    ProjectCreatedFromApplicationEmailTemplate,
 } from "./email.template.constants";
 
 export enum EmailNotifications {
@@ -17,6 +18,7 @@ export enum EmailNotifications {
     ACCOUNT_DELETION = "Your account has been deleted",
     SUPPORT_RESPONSE = "Response from GrantEzy Support",
     INVITE_USER = "You have been invited",
+    PROJECT_CREATED = "Project Created Successfully",
 }
 
 export enum NotificationChannel {
@@ -45,4 +47,6 @@ export const EmailNotificationTemplateMapper: Record<
     [EmailNotifications.INVITE_USER]: InviteUserEmailTemplate,
     [EmailNotifications.CYCLE_INVITE_REQUEST]: CycleInviteEmailTemplate,
     [EmailNotifications.FORGOT_PASSWORD]: ForgotPasswordEmailTemplate,
+    [EmailNotifications.PROJECT_CREATED]:
+        ProjectCreatedFromApplicationEmailTemplate,
 };

@@ -6,6 +6,7 @@ import {
     CycleInviteDTO,
     ForgotPasswordEmailDTO,
     InviteEmailDTO,
+    ProjectCreationDTO,
 } from "../../../driving/dtos/queue/queue.dto";
 import {EmailResponse} from "../../response-dtos/queue/queue.response-dto";
 import {Logger} from "@nestjs/common";
@@ -112,6 +113,41 @@ export class EmailQueue {
             };
         } catch (error) {
             this.logger.log(`Error in Adding to Forgot Password Email Queue`);
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                500,
+                "Issue In Sending Email",
+                "Email Queue Error"
+            );
+        }
+    }
+
+    async createProjectEmailToQueue(
+        userDatas: ProjectCreationDTO[]
+    ): Promise<EmailResponse> {
+        try {
+            const jobs = userDatas.map((data) => {
+                const uniqueId = uuid();
+                const {email} = data;
+                const jobId =
+                    uniqueId + "-" + email + "-create-project-confirmation"; // eslint-disable-line
+                return {
+                    name: jobId,
+                    data: data,
+                };
+            });
+            const addedJobs = await this.emailQueue.addBulk(jobs);
+
+            return {
+                status: true,
+                queue: {
+                    name: "Jobs Added Successfully " + String(addedJobs.length),
+                },
+            };
+        } catch (error) {
+            this.logger.log(`Error in Adding to Create Project Email Queue`);
             if (error instanceof ApiError) {
                 throw error;
             }

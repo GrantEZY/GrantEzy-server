@@ -5,6 +5,7 @@ import {
     EmailBody,
     InviteEmailDTO,
     ForgotPasswordEmailDTO,
+    ProjectCreationDTO,
 } from "../../../infrastructure/driving/dtos/queue/queue.dto";
 
 const BASE_URL = process.env.CLIENT_URL;
@@ -25,7 +26,7 @@ export const InviteUserEmailTemplate: EmailTemplateType = {
       <table cellpadding="6" cellspacing="0" border="0" style="background: #f8f9fa; border: 1px solid #ddd; border-radius: 6px; margin: 16px 0;">
         <tr>
           <td><strong>Email:</strong></td>
-          <td>${values.email}</td>
+          <td>${(values as InviteEmailDTO).email}</td>
         </tr>
         <tr>
           <td><strong>Password:</strong></td>
@@ -68,7 +69,7 @@ export const CycleInviteEmailTemplate: EmailTemplateType = {
              style="background: #f8f9fa; border: 1px solid #ddd; border-radius: 6px; margin: 16px 0;">
         <tr>
           <td><strong>Email:</strong></td>
-          <td>${values.email}</td>
+          <td>${(values as CycleInviteDTO).email}</td>
         </tr>
         <tr>
           <td><strong>Role:</strong></td>
@@ -115,7 +116,7 @@ export const ForgotPasswordEmailTemplate: EmailTemplateType = {
       <p>Hello,</p>
       <p>
         We received a request to reset the password for your <strong>GrantEzy</strong> account associated with
-        <strong>${values.email}</strong>.
+        <strong>${(values as ForgotPasswordEmailDTO).email}</strong>.
       </p>
 
       <p style="margin: 16px 0;">
@@ -147,6 +148,37 @@ export const ForgotPasswordEmailTemplate: EmailTemplateType = {
         <a href="${BASE_URL ?? "http://localhost"}/reset-password/${(values as ForgotPasswordEmailDTO).token}/${(values as ForgotPasswordEmailDTO).slug}" style="color: #4CAF50;">
           ${BASE_URL ?? "http://localhost"}/reset-password/${(values as ForgotPasswordEmailDTO).token}/${(values as ForgotPasswordEmailDTO).slug}
         </a>
+      </p>
+    </div>
+  `,
+};
+
+export const ProjectCreatedFromApplicationEmailTemplate: EmailTemplateType = {
+    subject: `Your project has been created on GrantEzy 🎉`,
+    body: (values: EmailBody) => `
+    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+      <h2 style="color: #2c3e50;">Project Created Successfully 🚀</h2>
+
+      <p>Hello,</p>
+
+      <p>
+        We’re excited to let you know that your application
+        <strong>"${(values as ProjectCreationDTO).applicationName}"</strong> has been successfully converted into a project
+        on <strong>GrantEzy</strong>.
+      </p>
+
+      <p>
+        You can now track your project’s progress and manage its details from your dashboard.
+      </p>
+
+      <p style="margin-top: 24px;">
+        Best regards,<br/>
+        <strong>The GrantEzy Team</strong>
+      </p>
+
+      <hr style="margin-top: 30px; border: none; border-top: 1px solid #eee;">
+      <p style="font-size: 12px; color: #777;">
+        This is an automated message — please do not reply directly to this email.
       </p>
     </div>
   `,
