@@ -36,6 +36,9 @@ import {VerificationTokenEntity} from "../../core/domain/entities/verification.e
 import {Review} from "../../core/domain/aggregates/review.aggregate";
 import {REVIEW_AGGREGATE_PORT} from "./repository/review/review.aggregate.port";
 import {ReviewAggregateRepository} from "../../infrastructure/driven/database/repositories/review.aggregate.repository";
+import {FORGOT_PASSWORD_PORT} from "./repository/forgotpassword/forgotpassword.aggregate.port";
+import {ForgotPasswordAggregate} from "../../core/domain/aggregates/forgotpassword.aggregate";
+import {ForgotPasswordAggregateRepository} from "../../infrastructure/driven/database/repositories/forgotpassword.aggregate.repository";
 @Global()
 @Module({
     imports: [
@@ -52,6 +55,7 @@ import {ReviewAggregateRepository} from "../../infrastructure/driven/database/re
             UserNotifications,
             VerificationTokenEntity,
             Review,
+            ForgotPasswordAggregate,
         ]),
         JwtModule.register({}),
     ],
@@ -82,6 +86,10 @@ import {ReviewAggregateRepository} from "../../infrastructure/driven/database/re
             provide: USER_INVITE_AGGREGATE_PORT,
             useClass: UserInviteAggregateRepository,
         },
+        {
+            provide: FORGOT_PASSWORD_PORT,
+            useClass: ForgotPasswordAggregateRepository,
+        },
     ],
     exports: [
         USER_AGGREGATE_PORT,
@@ -96,6 +104,7 @@ import {ReviewAggregateRepository} from "../../infrastructure/driven/database/re
         ORGANIZATION_ENTITY_PORT,
         GRANT_APPLICATION_AGGREGATE_PORT,
         REVIEW_AGGREGATE_PORT,
+        FORGOT_PASSWORD_PORT,
     ],
 })
 export class OutputPortModule {}

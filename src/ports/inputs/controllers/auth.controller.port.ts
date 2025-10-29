@@ -1,7 +1,9 @@
 import {PassportResponseData} from "../../../infrastructure/driven/response-dtos/auth.response-dto";
 import {
+    ForgotPasswordDTO,
     LoginDTO,
     RegisterDTO,
+    UpdatePasswordDTO,
 } from "../../../infrastructure/driving/dtos/auth.dto";
 import {Response} from "express";
 import {AccessTokenJwt, RefreshTokenJwt} from "../../../shared/types/jwt.types";
@@ -17,4 +19,12 @@ export interface AuthControllerPort {
     setCookie(response: Response, cookieName: string, value: string): void;
     removeCookie(response: Response, cookieName: string): void;
     refresh(response: Response, user: RefreshTokenJwt): Promise<Response>;
+    forgotPassword(
+        response: Response,
+        data: ForgotPasswordDTO
+    ): Promise<Response>;
+    updatePassword(
+        response: Response,
+        data: UpdatePasswordDTO
+    ): Promise<Response>;
 }

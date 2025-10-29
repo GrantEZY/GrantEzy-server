@@ -28,7 +28,14 @@ export class LogoutResponseData {
 export class AccessTokenResponseData {
     accessToken: string;
 }
+export class ForgotPasswordResponseData {
+    status: boolean;
+}
+
 export class SignUpResponse extends ApiResponse(SignUpResponseData) {}
 export class LocalLoginResponse extends ApiResponse(LocalLoginResponseData) {}
 export class LogoutResponse extends ApiResponse(LogoutResponseData) {}
 export class AccessTokenResponse extends ApiResponse(AccessTokenResponseData) {}
+export class ForgotPasswordResponse extends ApiResponse(
+    ForgotPasswordResponseData
+) {}
