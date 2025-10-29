@@ -35,7 +35,7 @@ export class ProjectManagementService {
                 );
             if (!application) {
                 throw new ApiError(
-                    400,
+                    404,
                     "Application Not Found",
                     "Conflict Error"
                 );
@@ -45,16 +45,16 @@ export class ProjectManagementService {
 
             if (cycle.program?.managerId != userId) {
                 throw new ApiError(
-                    400,
+                    403,
                     "Program Manager Only Can Access",
                     "Conflict Error"
                 );
             }
 
-            if (!cycle.isApplicationAccepted) {
+            if (application.status == GrantApplicationStatus.APPROVED) {
                 throw new ApiError(
                     403,
-                    "The Cycle Is Not Converting Application To Program Anymore",
+                    "Application is already  a project",
                     "Conflict Error"
                 );
             }
