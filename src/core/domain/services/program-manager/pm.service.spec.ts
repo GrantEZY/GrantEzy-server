@@ -658,4 +658,39 @@ describe("Program Manager Service", () => {
             }
         });
     });
+
+    describe("Program Manager Details", () => {
+        it("Get Program Manager Program", async () => {
+            programAggregaterepository.getProgramByManagerId.mockResolvedValue(
+                SAVED_PROGRAM as any
+            );
+
+            const result =
+                await programManagerService.getProgramManagerProgram("uuid");
+
+            expect(result).toEqual({
+                status: 200,
+                message: "Program Manager Program Details",
+                res: {
+                    program: SAVED_PROGRAM,
+                },
+            });
+        });
+
+        it("Program Manager Not Found", async () => {
+            try {
+                programAggregaterepository.getProgramByManagerId.mockResolvedValue(
+                    null
+                );
+
+                await programManagerService.getProgramManagerProgram("uuid");
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe(
+                    "Only Program Manager can access the Program"
+                );
+            }
+        });
+    });
 });
