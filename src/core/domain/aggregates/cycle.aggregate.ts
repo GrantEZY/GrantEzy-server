@@ -23,7 +23,6 @@ import {
 } from "../value-objects/scoringscheme.object";
 import {TRL} from "../constants/trl.constants";
 import {GrantApplication} from "./grantapplication.aggregate";
-import {Project} from "./project.aggregate";
 @Entity({name: "programCycles"})
 export class Cycle {
     @PrimaryGeneratedColumn("uuid")
@@ -132,13 +131,6 @@ export class Cycle {
         eager: false,
     })
     applications: GrantApplication[];
-
-    @OneToMany(() => Project, (project) => project.cycle, {
-        onDelete: "SET NULL",
-        cascade: false,
-        eager: false,
-    })
-    projects: Project[];
 
     @Column({unique: true, nullable: true})
     slug: string;

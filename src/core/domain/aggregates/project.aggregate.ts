@@ -6,8 +6,6 @@ import {
     UpdateDateColumn,
     OneToOne,
     JoinColumn,
-    ManyToOne,
-    Index,
 } from "typeorm";
 import {ProjectStatus} from "../constants/status.constants";
 import {Money} from "../value-objects/project.metrics.object";
@@ -15,8 +13,11 @@ import {Duration} from "../value-objects/duration.object";
 import {ProjectProgress} from "../value-objects/project.progress.object";
 import {ProjectMetrics} from "../value-objects/project.metrics.object";
 import {User} from "./user.aggregate";
-import {Cycle} from "./cycle.aggregate";
 import {GrantApplication} from "./grantapplication.aggregate";
+import {
+    QuotedBudget,
+    BudgetComponent,
+} from "../value-objects/quotedbudget.object";
 
 @Entity({name: "projects"})
 export class Project {
@@ -30,12 +31,102 @@ export class Project {
         type: "jsonb",
         nullable: true,
         transformer: {
-            to: (value: Money) => (value ? value.toJSON() : null),
-            from: (value: {amount: number; currency: string}) =>
-                value ? new Money(value.amount, value.currency) : null,
+            to: (value: QuotedBudget | null) => (value ? value.toJSON() : null),
+            from: (value: {
+                ManPower: {
+                    BudgetReason: string;
+                    Budget: {amount: number; currency: string};
+                }[];
+                Equipment: {
+                    BudgetReason: string;
+                    Budget: {amount: number; currency: string};
+                }[];
+                OtherCosts: {
+                    BudgetReason: string;
+                    Budget: {amount: number; currency: string};
+                }[];
+                Consumables: {
+                    BudgetReason: string;
+                    Budget: {amount: number; currency: string};
+                };
+                Travel: {
+                    BudgetReason: string;
+                    Budget: {amount: number; currency: string};
+                };
+                Contigency: {
+                    BudgetReason: string;
+                    Budget: {amount: number; currency: string};
+                };
+                Overhead: {
+                    BudgetReason: string;
+                    Budget: {amount: number; currency: string};
+                };
+            }) =>
+                value
+                    ? new QuotedBudget(
+                          value.ManPower?.map(
+                              (c) =>
+                                  new BudgetComponent(
+                                      c.BudgetReason,
+                                      new Money(
+                                          c.Budget.amount,
+                                          c.Budget.currency
+                                      )
+                                  )
+                          ),
+                          value.Equipment?.map(
+                              (c) =>
+                                  new BudgetComponent(
+                                      c.BudgetReason,
+                                      new Money(
+                                          c.Budget.amount,
+                                          c.Budget.currency
+                                      )
+                                  )
+                          ),
+                          value.OtherCosts?.map(
+                              (c) =>
+                                  new BudgetComponent(
+                                      c.BudgetReason,
+                                      new Money(
+                                          c.Budget.amount,
+                                          c.Budget.currency
+                                      )
+                                  )
+                          ),
+                          new BudgetComponent(
+                              value.Consumables.BudgetReason,
+                              new Money(
+                                  value.Consumables.Budget.amount,
+                                  value.Consumables.Budget.currency
+                              )
+                          ),
+                          new BudgetComponent(
+                              value.Travel.BudgetReason,
+                              new Money(
+                                  value.Travel.Budget.amount,
+                                  value.Travel.Budget.currency
+                              )
+                          ),
+                          new BudgetComponent(
+                              value.Contigency.BudgetReason,
+                              new Money(
+                                  value.Contigency.Budget.amount,
+                                  value.Contigency.Budget.currency
+                              )
+                          ),
+                          new BudgetComponent(
+                              value.Overhead.BudgetReason,
+                              new Money(
+                                  value.Overhead.Budget.amount,
+                                  value.Overhead.Budget.currency
+                              )
+                          )
+                      )
+                    : null,
         },
     })
-    allotedBudget: Money | null;
+    allotedBudget: QuotedBudget;
 
     @Column({
         type: "jsonb",
@@ -46,7 +137,7 @@ export class Project {
                 value ? new Duration(value.startDate, value.endDate) : null,
         },
     })
-    duration: Duration | null;
+    duration: Duration;
 
     @Column({
         type: "jsonb",
@@ -71,8 +162,8 @@ export class Project {
     })
     progress: ProjectProgress | null;
 
-    @Column({unique: true, nullable: true})
-    slug: string | null;
+    @Column({unique: true})
+    slug: string;
 
     @Column({
         type: "jsonb",
@@ -80,28 +171,22 @@ export class Project {
         transformer: {
             to: (value: ProjectMetrics) => (value ? value.toJSON() : null),
             from: (value: {
-                plannedBudget: {amount: number; currency: string};
-                actualSpent: {amount: number; currency: string};
-                plannedDuration: number;
-                actualDuration: number;
+                plannedBudget: QuotedBudget;
+                actualSpent: QuotedBudget | null;
+                plannedDuration: Duration;
+                actualDuration: Duration | null;
             }) =>
                 value
                     ? new ProjectMetrics(
-                          new Money(
-                              value.plannedBudget.amount,
-                              value.plannedBudget.currency
-                          ),
-                          new Money(
-                              value.actualSpent.amount,
-                              value.actualSpent.currency
-                          ),
+                          value.plannedBudget,
+                          value.actualSpent,
                           value.plannedDuration,
                           value.actualDuration
                       )
                     : null,
         },
     })
-    metrics: ProjectMetrics | null;
+    metrics: ProjectMetrics;
 
     // --- Relations ---
 
@@ -114,18 +199,6 @@ export class Project {
     })
     @JoinColumn({name: "applicationId"})
     application: GrantApplication | null;
-
-    @Index()
-    @Column({type: "uuid", nullable: true})
-    cycleId: string | null;
-
-    @ManyToOne(() => Cycle, (cycle: Cycle) => cycle.projects, {
-        onDelete: "SET NULL",
-        cascade: false,
-        eager: false,
-    })
-    @JoinColumn({name: "cycleId"})
-    cycle: Cycle | null;
 
     @Column({type: "uuid", nullable: true})
     mentorId: string | null;

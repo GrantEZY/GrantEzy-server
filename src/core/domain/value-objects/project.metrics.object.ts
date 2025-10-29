@@ -1,17 +1,19 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
+import {QuotedBudget} from "./quotedbudget.object";
 import {MoneyDTO} from "../../../infrastructure/driving/dtos/pm.dto";
+import {Duration} from "./duration.object";
 export class ProjectMetrics {
-    readonly plannedBudget: Money;
-    readonly actualSpent: Money;
-    readonly plannedDuration: number; // e.g. in milliseconds or days
-    readonly actualDuration: number; // e.g. in milliseconds or days
+    readonly plannedBudget: QuotedBudget;
+    readonly actualSpent: QuotedBudget | null;
+    readonly plannedDuration: Duration;
+    readonly actualDuration: Duration | null;
 
     constructor(
-        plannedBudget: Money,
-        actualSpent: Money,
-        plannedDuration: number,
-        actualDuration: number
+        plannedBudget: QuotedBudget,
+        actualSpent: QuotedBudget | null,
+        plannedDuration: Duration,
+        actualDuration: Duration | null
     ) {
         this.plannedBudget = plannedBudget;
         this.actualSpent = actualSpent;
