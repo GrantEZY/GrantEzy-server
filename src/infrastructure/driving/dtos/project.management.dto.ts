@@ -61,6 +61,13 @@ export class CreateProjectDTO {
     @Type(() => QuotedBudgetDTO)
     allocatedBudget: QuotedBudgetDTO;
 
+    @ApiProperty({
+        description: "Duration for the project",
+        example: {
+            startDate: new Date(),
+            endDate: new Date(),
+        },
+    })
     @ValidateNested()
     @Type(() => ProjectMetricsDurationDTO)
     plannedDuration: ProjectMetricsDurationDTO;

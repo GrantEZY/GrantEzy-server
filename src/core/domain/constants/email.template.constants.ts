@@ -161,6 +161,8 @@ export const ProjectCreatedFromApplicationEmailTemplate: EmailTemplateType = {
 
       <p>Hello,</p>
 
+      <p>Hi ${(values as ProjectCreationDTO).userName},</p>
+
       <p>
         We’re excited to let you know that your application
         <strong>"${(values as ProjectCreationDTO).applicationName}"</strong> has been successfully converted into a project

@@ -96,6 +96,9 @@ export class ProjectCreationDTO {
     @IsString()
     applicationName: string;
 
+    @IsString()
+    userName: string;
+
     @IsEmail()
     email: string;
 }

@@ -6,12 +6,12 @@ import {
     CycleInviteDTO,
     ForgotPasswordEmailDTO,
     InviteEmailDTO,
-    ProjectCreationDTO,
 } from "../../../driving/dtos/queue/queue.dto";
 import {EmailResponse} from "../../response-dtos/queue/queue.response-dto";
 import {Logger} from "@nestjs/common";
 import {v4 as uuid} from "uuid";
 import {EmailNotifications} from "../../../../core/domain/constants/notification.constants";
+import {User} from "../../../../core/domain/aggregates/user.aggregate";
 @Injectable()
 export class EmailQueue {
     private logger;
@@ -125,17 +125,24 @@ export class EmailQueue {
     }
 
     async createProjectEmailToQueue(
-        userDatas: ProjectCreationDTO[]
+        userDatas: User[],
+        applicationName: string
     ): Promise<EmailResponse> {
         try {
             const jobs = userDatas.map((data) => {
                 const uniqueId = uuid();
-                const {email} = data;
+                const {email} = data.contact;
+                const {firstName, lastName} = data.person;
+
                 const jobId =
                     uniqueId + "-" + email + "-create-project-confirmation"; // eslint-disable-line
                 return {
                     name: jobId,
-                    data: data,
+                    data: {
+                        applicationName,
+                        email,
+                        userName: `${firstName} ${lastName}`,
+                    },
                 };
             });
             const addedJobs = await this.emailQueue.addBulk(jobs);

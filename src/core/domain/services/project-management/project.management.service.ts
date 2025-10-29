@@ -11,6 +11,7 @@ import ApiError from "../../../../shared/errors/api.error";
 import {CreateProjectDTO} from "../../../../infrastructure/driving/dtos/project.management.dto";
 import {GrantApplicationStatus} from "../../constants/status.constants";
 import {CreateProjectReponse} from "../../../../infrastructure/driven/response-dtos/project.management.response-dto";
+import {EmailQueue} from "../../../../infrastructure/driven/queue/queues/email.queue";
 @Injectable()
 export class ProjectManagementService {
     constructor(
@@ -18,7 +19,8 @@ export class ProjectManagementService {
         private readonly grantApplicationRepository: GrantApplicationAggregatePort,
 
         @Inject(PROJECT_AGGREGATE_PORT)
-        private readonly projectAggregateRepository: ProjectAggregatePort
+        private readonly projectAggregateRepository: ProjectAggregatePort,
+        private readonly emailQueue: EmailQueue
     ) {}
 
     async createProject(
@@ -39,7 +41,7 @@ export class ProjectManagementService {
                 );
             }
 
-            const {cycle} = application;
+            const {cycle, applicant, teammates} = application;
 
             if (cycle.program?.managerId != userId) {
                 throw new ApiError(
@@ -60,10 +62,16 @@ export class ProjectManagementService {
             const project =
                 await this.projectAggregateRepository.createProject(details);
 
-            await this.grantApplicationRepository.modifyApplicationStatus(
-                application,
-                GrantApplicationStatus.APPROVED,
-                false
+            const updatedApplication =
+                await this.grantApplicationRepository.modifyApplicationStatus(
+                    application,
+                    GrantApplicationStatus.APPROVED,
+                    false
+                );
+
+            await this.emailQueue.createProjectEmailToQueue(
+                [applicant, ...teammates],
+                updatedApplication.basicDetails.title
             );
 
             return {

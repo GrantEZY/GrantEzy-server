@@ -1,12 +1,13 @@
 import {Body, Controller, Post, Res} from "@nestjs/common";
 import {Response} from "express";
-import {ApiTags} from "@nestjs/swagger";
+import {ApiResponse, ApiTags} from "@nestjs/swagger";
 import {ProjectManagementControllerPort} from "../../../../../ports/inputs/controllers/project.management.controller.port";
 import {CreateProjectDTO} from "../../../dtos/project.management.dto";
 import ApiError from "../../../../../shared/errors/api.error";
 import {ProjectManagementService} from "../../../../../core/domain/services/project-management/project.management.service";
 import {CurrentUser} from "../../../../../shared/decorators/currentuser.decorator";
 import {AccessTokenJwt} from "../../../../../shared/types/jwt.types";
+import {PROJECT_MANAGEMENT_RESPONSES} from "../../../../../config/swagger/docs/project.management.swagger";
 @ApiTags("Project Management")
 @Controller("pt-management")
 export class ProjectManagementController
@@ -17,6 +18,10 @@ export class ProjectManagementController
     ) {}
 
     @Post("/create-project")
+    @ApiResponse(PROJECT_MANAGEMENT_RESPONSES.CREATE.SUCCESS)
+    @ApiResponse(PROJECT_MANAGEMENT_RESPONSES.CREATE.APPLICATION_NOT_ELIGIBLE)
+    @ApiResponse(PROJECT_MANAGEMENT_RESPONSES.CREATE.APPLICATION_NOT_FOUND)
+    @ApiResponse(PROJECT_MANAGEMENT_RESPONSES.CREATE.UNAUTHORIZED_MANAGER)
     async createProject(
         @Body() body: CreateProjectDTO,
         @CurrentUser() user: AccessTokenJwt,

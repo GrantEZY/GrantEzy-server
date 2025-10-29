@@ -423,6 +423,7 @@ export class GrantApplicationRepository
                     "cycle",
                     "teammates",
                     "cycle.program",
+                    "applicant",
                 ],
             });
 
