@@ -3,7 +3,7 @@ import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import {Project} from "../../../../core/domain/aggregates/project.aggregate";
-import {CreateProjectDTO} from "../../../driving/dtos/pm.dto";
+import {CreateProjectDTO} from "../../../driving/dtos/project.management.dto";
 import ApiError from "../../../../shared/errors/api.error";
 import {QuotedBudgetObjectBuilder} from "../../../../core/domain/value-objects/quotedbudget.object";
 import {DurationObjectBuilder} from "../../../../core/domain/value-objects/duration.object";

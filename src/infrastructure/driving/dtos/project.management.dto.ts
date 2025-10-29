@@ -1,0 +1,67 @@
+import {ValidateNested, IsUUID, IsDate} from "class-validator";
+import {ApiProperty} from "@nestjs/swagger";
+import {QuotedBudgetDTO} from "./applicant.dto";
+import {Type} from "class-transformer";
+export class ProjectMetricsDurationDTO {
+    @ApiProperty({type: Date, example: "2025-01-01T00:00:00Z"})
+    @IsDate()
+    @Type(() => Date)
+    startDate: Date;
+
+    @ApiProperty({type: Date, example: "2025-12-31T23:59:59Z"})
+    @IsDate()
+    @Type(() => Date)
+    endDate: Date;
+}
+
+export class CreateProjectDTO {
+    @ApiProperty({
+        description: "UUID of the associated application",
+        example: "4b7d1f33-0f2e-4b7a-91e3-5f58f3c9d4ab",
+    })
+    @IsUUID()
+    applicationId: string;
+
+    @ApiProperty({
+        description: "Quoted budget information",
+        type: QuotedBudgetDTO,
+        example: {
+            ManPower: [
+                {
+                    BudgetReason: "Hiring developers",
+                    Budget: {amount: 200000, currency: "INR"},
+                },
+            ],
+            Equipment: [
+                {
+                    BudgetReason: "GPU Servers",
+                    Budget: {amount: 150000, currency: "INR"},
+                },
+            ],
+            OtherCosts: [],
+            Consumables: {
+                BudgetReason: "Cloud credits",
+                Budget: {amount: 50000, currency: "INR"},
+            },
+            Travel: {
+                BudgetReason: "Conferences",
+                Budget: {amount: 20000, currency: "INR"},
+            },
+            Contigency: {
+                BudgetReason: "Unexpected costs",
+                Budget: {amount: 30000, currency: "INR"},
+            },
+            Overhead: {
+                BudgetReason: "Admin expenses",
+                Budget: {amount: 50000, currency: "INR"},
+            },
+        },
+    })
+    @ValidateNested()
+    @Type(() => QuotedBudgetDTO)
+    allocatedBudget: QuotedBudgetDTO;
+
+    @ValidateNested()
+    @Type(() => ProjectMetricsDurationDTO)
+    plannedDuration: ProjectMetricsDurationDTO;
+}
