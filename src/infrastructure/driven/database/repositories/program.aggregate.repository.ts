@@ -189,6 +189,7 @@ export class ProgramAggregateRepository implements ProgramAggregatePort {
                 where: {
                     status: ProgramStatus.ACTIVE,
                 },
+                relations: ['cycles'],
                 skip: (page - 1) * numberOfResults,
                 take: numberOfResults,
                 order: {
