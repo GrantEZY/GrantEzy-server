@@ -33,6 +33,8 @@ import {BudgetComponent} from "../value-objects/quotedbudget.object";
 import {ApplicationDocumentsObject} from "../value-objects/applicationdocuments.object";
 import {DocumentObject} from "../value-objects/document.object";
 import {UserInvite} from "./user.invite.aggregate";
+import {OneToOne} from "typeorm";
+import {Project} from "./project.aggregate";
 
 @Entity({name: "grant-applications"})
 @Unique(["applicantId", "cycleId"])
@@ -401,6 +403,16 @@ export class GrantApplication {
 
     @OneToMany(() => Review, (review) => review.application, {eager: false})
     reviews: Review[];
+
+    @Column({nullable: true})
+    projectId: string | null;
+
+    @OneToOne(() => Project, (project) => project.application, {
+        eager: false,
+        nullable: true,
+    })
+    @JoinColumn({name: "projectId"})
+    project: Project | null;
 
     @Column({type: "enum", enum: TRL, nullable: true})
     currentTRL: TRL;

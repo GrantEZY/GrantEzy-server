@@ -1,4 +1,11 @@
-import {ValidateNested, IsUUID, IsDate} from "class-validator";
+import {
+    ValidateNested,
+    IsUUID,
+    IsDate,
+    IsInt,
+    IsPositive,
+    Min,
+} from "class-validator";
 import {ApiProperty} from "@nestjs/swagger";
 import {QuotedBudgetDTO} from "./applicant.dto";
 import {Type} from "class-transformer";
@@ -71,4 +78,47 @@ export class CreateProjectDTO {
     @ValidateNested()
     @Type(() => ProjectMetricsDurationDTO)
     plannedDuration: ProjectMetricsDurationDTO;
+}
+
+export class GetCycleProjectsDTO {
+    @ApiProperty({
+        description: "slug of the cycle",
+        example: "4b7d1f330f2e4b7a91e35f58f3c9d4ab",
+    })
+    @IsUUID()
+    cycleSlug: string;
+
+    @IsInt()
+    @IsPositive()
+    @Type(() => Number)
+    @ApiProperty({
+        description: "Page Number for pagination",
+        example: 1,
+    })
+    page: number;
+
+    @ApiProperty({
+        description: "Number Of Results per page for pagination",
+        example: 1,
+    })
+    @IsInt()
+    @Min(1)
+    @Type(() => Number)
+    numberOfResults: number;
+}
+
+export class GetProjectDetailsDTO {
+    @ApiProperty({
+        description: "slug of the cycle",
+        example: "4b7d1f330f2e4b7a91e35f58f3c9d4ab",
+    })
+    @IsUUID()
+    cycleSlug: string;
+
+    @ApiProperty({
+        description: "slug of the application",
+        example: "4b7d1f330f2e4b7a91e35f58f3c9d4ab",
+    })
+    @IsUUID()
+    applicationSlug: string;
 }

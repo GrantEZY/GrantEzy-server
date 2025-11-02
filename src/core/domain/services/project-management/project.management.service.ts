@@ -7,11 +7,25 @@ import {
     GRANT_APPLICATION_AGGREGATE_PORT,
     GrantApplicationAggregatePort,
 } from "../../../../ports/outputs/repository/grantapplication/grantapplication.aggregate.port";
+import {
+    CycleAggregatePort,
+    CYCLE_AGGREGATE_PORT,
+} from "../../../../ports/outputs/repository/cycle/cycle.aggregate.port";
 import ApiError from "../../../../shared/errors/api.error";
-import {CreateProjectDTO} from "../../../../infrastructure/driving/dtos/project.management.dto";
+import {
+    CreateProjectDTO,
+    GetCycleProjectsDTO,
+    GetProjectDetailsDTO,
+} from "../../../../infrastructure/driving/dtos/project.management.dto";
 import {GrantApplicationStatus} from "../../constants/status.constants";
-import {CreateProjectReponse} from "../../../../infrastructure/driven/response-dtos/project.management.response-dto";
+import {
+    CreateProjectResponse,
+    GetCycleProjectsResponse,
+    GetProjectDetailsResponse,
+} from "../../../../infrastructure/driven/response-dtos/project.management.response-dto";
 import {EmailQueue} from "../../../../infrastructure/driven/queue/queues/email.queue";
+import {SharedApplicationService} from "../shared/application/shared.application.service";
+
 @Injectable()
 export class ProjectManagementService {
     constructor(
@@ -20,19 +34,29 @@ export class ProjectManagementService {
 
         @Inject(PROJECT_AGGREGATE_PORT)
         private readonly projectAggregateRepository: ProjectAggregatePort,
-        private readonly emailQueue: EmailQueue
+
+        @Inject(CYCLE_AGGREGATE_PORT)
+        private readonly cycleAggregateRepository: CycleAggregatePort,
+
+        private readonly emailQueue: EmailQueue,
+        private readonly sharedApplicationService: SharedApplicationService
     ) {}
 
+    /**
+     * Creates a new project from an approved grant application.
+     */
     async createProject(
         details: CreateProjectDTO,
         userId: string
-    ): Promise<CreateProjectReponse> {
+    ): Promise<CreateProjectResponse> {
         try {
             const {applicationId} = details;
+
             const application =
                 await this.grantApplicationRepository.getUserCreatedApplication(
                     applicationId
                 );
+
             if (!application) {
                 throw new ApiError(
                     404,
@@ -43,7 +67,7 @@ export class ProjectManagementService {
 
             const {cycle, applicant, teammates} = application;
 
-            if (cycle.program?.managerId != userId) {
+            if (cycle.program?.managerId !== userId) {
                 throw new ApiError(
                     403,
                     "Program Manager Only Can Access",
@@ -51,10 +75,10 @@ export class ProjectManagementService {
                 );
             }
 
-            if (application.status == GrantApplicationStatus.APPROVED) {
+            if (application.status === GrantApplicationStatus.APPROVED) {
                 throw new ApiError(
                     403,
-                    "Application is already  a project",
+                    "Application is already a project",
                     "Conflict Error"
                 );
             }
@@ -87,6 +111,113 @@ export class ProjectManagementService {
         }
     }
 
+    /**
+     * Retrieves all projects under a specific cycle (for program managers).
+     */
+    async getCycleProjects(
+        details: GetCycleProjectsDTO,
+        userId: string
+    ): Promise<GetCycleProjectsResponse> {
+        try {
+            const {cycleSlug, page, numberOfResults} = details;
+
+            const cycle =
+                await this.cycleAggregateRepository.findCycleByslug(cycleSlug);
+
+            if (!cycle) {
+                throw new ApiError(404, "Cycle Not Found", "Conflict Error");
+            }
+
+            const managerId = cycle.program?.managerId;
+
+            if (managerId !== userId) {
+                throw new ApiError(
+                    403,
+                    "Only Program Manager Can Access The Route",
+                    "Conflict Error"
+                );
+            }
+
+            const applications =
+                await this.sharedApplicationService.getCycleProjects(
+                    cycle.id,
+                    page,
+                    numberOfResults
+                );
+
+            return {
+                status: 200,
+                message: "Cycle Projects",
+                res: {applications},
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    /**
+     * Retrieves project details using application slug and cycle slug.
+     */
+    async getProjectDetails(
+        applicationDetails: GetProjectDetailsDTO,
+        userId: string
+    ): Promise<GetProjectDetailsResponse> {
+        try {
+            const {cycleSlug, applicationSlug} = applicationDetails;
+
+            const application =
+                await this.grantApplicationRepository.getUserCreatedApplicationWithSlug(
+                    applicationSlug
+                );
+
+            if (!application || application.cycle.slug !== cycleSlug) {
+                throw new ApiError(
+                    404,
+                    "Application Not Found",
+                    "Conflict Error"
+                );
+            }
+
+            if (application.status !== GrantApplicationStatus.APPROVED) {
+                throw new ApiError(
+                    403,
+                    "Application Is Not a Project",
+                    "Conflict Error"
+                );
+            }
+
+            const managerId = application.cycle.program?.managerId;
+
+            if (managerId !== userId) {
+                throw new ApiError(
+                    403,
+                    "Only Program Manager Can Access The Route",
+                    "Conflict Error"
+                );
+            }
+
+            const project =
+                await this.projectAggregateRepository.getProjectDetailsWithApplicationId(
+                    application.id
+                );
+
+            if (!project) {
+                throw new ApiError(404, "Project Not Found", "Conflict Error");
+            }
+
+            return {
+                status: 200,
+                message: "Project Details",
+                res: {project},
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    /**
+     * Handles and standardizes all service errors.
+     */
     handleError(error: unknown): never {
         if (error instanceof ApiError) {
             throw error;

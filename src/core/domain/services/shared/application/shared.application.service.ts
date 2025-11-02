@@ -16,6 +16,7 @@ import {UserInvite} from "../../../aggregates/user.invite.aggregate";
 import ApiError from "../../../../../shared/errors/api.error";
 import {InviteAs, InviteStatus} from "../../../constants/invite.constants";
 import {GetUserInviteStatusDetailsResponse} from "../../../../../infrastructure/driven/response-dtos/shared.response-dto";
+import {GrantApplicationStatus} from "../../../constants/status.constants";
 @Injectable()
 export class SharedApplicationService {
     constructor(
@@ -138,6 +139,41 @@ export class SharedApplicationService {
                 application,
                 email: invite.email,
             };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async getCycleProjects(
+        cycleId: string,
+        page: number,
+        numberOfResults: number
+    ): Promise<GrantApplication[]> {
+        try {
+            const applications =
+                await this.applicationAggregateRepository.getUserApplicationBasedOnStatus(
+                    GrantApplicationStatus.APPROVED,
+                    cycleId,
+                    page,
+                    numberOfResults
+                );
+
+            return applications;
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async getProjectDetails(
+        applicationId: string
+    ): Promise<GrantApplication | null> {
+        try {
+            const application =
+                await this.applicationAggregateRepository.getApplicationDetailsWithProject(
+                    applicationId
+                );
+
+            return application;
         } catch (error) {
             this.handleError(error);
         }

@@ -57,4 +57,28 @@ export class ProjectAggregateRepository implements ProjectAggregatePort {
             throw new ApiError(502, "Failed to save project", "Database Error");
         }
     }
+
+    async getProjectDetailsWithApplicationId(
+        applicationId: string
+    ): Promise<Project | null> {
+        try {
+            const project = await this.projectRepository.findOne({
+                where: {
+                    applicationId,
+                },
+                relations: ["application"],
+            });
+
+            return project;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Failed to fetch project details",
+                "Database Error"
+            );
+        }
+    }
 }

@@ -468,4 +468,55 @@ export class GrantApplicationRepository
             );
         }
     }
+
+    async getUserApplicationBasedOnStatus(
+        status: GrantApplicationStatus,
+        cycleId: string,
+        page: number,
+        numberOfResults: number
+    ): Promise<GrantApplication[]> {
+        try {
+            const applications = await this.grantApplicationRepository.find({
+                where: {
+                    cycleId,
+                    status,
+                },
+                skip: (page - 1) * numberOfResults,
+                take: numberOfResults,
+            });
+
+            return applications;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Failed to fetch applications based on status",
+                "Database Error"
+            );
+        }
+    }
+
+    async getApplicationDetailsWithProject(
+        applicationId: string
+    ): Promise<GrantApplication | null> {
+        try {
+            const application = await this.grantApplicationRepository.findOne({
+                where: {id: applicationId},
+                relations: ["project", "cycle"],
+            });
+
+            return application;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Failed to fetch applications with project",
+                "Database Error"
+            );
+        }
+    }
 }

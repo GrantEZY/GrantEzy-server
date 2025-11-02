@@ -1,8 +1,12 @@
-import {Body, Controller, Post, Res} from "@nestjs/common";
+import {Body, Controller, Post, Res, Query, Get} from "@nestjs/common";
 import {Response} from "express";
 import {ApiResponse, ApiTags} from "@nestjs/swagger";
 import {ProjectManagementControllerPort} from "../../../../../ports/inputs/controllers/project.management.controller.port";
-import {CreateProjectDTO} from "../../../dtos/project.management.dto";
+import {
+    CreateProjectDTO,
+    GetCycleProjectsDTO,
+    GetProjectDetailsDTO,
+} from "../../../dtos/project.management.dto";
 import ApiError from "../../../../../shared/errors/api.error";
 import {ProjectManagementService} from "../../../../../core/domain/services/project-management/project.management.service";
 import {CurrentUser} from "../../../../../shared/decorators/currentuser.decorator";
@@ -33,6 +37,60 @@ export class ProjectManagementController
                 body,
                 id
             );
+
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Get("/get-cycle-projects")
+    @ApiResponse(PROJECT_MANAGEMENT_RESPONSES.GET_CYCLE_PROJECTS.SUCCESS)
+    @ApiResponse(
+        PROJECT_MANAGEMENT_RESPONSES.GET_CYCLE_PROJECTS.UNAUTHORIZED_MANAGER
+    )
+    @ApiResponse(
+        PROJECT_MANAGEMENT_RESPONSES.GET_CYCLE_PROJECTS.CYCLE_NOT_FOUND
+    )
+    async getCycleProjects(
+        @Query() parameters: GetCycleProjectsDTO,
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+
+            const result = await this.projectManagementService.getCycleProjects(
+                parameters,
+                id
+            );
+
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Get("/get-project-details")
+    @ApiResponse(
+        PROJECT_MANAGEMENT_RESPONSES.GET_PROJECT_DETAILS.APPLICATION_NOT_FOUND
+    )
+    @ApiResponse(PROJECT_MANAGEMENT_RESPONSES.GET_PROJECT_DETAILS.NOT_A_PROJECT)
+    @ApiResponse(PROJECT_MANAGEMENT_RESPONSES.GET_PROJECT_DETAILS.SUCCESS)
+    @ApiResponse(PROJECT_MANAGEMENT_RESPONSES.GET_PROJECT_DETAILS.SUCCESS)
+    async getProjectDetails(
+        @Query() parameters: GetProjectDetailsDTO,
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+
+            const result =
+                await this.projectManagementService.getProjectDetails(
+                    parameters,
+                    id
+                );
 
             return response.status(result.status).json(result);
         } catch (error) {
