@@ -371,6 +371,17 @@ const SAVED_CYCLE = {
         innovation: {minScore: 1, maxScore: 10, weightage: 0.1},
     },
 };
+
+const saved_project = {
+    id: "uuid",
+    allotedBudget: {
+        ManPower: {
+            currency: "IND",
+            value: 400,
+        },
+    },
+};
+
 export {
     dummyApplicantData,
     saved_Application,
@@ -385,4 +396,5 @@ export {
     InviteResponse,
     SAVED_USER,
     SAVED_CYCLE,
+    saved_project,
 };

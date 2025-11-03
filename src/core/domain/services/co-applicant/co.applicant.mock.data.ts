@@ -91,4 +91,14 @@ const SAVED_USER = {
     updatedAt: "2024-01-10T15:30:00.000Z",
 };
 
-export {saved_Application, dummyUserInvite, SAVED_USER};
+const saved_project = {
+    id: "uuid",
+    allotedBudget: {
+        ManPower: {
+            currency: "IND",
+            value: 400,
+        },
+    },
+};
+
+export {saved_Application, dummyUserInvite, SAVED_USER, saved_project};
