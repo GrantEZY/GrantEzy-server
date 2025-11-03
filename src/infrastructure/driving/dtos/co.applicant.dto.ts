@@ -1,5 +1,5 @@
 import {ApiProperty} from "@nestjs/swagger";
-import {IsUUID} from "class-validator";
+import {IsUUID, IsString, IsInt} from "class-validator";
 import {InviteStatus} from "../../../core/domain/constants/invite.constants";
 export class CoApplicantApplicationDTO {
     @ApiProperty({
@@ -42,4 +42,29 @@ export class SubmitInviteStatusDTO {
         example: "ACCEPTED",
     })
     status: InviteStatus.ACCEPTED | InviteStatus.REJECTED;
+}
+
+export class GetUserLinkedProjectsPaginationDTO {
+    @ApiProperty({
+        description: "page number for pagination",
+        example: "1",
+    })
+    @IsInt()
+    page: number;
+
+    @ApiProperty({
+        description: "number Of Results in One Page",
+        example: "1",
+    })
+    @IsInt()
+    numberOfResults: number;
+}
+
+export class GetProjectDetailsDTO {
+    @ApiProperty({
+        description: "slug of the associated application",
+        example: "4b7d1f330f2e4b7a91e35f58f3c9d4ab",
+    })
+    @IsString()
+    applicationSlug: string;
 }

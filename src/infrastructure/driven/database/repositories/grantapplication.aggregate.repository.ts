@@ -498,13 +498,13 @@ export class GrantApplicationRepository
         }
     }
 
-    async getApplicationDetailsWithProject(
-        applicationId: string
+    async getApplicationDetailsWithSlug(
+        applicationSlug: string
     ): Promise<GrantApplication | null> {
         try {
             const application = await this.grantApplicationRepository.findOne({
-                where: {id: applicationId},
-                relations: ["project", "cycle"],
+                where: {slug: applicationSlug},
+                relations: ["cycle", "teammates"],
             });
 
             return application;
@@ -515,6 +515,34 @@ export class GrantApplicationRepository
             throw new ApiError(
                 502,
                 "Failed to fetch applications with project",
+                "Database Error"
+            );
+        }
+    }
+
+    async getUserCreatedProjects(
+        userId: string,
+        page: number,
+        numberOfResults: number
+    ): Promise<GrantApplication[]> {
+        try {
+            const applications = await this.grantApplicationRepository.find({
+                where: {
+                    status: GrantApplicationStatus.APPROVED,
+                    applicantId: userId,
+                },
+                skip: (page - 1) * numberOfResults,
+                take: numberOfResults,
+            });
+
+            return applications;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Failed to fetch user  projects",
                 "Database Error"
             );
         }

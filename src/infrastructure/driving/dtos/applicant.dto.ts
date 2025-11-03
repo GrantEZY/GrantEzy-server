@@ -11,6 +11,7 @@ import {
     IsBoolean,
     IsOptional,
     IsObject,
+    IsInt,
 } from "class-validator";
 import {Type} from "class-transformer";
 import {MoneyDTO} from "./pm.dto";
@@ -648,5 +649,31 @@ export class GetApplicationWithCycleDetailsDTO {
         description: "slug of the associated cycle",
         example: "4b7d1f330f2e4b7a91e35f58f3c9d4ab",
     })
+    @IsString()
     cycleSlug: string;
+}
+
+export class GetUserProjectsPaginationDTO {
+    @ApiProperty({
+        description: "page number for pagination",
+        example: "1",
+    })
+    @IsInt()
+    page: number;
+
+    @ApiProperty({
+        description: "number Of Results in One Page",
+        example: "1",
+    })
+    @IsInt()
+    numberOfResults: number;
+}
+
+export class GetProjectDetailsDTO {
+    @ApiProperty({
+        description: "slug of the associated application",
+        example: "4b7d1f330f2e4b7a91e35f58f3c9d4ab",
+    })
+    @IsString()
+    applicationSlug: string;
 }

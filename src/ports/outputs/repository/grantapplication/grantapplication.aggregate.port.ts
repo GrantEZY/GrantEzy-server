@@ -66,9 +66,14 @@ export interface GrantApplicationAggregatePort {
         page: number,
         numberOfResults: number
     ): Promise<GrantApplication[]>;
-    getApplicationDetailsWithProject(
-        applicationId: string
+    getApplicationDetailsWithSlug(
+        applicationSlug: string
     ): Promise<GrantApplication | null>;
+    getUserCreatedProjects(
+        userId: string,
+        page: number,
+        numberOfResults: number
+    ): Promise<GrantApplication[]>;
 }
 
 export const GRANT_APPLICATION_AGGREGATE_PORT = Symbol(

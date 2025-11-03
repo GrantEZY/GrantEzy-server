@@ -12,6 +12,8 @@ import {slugify} from "../../../../shared/helpers/slug.generator";
 import {v4 as uuid} from "uuid";
 import {ExperienceDTO, UpdateProfileDTO} from "../../../driving/dtos/user.dto";
 import {Experience} from "../../../../core/domain/value-objects/experience.object";
+import {GrantApplicationStatus} from "../../../../core/domain/constants/status.constants";
+import {GrantApplication} from "../../../../core/domain/aggregates/grantapplication.aggregate";
 @Injectable()
 export class UserAggregateRepository implements UserAggregatePort {
     constructor(
@@ -419,6 +421,47 @@ export class UserAggregateRepository implements UserAggregatePort {
             throw new ApiError(
                 502,
                 "Error in updating user password",
+                "Database Error"
+            );
+        }
+    }
+
+    async getUserLinkedProjects(
+        userId: string,
+        page: number,
+        numberOfResults: number
+    ): Promise<GrantApplication[]> {
+        try {
+            const query = this.userRepository
+                .createQueryBuilder("user")
+                .leftJoinAndSelect(
+                    "user.linkedApplications",
+                    "linkedApplications"
+                )
+                .where("user.personId = :userId", {userId})
+                .andWhere("linkedApplications.status = :status", {
+                    status: GrantApplicationStatus.APPROVED,
+                })
+                .orderBy("linkedApplications.createdAt", "DESC")
+                .skip((page - 1) * numberOfResults)
+                .take(numberOfResults);
+
+            const user = await query.getOne();
+
+            const applications = user?.linkedApplications;
+
+            if (!applications) {
+                return [];
+            } else {
+                return user.linkedApplications;
+            }
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Error in getting linked projects",
                 "Database Error"
             );
         }

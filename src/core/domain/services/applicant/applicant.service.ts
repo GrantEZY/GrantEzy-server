@@ -21,8 +21,10 @@ import {
     CreateApplicationResponse,
     DeleteApplicationResponse,
     GetApplicationWithCycleDetailsResponse,
+    GetProjectDetailsResponse,
     GetUserApplicationsResponse,
     GetUserCreatedApplicationResponse,
+    GetUserProjectsResponse,
 } from "../../../../infrastructure/driven/response-dtos/applicant.response-dto";
 import {GrantApplicationStatus} from "../../constants/status.constants";
 import {
@@ -38,6 +40,10 @@ import {
 } from "../../../../ports/outputs/repository/user/user.aggregate.port";
 import {CycleInviteQueue} from "../../../../infrastructure/driven/queue/queues/cycle.invite.queue";
 import {InviteAs} from "../../constants/invite.constants";
+import {
+    ProjectAggregatePort,
+    PROJECT_AGGREGATE_PORT,
+} from "../../../../ports/outputs/repository/project/project.aggregate.port";
 @Injectable()
 /**
  * This contains the services for application creation by the users
@@ -55,6 +61,9 @@ export class ApplicantService {
 
         @Inject(USER_INVITE_AGGREGATE_PORT)
         private readonly userInviteAggregateRepository: UserInviteAggregatePort,
+
+        @Inject(PROJECT_AGGREGATE_PORT)
+        private readonly projectAggregateRepository: ProjectAggregatePort,
         private readonly sharedUserService: UserSharedService,
         private readonly cycleInviteQueue: CycleInviteQueue
     ) {}
@@ -654,6 +663,80 @@ export class ApplicantService {
                     success: true,
                     applicationId: deletedApplication.id,
                 },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async getUserProjects(
+        userId: string,
+        page: number,
+        numberOfResults: number
+    ): Promise<GetUserProjectsResponse> {
+        try {
+            const applications =
+                await this.applicationAggregateRepository.getUserCreatedProjects(
+                    userId,
+                    page,
+                    numberOfResults
+                );
+
+            return {
+                status: 200,
+                message: "User Created Applications Converted To Projects",
+                res: {
+                    applications,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async getProjectDetails(
+        applicationSlug: string,
+        userId: string
+    ): Promise<GetProjectDetailsResponse> {
+        try {
+            const application =
+                await this.applicationAggregateRepository.findBySlug(
+                    applicationSlug
+                );
+
+            if (!application) {
+                throw new ApiError(
+                    404,
+                    "Application Not Found",
+                    "Conflict Error"
+                );
+            }
+
+            if (application.applicantId != userId) {
+                throw new ApiError(
+                    403,
+                    "Application Not Created By User",
+                    "Conflict Error"
+                );
+            }
+
+            const project =
+                await this.projectAggregateRepository.getProjectDetailsWithApplicationId(
+                    application.id
+                );
+
+            if (!project) {
+                throw new ApiError(
+                    403,
+                    "Application Is Not a Project",
+                    "Conflict Error"
+                );
+            }
+
+            return {
+                status: 200,
+                message: "Project Details",
+                res: {project},
             };
         } catch (error) {
             this.handleError(error);

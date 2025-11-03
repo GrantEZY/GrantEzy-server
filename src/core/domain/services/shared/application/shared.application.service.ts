@@ -164,21 +164,6 @@ export class SharedApplicationService {
         }
     }
 
-    async getProjectDetails(
-        applicationId: string
-    ): Promise<GrantApplication | null> {
-        try {
-            const application =
-                await this.applicationAggregateRepository.getApplicationDetailsWithProject(
-                    applicationId
-                );
-
-            return application;
-        } catch (error) {
-            this.handleError(error);
-        }
-    }
-
     handleError(error: unknown): never {
         if (error instanceof ApiError) {
             throw error;
