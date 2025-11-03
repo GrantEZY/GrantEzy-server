@@ -5,10 +5,13 @@ import {
     IsInt,
     IsPositive,
     Min,
+    IsString,
+    IsOptional,
 } from "class-validator";
 import {ApiProperty} from "@nestjs/swagger";
 import {QuotedBudgetDTO} from "./applicant.dto";
 import {Type} from "class-transformer";
+import {DocumentObjectDTO} from "./applicant.dto";
 export class ProjectMetricsDurationDTO {
     @ApiProperty({type: Date, example: "2025-01-01T00:00:00Z"})
     @IsDate()
@@ -85,7 +88,7 @@ export class GetCycleProjectsDTO {
         description: "slug of the cycle",
         example: "4b7d1f330f2e4b7a91e35f58f3c9d4ab",
     })
-    @IsUUID()
+    @IsString()
     cycleSlug: string;
 
     @IsInt()
@@ -121,4 +124,32 @@ export class GetProjectDetailsDTO {
     })
     @IsUUID()
     applicationSlug: string;
+}
+
+export class CreateCycleProjectsEvalCriteriaDTO {
+    @ApiProperty({
+        description: "Id of the cycle",
+        example: "4b7d1f330-f2e4b7-a91e3-5f58f3-c9d4ab",
+    })
+    @IsUUID()
+    cycleId: string;
+
+    @ApiProperty({
+        description: "name for the cycle review",
+        example: "Cycle Monsoon Review",
+    })
+    @IsString()
+    name: string;
+
+    @ApiProperty({
+        description: "Brief Review Of Whats Expected",
+    })
+    @IsString()
+    briefReview: string;
+
+    @ApiProperty({type: DocumentObjectDTO, description: "Template File"})
+    @IsOptional()
+    @ValidateNested()
+    @Type(() => DocumentObjectDTO)
+    templateFile?: DocumentObjectDTO;
 }
