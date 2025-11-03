@@ -102,8 +102,8 @@ describe("PublicService", () => {
                 mockPrograms[0] as any
             );
             cycleAggregateRepository.getProgramActiveCycle.mockResolvedValue([
-                [mockCycle],
-            ] as any);
+                mockCycle as any,
+            ]);
 
             const result =
                 await publicService.getProgramCycleDetails("program-1");
