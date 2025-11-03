@@ -8,7 +8,7 @@ export class GetActiveProgramsData {
 
 export class GetActiveProgramCycleDetails {
     program: Program;
-    cycle: Cycle;
+    cycles: Cycle[];
 }
 
 export class GetActiveProgramsResponse extends ApiResponse(
