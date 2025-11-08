@@ -1,5 +1,5 @@
-import {ReviewerAggregatePort} from "../../../../ports/outputs/repository/review/review.aggregate.port";
-import {Review} from "../../../../core/domain/aggregates/review.aggregate";
+import {ReviewerAggregatePort} from "../../../../ports/outputs/repository/review/application.review.aggregate.port";
+import {Review} from "../../../../core/domain/aggregates/application.review.aggregate";
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";

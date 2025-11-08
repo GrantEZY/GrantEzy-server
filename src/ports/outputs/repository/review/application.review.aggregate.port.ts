@@ -1,4 +1,4 @@
-import {Review} from "../../../../core/domain/aggregates/review.aggregate";
+import {Review} from "../../../../core/domain/aggregates/application.review.aggregate";
 import {ReviewStatus} from "../../../../core/domain/constants/status.constants";
 import {UpdateReviewDTO} from "../../../../infrastructure/driving/dtos/reviewer.dto";
 export interface ReviewerAggregatePort {

@@ -1,5 +1,5 @@
 import {GrantApplication} from "../../../core/domain/aggregates/grantapplication.aggregate";
-import {Review} from "../../../core/domain/aggregates/review.aggregate";
+import {Review} from "../../../core/domain/aggregates/application.review.aggregate";
 import {InviteStatus} from "../../../core/domain/constants/invite.constants";
 import {ReviewStatus} from "../../../core/domain/constants/status.constants";
 import {ApiResponse} from "../../../shared/types/response.type";
