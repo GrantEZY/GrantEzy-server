@@ -42,6 +42,10 @@ import {ForgotPasswordAggregateRepository} from "../../infrastructure/driven/dat
 import {Project} from "../../core/domain/aggregates/project.aggregate";
 import {PROJECT_AGGREGATE_PORT} from "./repository/project/project.aggregate.port";
 import {ProjectAggregateRepository} from "../../infrastructure/driven/database/repositories/project.aggregate.repository";
+import {CycleAssessmentAggregate} from "../../core/domain/aggregates/cycle.assessment.aggregate";
+import {CycleAssessmentCriteriaAggregate} from "../../core/domain/aggregates/cycle.assessment.criteria.aggregate";
+import {CycleAssessmentCriteriaAggregateRepository} from "../../infrastructure/driven/database/repositories/cycle.assessment.criteria.aggregate.repository";
+import {CYCLE_ASSESSMENT_CRITERIA_AGGREGATE_PORT} from "./repository/cycleAssessmentCriteria/cycle.assessment.criteria.aggregate.port";
 @Global()
 @Module({
     imports: [
@@ -60,6 +64,8 @@ import {ProjectAggregateRepository} from "../../infrastructure/driven/database/r
             Review,
             ForgotPasswordAggregate,
             Project,
+            CycleAssessmentAggregate,
+            CycleAssessmentCriteriaAggregate,
         ]),
         JwtModule.register({}),
     ],
@@ -97,6 +103,10 @@ import {ProjectAggregateRepository} from "../../infrastructure/driven/database/r
         {
             provide: PROJECT_AGGREGATE_PORT,
             useClass: ProjectAggregateRepository,
+        },
+        {
+            provide: CYCLE_ASSESSMENT_CRITERIA_AGGREGATE_PORT,
+            useClass: CycleAssessmentCriteriaAggregateRepository,
         },
     ],
     exports: [

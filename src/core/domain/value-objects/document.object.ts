@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
+import {DocumentObjectDTO} from "../../../infrastructure/driving/dtos/applicant.dto";
+
 export class DocumentObject {
     readonly title: string;
     readonly description: string | null;
@@ -38,4 +40,18 @@ export class DocumentObject {
             metaData: this.metaData,
         };
     }
+}
+
+export function DocumentObjectBuilder(
+    details: DocumentObjectDTO
+): DocumentObject {
+    return new DocumentObject(
+        details.title,
+        details.description ?? null,
+        details.fileName,
+        details.fileSize,
+        details.mimeType,
+        details.storageUrl,
+        details.metaData
+    );
 }

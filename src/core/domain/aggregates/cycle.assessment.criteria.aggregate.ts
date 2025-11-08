@@ -57,6 +57,9 @@ export class CycleAssessmentCriteriaAggregate {
     @CreateDateColumn()
     createdAt: Date;
 
+    @Column({unique: true, nullable: true})
+    slug: string;
+
     @UpdateDateColumn()
     updatedAt: Date;
 }
