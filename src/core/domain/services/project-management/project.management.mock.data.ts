@@ -1,5 +1,4 @@
 import {TRL} from "../../constants/trl.constants";
-
 const saved_Application = {
     id: "uuid",
     userId: "uuid",
@@ -166,4 +165,37 @@ const dummyCycle = {
     updatedAt: new Date(),
 };
 
-export {saved_Application, saved_project, createProjectData, dummyCycle};
+const dummyCycleAssessmentCriteria = {
+    id: "c1d5d0a3-9d99-4b29-9efb-3b724c1a8c11",
+    name: "Design Quality Review",
+    cycleId: "cycle-12345",
+    reviewBrief:
+        "Assess the overall design quality and UX compliance of the product module.",
+    createdAt: new Date("2025-11-01T10:00:00Z"),
+    updatedAt: new Date("2025-11-05T14:30:00Z"),
+    slug: "design-quality-review",
+};
+
+const createCriteriaData = {
+    cycleId: "3f9b7b9e-d33b-4a7b-bc2a-1234567890aa",
+    name: "Cycle Spring Review",
+    briefReview: "Assess project readiness for public beta release.",
+    templateFile: {
+        title: "Beta Readiness Checklist",
+        fileName: "beta_checklist.docx",
+        fileSize: "820KB",
+        mimeType:
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        storageUrl: "https://storage.example.com/docs/beta_checklist.docx",
+        metaData: {reviewer: "John Doe", version: "1.1"},
+    },
+};
+
+export {
+    saved_Application,
+    saved_project,
+    createProjectData,
+    dummyCycle,
+    dummyCycleAssessmentCriteria,
+    createCriteriaData,
+};

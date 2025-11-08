@@ -9,14 +9,20 @@ import {
     CYCLE_AGGREGATE_PORT,
 } from "../../../../ports/outputs/repository/cycle/cycle.aggregate.port";
 import {
+    CycleAssessmentCriteriaAggregatePort,
+    CYCLE_ASSESSMENT_CRITERIA_AGGREGATE_PORT,
+} from "../../../../ports/outputs/repository/cycleAssessmentCriteria/cycle.assessment.criteria.aggregate.port";
+import {
     ProjectAggregatePort,
     PROJECT_AGGREGATE_PORT,
 } from "../../../../ports/outputs/repository/project/project.aggregate.port";
 import {ProjectManagementService} from "./project.management.service";
 import {EmailQueue} from "../../../../infrastructure/driven/queue/queues/email.queue";
 import {
+    createCriteriaData,
     createProjectData,
     dummyCycle,
+    dummyCycleAssessmentCriteria,
     saved_Application,
     saved_project,
 } from "./project.management.mock.data";
@@ -30,6 +36,7 @@ describe("Project Management Service", () => {
     let emailQueue: jest.Mocked<EmailQueue>;
     let cycleAggregateRepository: jest.Mocked<CycleAggregatePort>;
     let sharedApplicationService: jest.Mocked<SharedApplicationService>;
+    let criteriaRepository: jest.Mocked<CycleAssessmentCriteriaAggregatePort>;
     beforeEach(async () => {
         const moduleReference: TestingModule = await Test.createTestingModule({
             providers: [
@@ -54,6 +61,11 @@ describe("Project Management Service", () => {
                     provide: SharedApplicationService,
                     useValue: createMock<SharedApplicationService>(),
                 },
+                {
+                    provide: CYCLE_ASSESSMENT_CRITERIA_AGGREGATE_PORT,
+                    useValue:
+                        createMock<CycleAssessmentCriteriaAggregatePort>(),
+                },
             ],
         }).compile();
 
@@ -77,6 +89,9 @@ describe("Project Management Service", () => {
         sharedApplicationService = moduleReference.get(
             SharedApplicationService
         ) as jest.Mocked<SharedApplicationService>;
+        criteriaRepository = moduleReference.get(
+            CYCLE_ASSESSMENT_CRITERIA_AGGREGATE_PORT
+        ) as jest.Mocked<CycleAssessmentCriteriaAggregatePort>;
     });
 
     it("to be Defined", () => {
@@ -331,6 +346,60 @@ describe("Project Management Service", () => {
                     "Application Is Not a Project"
                 );
             }
+        });
+    });
+
+    describe("Create Cycle Criteria", () => {
+        it("Successful creation of criteria", async () => {
+            cycleAggregateRepository.findById.mockResolvedValue(
+                dummyCycle as any
+            );
+
+            criteriaRepository.createCycleCriteria.mockResolvedValue(
+                dummyCycleAssessmentCriteria as any
+            );
+
+            const result = await projectManagementService.createCycleCriteria(
+                createCriteriaData,
+                "uuid"
+            );
+
+            expect(result).toEqual({
+                status: 201,
+                message: "Criteria Created Successfully",
+                res: {
+                    criteriaName: dummyCycleAssessmentCriteria.name,
+                },
+            });
+        });
+    });
+
+    describe("Get Cycle Details", () => {
+        it("Get Cycle Criterias", async () => {
+            cycleAggregateRepository.findCycleByslug.mockResolvedValue(
+                dummyCycle as any
+            );
+
+            criteriaRepository.getCycleEvaluationCriterias.mockResolvedValue([
+                dummyCycleAssessmentCriteria,
+                dummyCycleAssessmentCriteria,
+            ] as any);
+
+            const result = await projectManagementService.getCycleCriteria(
+                {cycleSlug: "slug"},
+                "uuid"
+            );
+
+            expect(result).toEqual({
+                status: 200,
+                message: "Criterias For Cycle",
+                res: {
+                    criterias: [
+                        dummyCycleAssessmentCriteria,
+                        dummyCycleAssessmentCriteria,
+                    ],
+                },
+            });
         });
     });
 });
