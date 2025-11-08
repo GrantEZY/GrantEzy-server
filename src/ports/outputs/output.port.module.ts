@@ -33,7 +33,7 @@ import {UserInviteAggregateRepository} from "../../infrastructure/driven/databas
 import {Notification} from "../../core/domain/entities/notification.entity";
 import {UserNotifications} from "../../core/domain/aggregates/usernotifications.aggregate";
 import {VerificationTokenEntity} from "../../core/domain/entities/verification.entity";
-import {Review} from "../../core/domain/aggregates/application.review.aggregate";
+import {ApplicationReviewAggregate} from "../../core/domain/aggregates/application.review.aggregate";
 import {REVIEW_AGGREGATE_PORT} from "./repository/review/application.review.aggregate.port";
 import {ReviewAggregateRepository} from "../../infrastructure/driven/database/repositories/application.review.aggregate.repository";
 import {FORGOT_PASSWORD_PORT} from "./repository/forgotpassword/forgotpassword.aggregate.port";
@@ -61,7 +61,7 @@ import {CYCLE_ASSESSMENT_CRITERIA_AGGREGATE_PORT} from "./repository/cycleAssess
             Notification,
             UserNotifications,
             VerificationTokenEntity,
-            Review,
+            ApplicationReviewAggregate,
             ForgotPasswordAggregate,
             Project,
             CycleAssessmentAggregate,

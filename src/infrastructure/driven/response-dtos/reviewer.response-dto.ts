@@ -1,5 +1,5 @@
 import {GrantApplication} from "../../../core/domain/aggregates/grantapplication.aggregate";
-import {Review} from "../../../core/domain/aggregates/application.review.aggregate";
+import {ApplicationReviewAggregate} from "../../../core/domain/aggregates/application.review.aggregate";
 import {InviteStatus} from "../../../core/domain/constants/invite.constants";
 import {ReviewStatus} from "../../../core/domain/constants/status.constants";
 import {ApiResponse} from "../../../shared/types/response.type";
@@ -16,10 +16,10 @@ export class SubmitReviewDetails {
 }
 
 export class GetUserReviews {
-    reviews: Review[];
+    reviews: ApplicationReviewAggregate[];
 }
 export class GetReviewDetails {
-    review: Review;
+    review: ApplicationReviewAggregate;
     application: GrantApplication;
 }
 export class UpdateReviewInviteResponse extends ApiResponse(

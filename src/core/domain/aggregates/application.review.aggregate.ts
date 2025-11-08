@@ -19,7 +19,7 @@ import {Money} from "../value-objects/project.metrics.object";
 import {Scores} from "../value-objects/review.scores.object";
 
 @Entity({name: "reviews"})
-export class Review {
+export class ApplicationReviewAggregate {
     @PrimaryGeneratedColumn("uuid")
     id: string;
 

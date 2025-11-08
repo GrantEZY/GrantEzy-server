@@ -1,7 +1,7 @@
 import {Cycle} from "../../../core/domain/aggregates/cycle.aggregate";
 import {GrantApplication} from "../../../core/domain/aggregates/grantapplication.aggregate";
 import {Program} from "../../../core/domain/aggregates/program.aggregate";
-import {Review} from "../../../core/domain/aggregates/application.review.aggregate";
+import {ApplicationReviewAggregate} from "../../../core/domain/aggregates/application.review.aggregate";
 import {ApiResponse} from "../../../shared/types/response.type";
 
 export class CreateCycleData {
@@ -37,11 +37,11 @@ export class CreateReviewInvite {
 
 export class GetApplicationReviews {
     application: GrantApplication;
-    reviews: Review[];
+    reviews: ApplicationReviewAggregate[];
 }
 
 export class GetReviewDetails {
-    review: Review;
+    review: ApplicationReviewAggregate;
 }
 
 export class ProgramManagerProgram {
