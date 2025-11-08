@@ -9,9 +9,11 @@ import {
     ManyToOne,
     Column,
     PrimaryGeneratedColumn,
+    OneToMany,
 } from "typeorm";
 import {CycleAssessmentCriteriaAggregate} from "./cycle.assessment.criteria.aggregate";
 import {Project} from "./project.aggregate";
+import {ProjectReviewAggregate} from "./project.review.aggregate";
 
 @Entity({name: "cycle_assessment"})
 export class CycleAssessmentAggregate {
@@ -60,6 +62,18 @@ export class CycleAssessmentAggregate {
         },
     })
     reviewDocument: DocumentObject;
+
+    @Column({unique: true, nullable: true})
+    slug: string;
+
+    @OneToMany(
+        () => ProjectReviewAggregate,
+        (review) => review.reviewSubmission,
+        {
+            eager: false,
+        }
+    )
+    reviews: ProjectReviewAggregate[];
 
     @CreateDateColumn()
     createdAt: Date;

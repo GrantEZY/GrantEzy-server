@@ -4,3 +4,10 @@ export enum Recommendation {
     REVISE = "REVISE",
     APPROVE_WITH_CONDITIONS = "APPROVE_WITH_CONDITIONS",
 }
+
+export enum ProjectReviewRecommendation {
+    PERFECT = "PERFECT",
+    CAN_SPEED_UP = "CAN_SPEED_UP",
+    NO_IMPROVEMENT = "NO_IMPROVEMENT",
+    NEED_SERIOUS_ACTION = "NEED_SERIOUS_ACTION",
+}
