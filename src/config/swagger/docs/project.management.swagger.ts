@@ -172,3 +172,104 @@ export const PROJECT_MANAGEMENT_RESPONSES = {
     },
   },
 };
+
+
+export const CYCLE_CRITERIA_RESPONSES = {
+  CREATE_CRITERIA: {
+    SUCCESS: {
+      status: 201,
+      description: "Criteria created successfully for a specific cycle",
+      example: {
+        status: 201,
+        message: "Criteria Created Successfully",
+        res: {
+          criteriaName: "Design Review Criteria",
+        },
+      },
+    },
+
+    CYCLE_NOT_FOUND: {
+      status: 404,
+      description: "The specified cycle was not found in the system",
+      example: {
+        status: 404,
+        message: "Cycle Not Found",
+        res: null,
+      },
+    },
+
+    UNAUTHORIZED_MANAGER: {
+      status: 403,
+      description: "Only the Program Manager of the cycle can create criteria",
+      example: {
+        status: 403,
+        message: "Only Program Manager Can Create The Criteria",
+        res: null,
+      },
+    },
+
+    INTERNAL_ERROR: {
+      status: 500,
+      description: "Unexpected server error occurred while creating criteria",
+      example: {
+        status: 500,
+        message: "Internal Server Error",
+        res: null,
+      },
+    },
+  },
+
+  GET_CYCLE_CRITERIA: {
+    SUCCESS: {
+      status: 200,
+      description: "Successfully retrieved all evaluation criterias for the cycle",
+      example: {
+        status: 200,
+        message: "Criterias For Cycle",
+        res: {
+          criterias: [
+            {
+              id: "uuid-of-criteria",
+              name: "Code Quality Evaluation",
+              reviewBrief: "Assess code modularity and maintainability",
+              slug: "code-quality-evaluation",
+              createdAt: "2025-11-05T12:00:00.000Z",
+            },
+          ],
+        },
+      },
+    },
+
+    CYCLE_NOT_FOUND: {
+      status: 404,
+      description: "The specified cycle was not found in the system",
+      example: {
+        status: 404,
+        message: "Cycle Not Found",
+        res: null,
+      },
+    },
+
+    UNAUTHORIZED_MANAGER: {
+      status: 403,
+      description:
+        "Only the Program Manager of the cycle can access the criteria list",
+      example: {
+        status: 403,
+        message: "Only Program Manager Can Get The Criterias",
+        res: null,
+      },
+    },
+
+    INTERNAL_ERROR: {
+      status: 500,
+      description:
+        "Unexpected error occurred while fetching the cycle criterias",
+      example: {
+        status: 500,
+        message: "Internal Server Error",
+        res: null,
+      },
+    },
+  },
+};

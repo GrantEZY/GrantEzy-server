@@ -50,3 +50,8 @@ export enum TeamMateInviteStatus {
     REJECTED = "REJECTED",
     INVITE_SENT = "INVITE_SENT",
 }
+
+export enum CycleAssessmentStatus {
+    OPEN = "OPEN",
+    COMPLETED = "COMPLETED",
+}

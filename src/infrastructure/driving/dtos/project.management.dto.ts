@@ -153,3 +153,12 @@ export class CreateCycleProjectsEvalCriteriaDTO {
     @Type(() => DocumentObjectDTO)
     templateFile?: DocumentObjectDTO;
 }
+
+export class GetCycleCriteriasDTO {
+    @ApiProperty({
+        description: "slug of the cycle",
+        example: "4b7d1f330f2e4b7a91e35f58f3c9d4ab",
+    })
+    @IsUUID()
+    cycleSlug: string;
+}

@@ -13,19 +13,26 @@ import {
 } from "../../../../ports/outputs/repository/cycle/cycle.aggregate.port";
 import ApiError from "../../../../shared/errors/api.error";
 import {
+    CreateCycleProjectsEvalCriteriaDTO,
     CreateProjectDTO,
+    GetCycleCriteriasDTO,
     GetCycleProjectsDTO,
     GetProjectDetailsDTO,
 } from "../../../../infrastructure/driving/dtos/project.management.dto";
 import {GrantApplicationStatus} from "../../constants/status.constants";
 import {
+    CreateCriteriaResponse,
     CreateProjectResponse,
+    GetCycleAssessmentCriteriasResponse,
     GetCycleProjectsResponse,
     GetProjectDetailsResponse,
 } from "../../../../infrastructure/driven/response-dtos/project.management.response-dto";
 import {EmailQueue} from "../../../../infrastructure/driven/queue/queues/email.queue";
 import {SharedApplicationService} from "../shared/application/shared.application.service";
-
+import {
+    CycleAssessmentCriteriaAggregatePort,
+    CYCLE_ASSESSMENT_CRITERIA_AGGREGATE_PORT,
+} from "../../../../ports/outputs/repository/cycleAssessmentCriteria/cycle.assessment.criteria.aggregate.port";
 @Injectable()
 export class ProjectManagementService {
     constructor(
@@ -37,6 +44,9 @@ export class ProjectManagementService {
 
         @Inject(CYCLE_AGGREGATE_PORT)
         private readonly cycleAggregateRepository: CycleAggregatePort,
+
+        @Inject(CYCLE_ASSESSMENT_CRITERIA_AGGREGATE_PORT)
+        private readonly criteriaRepository: CycleAssessmentCriteriaAggregatePort,
 
         private readonly emailQueue: EmailQueue,
         private readonly sharedApplicationService: SharedApplicationService
@@ -209,6 +219,81 @@ export class ProjectManagementService {
                 status: 200,
                 message: "Project Details",
                 res: {project},
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async createCycleCriteria(
+        details: CreateCycleProjectsEvalCriteriaDTO,
+        userId: string
+    ): Promise<CreateCriteriaResponse> {
+        try {
+            const {cycleId} = details;
+
+            const cycle = await this.cycleAggregateRepository.findById(cycleId);
+
+            if (!cycle) {
+                throw new ApiError(404, "Cycle Not Found", "Conflict Error");
+            }
+
+            if (cycle.program?.managerId != userId) {
+                throw new ApiError(
+                    403,
+                    "Only Program Manager Can Create The Criteria",
+                    "Conflict Error"
+                );
+            }
+
+            const cycleCriteria =
+                await this.criteriaRepository.createCycleCriteria(details);
+
+            return {
+                status: 201,
+                message: "Criteria Created Successfully",
+                res: {
+                    criteriaName: cycleCriteria.name,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async getCycleCriteria(
+        details: GetCycleCriteriasDTO,
+        userId: string
+    ): Promise<GetCycleAssessmentCriteriasResponse> {
+        try {
+            const {cycleSlug} = details;
+
+            const cycle =
+                await this.cycleAggregateRepository.findCycleByslug(cycleSlug);
+
+            if (!cycle) {
+                throw new ApiError(404, "Cycle Not Found", "Conflict Error");
+            }
+
+            if (cycle.program?.managerId != userId) {
+                throw new ApiError(
+                    403,
+                    "Only Program Manager Can Get The Criterias",
+                    "Conflict Error"
+                );
+            }
+
+            const criterias =
+                await this.criteriaRepository.getCycleEvaluationCriterias(
+                    cycle.id
+                );
+
+            return {
+                status: 200,
+                message: "Criterias For Cycle",
+                res: {
+                    criterias,
+                },
             };
         } catch (error) {
             this.handleError(error);

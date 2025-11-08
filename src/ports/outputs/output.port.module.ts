@@ -124,6 +124,7 @@ import {CYCLE_ASSESSMENT_CRITERIA_AGGREGATE_PORT} from "./repository/cycleAssess
         REVIEW_AGGREGATE_PORT,
         FORGOT_PASSWORD_PORT,
         PROJECT_AGGREGATE_PORT,
+        CYCLE_ASSESSMENT_CRITERIA_AGGREGATE_PORT,
     ],
 })
 export class OutputPortModule {}

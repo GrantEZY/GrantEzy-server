@@ -3,15 +3,20 @@ import {Response} from "express";
 import {ApiResponse, ApiTags} from "@nestjs/swagger";
 import {ProjectManagementControllerPort} from "../../../../../ports/inputs/controllers/project.management.controller.port";
 import {
+    CreateCycleProjectsEvalCriteriaDTO,
     CreateProjectDTO,
     GetCycleProjectsDTO,
     GetProjectDetailsDTO,
+    GetCycleCriteriasDTO,
 } from "../../../dtos/project.management.dto";
 import ApiError from "../../../../../shared/errors/api.error";
 import {ProjectManagementService} from "../../../../../core/domain/services/project-management/project.management.service";
 import {CurrentUser} from "../../../../../shared/decorators/currentuser.decorator";
 import {AccessTokenJwt} from "../../../../../shared/types/jwt.types";
-import {PROJECT_MANAGEMENT_RESPONSES} from "../../../../../config/swagger/docs/project.management.swagger";
+import {
+    PROJECT_MANAGEMENT_RESPONSES,
+    CYCLE_CRITERIA_RESPONSES,
+} from "../../../../../config/swagger/docs/project.management.swagger";
 @ApiTags("Project Management")
 @Controller("pt-management")
 export class ProjectManagementController
@@ -98,6 +103,53 @@ export class ProjectManagementController
         }
     }
 
+    @Post("/create-cycle-criteria")
+    @ApiResponse(CYCLE_CRITERIA_RESPONSES.CREATE_CRITERIA.SUCCESS)
+    @ApiResponse(CYCLE_CRITERIA_RESPONSES.CREATE_CRITERIA.CYCLE_NOT_FOUND)
+    @ApiResponse(CYCLE_CRITERIA_RESPONSES.CREATE_CRITERIA.UNAUTHORIZED_MANAGER)
+    async createCycleCriteria(
+        @Body() body: CreateCycleProjectsEvalCriteriaDTO,
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+
+            const result =
+                await this.projectManagementService.createCycleCriteria(
+                    body,
+                    id
+                );
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Get("/get-cycle-criterias")
+    @ApiResponse(CYCLE_CRITERIA_RESPONSES.GET_CYCLE_CRITERIA.SUCCESS)
+    @ApiResponse(CYCLE_CRITERIA_RESPONSES.GET_CYCLE_CRITERIA.CYCLE_NOT_FOUND)
+    @ApiResponse(
+        CYCLE_CRITERIA_RESPONSES.GET_CYCLE_CRITERIA.UNAUTHORIZED_MANAGER
+    )
+    async getCycleCriterias(
+        @Query() parameters: GetCycleCriteriasDTO,
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+
+            const result = await this.projectManagementService.getCycleCriteria(
+                parameters,
+                id
+            );
+
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
     handleError(error: unknown, response: Response): Response {
         if (error instanceof ApiError) {
             return response.status(error.status).json({

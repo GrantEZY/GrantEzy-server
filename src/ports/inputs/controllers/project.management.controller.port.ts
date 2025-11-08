@@ -1,5 +1,7 @@
 import {
+    CreateCycleProjectsEvalCriteriaDTO,
     CreateProjectDTO,
+    GetCycleCriteriasDTO,
     GetCycleProjectsDTO,
     GetProjectDetailsDTO,
 } from "../../../infrastructure/driving/dtos/project.management.dto";
@@ -20,6 +22,18 @@ export interface ProjectManagementControllerPort {
 
     getProjectDetails(
         parameters: GetProjectDetailsDTO,
+        user: AccessTokenJwt,
+        response: Response
+    ): Promise<Response>;
+
+    createCycleCriteria(
+        body: CreateCycleProjectsEvalCriteriaDTO,
+        user: AccessTokenJwt,
+        response: Response
+    ): Promise<Response>;
+
+    getCycleCriterias(
+        parameters: GetCycleCriteriasDTO,
         user: AccessTokenJwt,
         response: Response
     ): Promise<Response>;

@@ -8,6 +8,7 @@ import ApiError from "../../../../shared/errors/api.error";
 import {DocumentObjectBuilder} from "../../../../core/domain/value-objects/document.object";
 import {v4 as uuid} from "uuid";
 import {slugify} from "../../../../shared/helpers/slug.generator";
+import {CycleAssessmentStatus} from "../../../../core/domain/constants/status.constants";
 @Injectable()
 export class CycleAssessmentCriteriaAggregateRepository
     implements CycleAssessmentCriteriaAggregatePort
@@ -36,6 +37,7 @@ export class CycleAssessmentCriteriaAggregateRepository
                 cycleId,
                 templateSubmissionFile: criteriaTemplateFile,
                 slug,
+                status: CycleAssessmentStatus.OPEN,
             });
 
             return await this.criteriaRepository.save(

@@ -11,7 +11,7 @@ import {
 } from "typeorm";
 import {Cycle} from "./cycle.aggregate";
 import {DocumentObject} from "../value-objects/document.object";
-
+import {CycleAssessmentStatus} from "../constants/status.constants";
 @Entity({name: "cycle_assessment_criteria"})
 export class CycleAssessmentCriteriaAggregate {
     @PrimaryGeneratedColumn("uuid")
@@ -32,6 +32,9 @@ export class CycleAssessmentCriteriaAggregate {
 
     @Column({type: "text"})
     reviewBrief: string;
+
+    @Column({type: "enum", enum: CycleAssessmentStatus})
+    status: CycleAssessmentStatus;
 
     @Column({
         type: "jsonb",
