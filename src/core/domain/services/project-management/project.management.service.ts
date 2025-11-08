@@ -249,6 +249,17 @@ export class ProjectManagementService {
             const cycleCriteria =
                 await this.criteriaRepository.createCycleCriteria(details);
 
+            const projectApplications =
+                await this.sharedApplicationService.getAllCycleProjects(
+                    cycle.id
+                );
+
+            await this.emailQueue.cycleReviewToQueue(
+                projectApplications,
+                cycleCriteria.name,
+                cycleCriteria.reviewBrief
+            );
+
             return {
                 status: 201,
                 message: "Criteria Created Successfully",

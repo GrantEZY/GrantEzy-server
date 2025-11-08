@@ -58,7 +58,8 @@ export type EmailBody =
     | InviteEmailDTO
     | CycleInviteBodyDTO
     | ForgotPasswordEmailDTO
-    | ProjectCreationDTO;
+    | ProjectCreationDTO
+    | CycleReviewEmailDTO;
 
 export class EmailWorkerJobDTO {
     type: EmailNotifications;
@@ -98,6 +99,23 @@ export class ProjectCreationDTO {
 
     @IsString()
     userName: string;
+
+    @IsEmail()
+    email: string;
+}
+
+export class CycleReviewEmailDTO {
+    @IsString()
+    cycleReviewName: string;
+
+    @IsString()
+    reviewBrief: string;
+
+    @IsString()
+    userName: string;
+
+    @IsString()
+    applicationName: string;
 
     @IsEmail()
     email: string;

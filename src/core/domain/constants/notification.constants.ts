@@ -4,6 +4,7 @@ import {
     InviteUserEmailTemplate,
     ForgotPasswordEmailTemplate,
     ProjectCreatedFromApplicationEmailTemplate,
+    CycleReviewCreatedEmailTemplate,
 } from "./email.template.constants";
 
 export enum EmailNotifications {
@@ -19,6 +20,7 @@ export enum EmailNotifications {
     SUPPORT_RESPONSE = "Response from GrantEzy Support",
     INVITE_USER = "You have been invited",
     PROJECT_CREATED = "Project Created Successfully",
+    CYCLE_REVIEW_CREATED = "Cycle Review Created For the Project",
 }
 
 export enum NotificationChannel {
@@ -49,4 +51,5 @@ export const EmailNotificationTemplateMapper: Record<
     [EmailNotifications.FORGOT_PASSWORD]: ForgotPasswordEmailTemplate,
     [EmailNotifications.PROJECT_CREATED]:
         ProjectCreatedFromApplicationEmailTemplate,
+    [EmailNotifications.CYCLE_REVIEW_CREATED]: CycleReviewCreatedEmailTemplate,
 };

@@ -359,6 +359,10 @@ describe("Project Management Service", () => {
                 dummyCycleAssessmentCriteria as any
             );
 
+            emailQueue.cycleReviewToQueue.mockResolvedValue({
+                status: true,
+            } as any);
+
             const result = await projectManagementService.createCycleCriteria(
                 createCriteriaData,
                 "uuid"

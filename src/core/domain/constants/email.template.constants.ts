@@ -6,6 +6,7 @@ import {
     InviteEmailDTO,
     ForgotPasswordEmailDTO,
     ProjectCreationDTO,
+    CycleReviewEmailDTO,
 } from "../../../infrastructure/driving/dtos/queue/queue.dto";
 
 const BASE_URL = process.env.CLIENT_URL;
@@ -182,6 +183,47 @@ export const ProjectCreatedFromApplicationEmailTemplate: EmailTemplateType = {
       <p style="font-size: 12px; color: #777;">
         This is an automated message — please do not reply directly to this email.
       </p>
+    </div>
+  `,
+};
+
+export const CycleReviewCreatedEmailTemplate: EmailTemplateType = {
+    subject: `A new Cycle Review has been created`,
+    body: (values: EmailBody) => `
+    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+      <h2 style="color: #2c3e50;">New Cycle Review Created 🎯</h2>
+
+      <p>Hi ${(values as CycleReviewEmailDTO).userName},</p>
+      <p>
+        A new cycle review titled <strong>${(values as CycleReviewEmailDTO).cycleReviewName}</strong>
+        has been created. Please find the details below:
+      </p>
+
+      <table cellpadding="6" cellspacing="0" border="0" style="background: #f8f9fa; border: 1px solid #ddd; border-radius: 6px; margin: 16px 0;">
+        <tr>
+          <td><strong>Review Name:</strong></td>
+          <td>${(values as CycleReviewEmailDTO).cycleReviewName}</td>
+        </tr>
+        <tr>
+          <td><strong>Project/Application:</strong></td>
+          <td>${(values as CycleReviewEmailDTO).applicationName}</td>
+        </tr>
+        <tr>
+          <td><strong>Review Brief:</strong></td>
+          <td>${(values as CycleReviewEmailDTO).reviewBrief}</td>
+        </tr>
+      </table>
+
+      <p>
+        👉 <a href="https://grantezy.com/dashboard" style="background: #007BFF; color: white; padding: 10px 16px;
+           text-decoration: none; border-radius: 5px; display: inline-block;">
+           View Review Details
+        </a>
+      </p>
+
+      <p style="margin-top: 20px;">You’ll be notified about further updates related to this review.</p>
+
+      <p>Best regards,<br/>The GrantEzy Team</p>
     </div>
   `,
 };

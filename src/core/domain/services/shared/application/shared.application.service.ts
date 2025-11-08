@@ -164,6 +164,19 @@ export class SharedApplicationService {
         }
     }
 
+    async getAllCycleProjects(cycleId: string): Promise<GrantApplication[]> {
+        try {
+            const applications =
+                await this.applicationAggregateRepository.getAllCycleProjects(
+                    cycleId
+                );
+
+            return applications;
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
     handleError(error: unknown): never {
         if (error instanceof ApiError) {
             throw error;

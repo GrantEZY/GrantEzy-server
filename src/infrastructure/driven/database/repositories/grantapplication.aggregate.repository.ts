@@ -547,4 +547,26 @@ export class GrantApplicationRepository
             );
         }
     }
+
+    async getAllCycleProjects(cycleId: string): Promise<GrantApplication[]> {
+        try {
+            const applications = await this.grantApplicationRepository.find({
+                where: {
+                    status: GrantApplicationStatus.APPROVED,
+                    cycleId,
+                },
+                relations: ["applicant", "teammates"],
+            });
+            return applications;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Failed to fetch cycle  projects",
+                "Database Error"
+            );
+        }
+    }
 }

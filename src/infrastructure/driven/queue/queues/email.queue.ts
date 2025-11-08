@@ -12,6 +12,7 @@ import {Logger} from "@nestjs/common";
 import {v4 as uuid} from "uuid";
 import {EmailNotifications} from "../../../../core/domain/constants/notification.constants";
 import {User} from "../../../../core/domain/aggregates/user.aggregate";
+import {GrantApplication} from "../../../../core/domain/aggregates/grantapplication.aggregate";
 @Injectable()
 export class EmailQueue {
     private logger;
@@ -139,9 +140,12 @@ export class EmailQueue {
                 return {
                     name: jobId,
                     data: {
-                        applicationName,
-                        email,
-                        userName: `${firstName} ${lastName}`,
+                        type: EmailNotifications.PROJECT_CREATED,
+                        data: {
+                            applicationName,
+                            email,
+                            userName: `${firstName} ${lastName}`,
+                        },
                     },
                 };
             });
@@ -158,6 +162,69 @@ export class EmailQueue {
             if (error instanceof ApiError) {
                 throw error;
             }
+            throw new ApiError(
+                500,
+                "Issue In Sending Email",
+                "Email Queue Error"
+            );
+        }
+    }
+
+    async cycleReviewToQueue(
+        projectApplications: GrantApplication[],
+        cycleReviewName: string,
+        reviewBrief: string
+    ): Promise<EmailResponse> {
+        try {
+            if (!projectApplications?.length) {
+                throw new ApiError(
+                    400,
+                    "No project applications provided",
+                    "Empty Data"
+                );
+            }
+
+            const allJobs = projectApplications.flatMap((project) => {
+                const projectAuthorities = [
+                    project.applicant,
+                    ...project.teammates,
+                ];
+                const uniqueId = uuid();
+
+                return projectAuthorities.map((user) => {
+                    const {email} = user.contact;
+                    const {firstName, lastName} = user.person;
+                    const jobId = `${uniqueId}-${email}-create-new-review-confirmation`;
+
+                    return {
+                        name: jobId,
+                        data: {
+                            type: EmailNotifications.CYCLE_REVIEW_CREATED,
+                            data: {
+                                cycleReviewName,
+                                reviewBrief,
+                                userName: `${firstName} ${lastName}`,
+                                applicationName: project.basicDetails.title,
+                                email,
+                            },
+                        },
+                    };
+                });
+            });
+
+            await this.emailQueue.addBulk(allJobs);
+
+            return {
+                status: true,
+                queue: {
+                    name:
+                        `Jobs Added Successfully for Cycle Review Creation}` +
+                        String(projectApplications.length),
+                },
+            };
+        } catch (error) {
+            this.logger.error(`Error in adding jobs for cycleReview`);
+            if (error instanceof ApiError) throw error;
             throw new ApiError(
                 500,
                 "Issue In Sending Email",

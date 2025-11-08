@@ -74,6 +74,7 @@ export interface GrantApplicationAggregatePort {
         page: number,
         numberOfResults: number
     ): Promise<GrantApplication[]>;
+    getAllCycleProjects(cycleId: string): Promise<GrantApplication[]>;
 }
 
 export const GRANT_APPLICATION_AGGREGATE_PORT = Symbol(
