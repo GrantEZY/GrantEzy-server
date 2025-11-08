@@ -23,11 +23,16 @@ import {
     CreateApplicationControllerDTO,
     DeleteApplicationDTO,
     GetApplicationWithCycleDetailsDTO,
+    GetProjectDetailsDTO,
     GetUserCreatedApplicationDTO,
+    GetUserProjectsPaginationDTO,
 } from "../../../dtos/applicant.dto";
 import {CurrentUser} from "../../../../../shared/decorators/currentuser.decorator";
 import {ApiResponse, ApiTags} from "@nestjs/swagger";
-import {APPLICATION_RESPONSES} from "../../../../../config/swagger/docs/applicant.swagger";
+import {
+    APPLICATION_RESPONSES,
+    PROJECT_RESPONSES,
+} from "../../../../../config/swagger/docs/applicant.swagger";
 @ApiTags("Applicants")
 @Controller("applicant")
 export class ApplicantController implements ApplicantControllerPort {
@@ -270,6 +275,51 @@ export class ApplicantController implements ApplicantControllerPort {
             const result = await this.applicantService.deleteApplication(
                 id,
                 body.applicationId
+            );
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Get("/get-user-created-projects")
+    @ApiResponse(PROJECT_RESPONSES.GET_USER_PROJECTS.SUCCESS)
+    async getUserCreatedProjects(
+        @Query() parameters: GetUserProjectsPaginationDTO,
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+
+            const result = await this.applicantService.getUserProjects(
+                id,
+                parameters.page,
+                parameters.numberOfResults
+            );
+
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Get("/get-project-details")
+    @ApiResponse(PROJECT_RESPONSES.GET_PROJECT_DETAILS.SUCCESS)
+    @ApiResponse(PROJECT_RESPONSES.GET_PROJECT_DETAILS.FORBIDDEN)
+    @ApiResponse(PROJECT_RESPONSES.GET_PROJECT_DETAILS.NOT_A_PROJECT)
+    @ApiResponse(PROJECT_RESPONSES.GET_PROJECT_DETAILS.APPLICATION_NOT_FOUND)
+    async getProjectDetails(
+        @Query() parameters: GetProjectDetailsDTO,
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+
+            const result = await this.applicantService.getProjectDetails(
+                parameters.applicationSlug,
+                id
             );
             return response.status(result.status).json(result);
         } catch (error) {

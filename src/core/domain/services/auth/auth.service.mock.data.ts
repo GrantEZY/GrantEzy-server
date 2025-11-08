@@ -56,4 +56,20 @@ const LOGIN_DATA = {
     role: UserRoles.ADMIN,
 };
 
-export {REGISTER_USER, SAVED_USER, LOGIN_DATA};
+const dummyVerification = {
+    id: "f1b23580-b77e-456e-86dc-0f4f6a3a9b22",
+    token: "hashed_token_string_here", // stored as hash, not raw token
+    validTill: new Date("2027-10-13T10:00:00.000Z"),
+    validatedAt: null,
+};
+
+const ForgotPasswordEntity = {
+    id: "c18e3d10-2f51-4cb8-9d3f-37bdbb6c9e9e",
+    email: "jane.doe@example.com",
+    verificationId: "f1b23580-b77e-456e-86dc-0f4f6a3a9b22",
+    verification: dummyVerification,
+    createdAt: new Date("2025-10-06T09:45:00.000Z"),
+    updatedAt: new Date("2025-10-06T09:45:00.000Z"),
+};
+
+export {REGISTER_USER, SAVED_USER, LOGIN_DATA, ForgotPasswordEntity};

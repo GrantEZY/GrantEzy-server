@@ -19,6 +19,7 @@ export enum ProjectStatus {
     COMPLETED = "COMPLETED",
     TERMINATED = "TERMINATED",
     SUSPENDED = "SUSPENDED",
+    IN_REVIEW = "IN_REVIEW",
 }
 
 export enum GrantApplicationStatus {

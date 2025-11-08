@@ -8,6 +8,8 @@ import {
     CoApplicantApplicationResponse,
     TokenVerificationResponse,
     UserInviteStatusUpdateResponse,
+    GetProjectDetailsResponse,
+    GetUserProjectsResponse,
 } from "../../../../infrastructure/driven/response-dtos/co.applicant.response-dto";
 import {InviteAs, InviteStatus} from "../../constants/invite.constants";
 import {SharedApplicationService} from "../shared/application/shared.application.service";
@@ -16,6 +18,10 @@ import {
     USER_AGGREGATE_PORT,
     UserAggregatePort,
 } from "../../../../ports/outputs/repository/user/user.aggregate.port";
+import {
+    ProjectAggregatePort,
+    PROJECT_AGGREGATE_PORT,
+} from "../../../../ports/outputs/repository/project/project.aggregate.port";
 /**
  * This file contains the co applicant service for viewing the application
  */
@@ -26,6 +32,8 @@ export class CoApplicantService {
         private readonly applicationAggregateRepository: GrantApplicationAggregatePort,
         @Inject(USER_AGGREGATE_PORT)
         private readonly userAggregateRepository: UserAggregatePort,
+        @Inject(PROJECT_AGGREGATE_PORT)
+        private readonly projectAggregateRepository: ProjectAggregatePort,
         private readonly sharedApplicationService: SharedApplicationService
     ) {}
 
@@ -158,6 +166,81 @@ export class CoApplicantService {
                     applicationId: application.id,
                     status: inviteStatus.status,
                 },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async getUserLinkedProjects(
+        userId: string,
+        page: number,
+        numberOfResults: number
+    ): Promise<GetUserProjectsResponse> {
+        try {
+            const applications =
+                await this.userAggregateRepository.getUserLinkedProjects(
+                    userId,
+                    page,
+                    numberOfResults
+                );
+
+            return {
+                status: 200,
+                message: "User Linked Projects",
+                res: {applications},
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async getProjectDetails(
+        applicationSlug: string,
+        userId: string
+    ): Promise<GetProjectDetailsResponse> {
+        try {
+            const application =
+                await this.applicationAggregateRepository.getApplicationDetailsWithSlug(
+                    applicationSlug
+                );
+
+            if (!application) {
+                throw new ApiError(
+                    404,
+                    "Application Not Found",
+                    "Conflict Error"
+                );
+            }
+
+            const filter = application.teammates.filter(
+                (teammate) => teammate.personId == userId
+            );
+
+            if (filter.length === 0) {
+                throw new ApiError(
+                    403,
+                    "User Not Linked With the Application",
+                    "Conflict Error"
+                );
+            }
+
+            const project =
+                await this.projectAggregateRepository.getProjectDetailsWithApplicationId(
+                    application.id
+                );
+
+            if (!project) {
+                throw new ApiError(
+                    404,
+                    "Application Is Not A Project",
+                    "Conflict Error"
+                );
+            }
+            return {
+                status: 200,
+                message: "Project Details",
+                res: {project},
             };
         } catch (error) {
             this.handleError(error);

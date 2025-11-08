@@ -128,9 +128,9 @@ export class CycleAggregateRepository implements CycleAggregatePort {
         }
     }
 
-    async getProgramActiveCycle(programId: string): Promise<Cycle | null> {
+    async getProgramActiveCycle(programId: string): Promise<Cycle[]> {
         try {
-            const cycle = await this.cycleRepository.findOne({
+            const cycle = await this.cycleRepository.find({
                 where: {
                     programId,
                     status: CycleStatus.OPEN,

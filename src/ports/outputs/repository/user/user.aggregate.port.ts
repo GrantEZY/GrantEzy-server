@@ -3,7 +3,8 @@ import {User} from "../../../../core/domain/aggregates/user.aggregate";
 import {UserAggregateDTO} from "./user.aggregate.dto";
 import {UserRoles} from "../../../../core/domain/constants/userRoles.constants";
 import {UpdateProfileDTO} from "../../../../infrastructure/driving/dtos/user.dto";
-
+import {Person} from "../../../../core/domain/entities/person.entity";
+import {GrantApplication} from "../../../../core/domain/aggregates/grantapplication.aggregate";
 export interface UserAggregatePort {
     save(user: Partial<UserAggregateDTO>): Promise<User>;
     findById(id: string, isPasswordRequired: boolean): Promise<User | null>;
@@ -28,5 +29,11 @@ export interface UserAggregatePort {
     ): Promise<User>;
     getUserApplication(userId: string): Promise<User | null>;
     deleteUser(id: string): Promise<boolean>;
+    updateUserPassword(person: Person, passwordHash: string): Promise<boolean>;
+    getUserLinkedProjects(
+        userId: string,
+        page: number,
+        numberOfResults: number
+    ): Promise<GrantApplication[]>;
 }
 export const USER_AGGREGATE_PORT = Symbol("UserAggregatePort");

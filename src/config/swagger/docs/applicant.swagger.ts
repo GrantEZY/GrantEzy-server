@@ -238,3 +238,104 @@ export const APPLICATION_RESPONSES = {
     },
   },
 };
+
+
+export const PROJECT_RESPONSES = {
+  GET_USER_PROJECTS: {
+    SUCCESS: {
+      status: 200,
+      description: "Fetched all projects created by the user",
+      example: {
+        status: 200,
+        message: "User Created Applications Converted To Projects",
+        res: {
+          applications: [
+            {
+              id: "uuid",
+              title: "Project Title",
+              applicantId: "uuid",
+              cycleId: "uuid",
+              createdAt: "2025-11-01T10:00:00Z",
+            },
+          ],
+        },
+      },
+    },
+    NO_PROJECTS: {
+      status: 200,
+      description: "No projects found for this user",
+      example: {
+        status: 200,
+        message: "No Projects Found",
+        res: { applications: [] },
+      },
+    },
+    ERROR: {
+      status: 500,
+      description: "Unexpected error while fetching user projects",
+      example: {
+        status: 500,
+        message: "Internal Server Error",
+        res: null,
+      },
+    },
+  },
+
+  GET_PROJECT_DETAILS: {
+    SUCCESS: {
+      status: 200,
+      description: "Fetched project details successfully",
+      example: {
+        status: 200,
+        message: "Project Details",
+        res: {
+          project: {
+            id: "uuid",
+            applicationId: "uuid",
+            title: "Sample Project",
+            description: "A demo project",
+            createdAt: "2025-11-01T10:00:00Z",
+            updatedAt: "2025-11-02T15:30:00Z",
+          },
+        },
+      },
+    },
+    APPLICATION_NOT_FOUND: {
+      status: 404,
+      description: "Application not found for the given slug",
+      example: {
+        status: 404,
+        message: "Application Not Found",
+        res: null,
+      },
+    },
+    FORBIDDEN: {
+      status: 403,
+      description: "User does not have permission to access this project",
+      example: {
+        status: 403,
+        message: "Application Not Created By User",
+        res: null,
+      },
+    },
+    NOT_A_PROJECT: {
+      status: 403,
+      description: "Application exists but is not a project",
+      example: {
+        status: 403,
+        message: "Application Is Not a Project",
+        res: null,
+      },
+    },
+    ERROR: {
+      status: 500,
+      description: "Unexpected error while fetching project details",
+      example: {
+        status: 500,
+        message: "Internal Server Error",
+        res: null,
+      },
+    },
+  },
+};
+

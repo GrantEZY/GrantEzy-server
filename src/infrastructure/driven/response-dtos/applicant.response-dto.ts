@@ -1,5 +1,6 @@
 import {Cycle} from "../../../core/domain/aggregates/cycle.aggregate";
 import {GrantApplication} from "../../../core/domain/aggregates/grantapplication.aggregate";
+import {Project} from "../../../core/domain/aggregates/project.aggregate";
 import {ApiResponse} from "../../../shared/types/response.type";
 
 export class CreateApplicationData {
@@ -24,6 +25,14 @@ export class GetUserApplicationData {
     application: GrantApplication;
 }
 
+export class GetUserProjects {
+    applications: GrantApplication[];
+}
+
+export class GetProjectDetails {
+    project: Project;
+}
+
 export class CreateApplicationResponse extends ApiResponse(
     CreateApplicationData
 ) {}
@@ -39,3 +48,7 @@ export class GetApplicationWithCycleDetailsResponse extends ApiResponse(
 export class GetUserCreatedApplicationResponse extends ApiResponse(
     GetUserApplicationData
 ) {}
+
+export class GetUserProjectsResponse extends ApiResponse(GetUserProjects) {}
+
+export class GetProjectDetailsResponse extends ApiResponse(GetProjectDetails) {}

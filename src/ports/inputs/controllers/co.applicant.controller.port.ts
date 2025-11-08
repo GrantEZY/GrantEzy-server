@@ -3,6 +3,8 @@ import {
     CoApplicantApplicationDTO,
     GetTokenDetailsDTO,
     SubmitInviteStatusDTO,
+    GetUserLinkedProjectsPaginationDTO,
+    GetProjectDetailsDTO,
 } from "../../../infrastructure/driving/dtos/co.applicant.dto";
 import {AccessTokenJwt} from "../../../shared/types/jwt.types";
 export interface CoApplicantControllerPort {
@@ -17,6 +19,17 @@ export interface CoApplicantControllerPort {
     ): Promise<Response>;
     updateUserInviteStatus(
         inviteStatusData: SubmitInviteStatusDTO,
+        response: Response
+    ): Promise<Response>;
+    getUserLinkedProjects(
+        parameters: GetUserLinkedProjectsPaginationDTO,
+        user: AccessTokenJwt,
+        response: Response
+    ): Promise<Response>;
+
+    getProjectDetails(
+        parameters: GetProjectDetailsDTO,
+        user: AccessTokenJwt,
         response: Response
     ): Promise<Response>;
     handleError(error: unknown, response: Response): Response;

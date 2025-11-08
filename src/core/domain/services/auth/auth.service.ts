@@ -4,8 +4,14 @@ import {
     USER_AGGREGATE_PORT,
 } from "../../../../ports/outputs/repository/user/user.aggregate.port";
 import {
+    ForgotPasswordAggregatePort,
+    FORGOT_PASSWORD_PORT,
+} from "../../../../ports/outputs/repository/forgotpassword/forgotpassword.aggregate.port";
+import {
+    ForgotPasswordDTO,
     LoginDTO,
     RegisterDTO,
+    UpdatePasswordDTO,
 } from "../../../../infrastructure/driving/dtos/auth.dto";
 import ApiError from "../../../../shared/errors/api.error";
 import {PasswordHasherPort} from "../../../../ports/outputs/crypto/hash.port";
@@ -15,12 +21,14 @@ import {
     SignUpResponse,
     LogoutResponse,
     AccessTokenResponse,
+    ForgotPasswordResponse,
 } from "../../../../infrastructure/driven/response-dtos/auth.response-dto";
 import {UserRoles} from "../../constants/userRoles.constants";
 import {PassportResponseData} from "../../../../infrastructure/driven/response-dtos/auth.response-dto";
 import {User} from "../../aggregates/user.aggregate";
 import {JwtPort, JWT_PORT} from "../../../../ports/outputs/crypto/jwt.port";
 import {RefreshTokenJwt} from "../../../../shared/types/jwt.types";
+import {EmailQueue} from "../../../../infrastructure/driven/queue/queues/email.queue";
 @Injectable()
 /**
  * Auth Use Case
@@ -34,7 +42,10 @@ export class AuthService {
         @Inject(PASSWORD_HASHER_PORT)
         private readonly passwordHasher: PasswordHasherPort,
         @Inject(JWT_PORT)
-        private readonly jwtRepository: JwtPort
+        private readonly jwtRepository: JwtPort,
+        @Inject(FORGOT_PASSWORD_PORT)
+        private readonly forgotPasswordAggregateRepository: ForgotPasswordAggregatePort,
+        private readonly emailQueue: EmailQueue
     ) {}
 
     async register(userData: RegisterDTO): Promise<SignUpResponse> {
@@ -214,6 +225,137 @@ export class AuthService {
             this.handleError(error);
         }
     }
+
+    async forgotPassword(
+        forgotPasswordDetails: ForgotPasswordDTO
+    ): Promise<ForgotPasswordResponse> {
+        try {
+            const {email} = forgotPasswordDetails;
+
+            const entity =
+                await this.forgotPasswordAggregateRepository.getEntityByEmail(
+                    email,
+                    true
+                );
+
+            if (entity) {
+                const verification = entity.verification;
+
+                const {token} =
+                    await this.forgotPasswordAggregateRepository.updateToken(
+                        verification
+                    );
+                await this.emailQueue.addForgotPasswordEmailToQueue(email, {
+                    email: entity.email,
+                    token,
+                    slug: entity.slug,
+                });
+                return {
+                    status: 201,
+                    message: "Forgot Password Email Sent",
+                    res: {
+                        status: true,
+                    },
+                };
+            }
+
+            const user = await this.userAggregateRepository.findByEmail(
+                email,
+                false
+            );
+
+            if (!user) {
+                throw new ApiError(404, "User Not Found", "Conflict Error");
+            }
+
+            const {token, slug} =
+                await this.forgotPasswordAggregateRepository.createForgotPasswordForEmail(
+                    email
+                );
+            await this.emailQueue.addForgotPasswordEmailToQueue(email, {
+                email: email,
+                token,
+                slug,
+            });
+            return {
+                status: 201,
+                message: "Forgot Password Email Sent",
+                res: {
+                    status: true,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async updatePassword(
+        updatePasswordDetails: UpdatePasswordDTO
+    ): Promise<ForgotPasswordResponse> {
+        try {
+            const {token, slug, newPassword} = updatePasswordDetails;
+            const entity =
+                await this.forgotPasswordAggregateRepository.getEntityBySlug(
+                    slug,
+                    true
+                );
+
+            if (!entity) {
+                throw new ApiError(
+                    404,
+                    "Forgot Password Request Not Initiated",
+                    "Not Found"
+                );
+            }
+
+            const {token: tokenHash, validTill} = entity.verification;
+
+            const isValid = await this.passwordHasher.compare(token, tokenHash);
+
+            const isTimeValid = validTill > new Date();
+            if (!isValid || !isTimeValid) {
+                throw new ApiError(403, "Token is not valid", "Conflict Error");
+            }
+
+            const user = await this.userAggregateRepository.findByEmail(
+                entity.email,
+                false
+            );
+
+            if (!user) {
+                throw new ApiError(404, "User Not Found", "Conflict Error");
+            }
+            const hashedPassword = await this.passwordHasher.hash(newPassword);
+            const isPasswordUpdated =
+                await this.userAggregateRepository.updateUserPassword(
+                    user.person,
+                    hashedPassword
+                );
+
+            if (!isPasswordUpdated) {
+                throw new ApiError(500, "Unknown Error", "Server Error");
+            }
+            const isDeleted =
+                await this.forgotPasswordAggregateRepository.deleteAEntity(
+                    slug
+                );
+
+            if (!isDeleted) {
+                throw new ApiError(500, "Unknown Error", "Server Error");
+            }
+
+            return {
+                status: 204,
+                message: "Password Updated",
+                res: {
+                    status: true,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
     handleError(error: unknown): never {
         if (error instanceof ApiError) {
             throw error;

@@ -423,6 +423,7 @@ export class GrantApplicationRepository
                     "cycle",
                     "teammates",
                     "cycle.program",
+                    "applicant",
                 ],
             });
 
@@ -463,6 +464,85 @@ export class GrantApplicationRepository
             throw new ApiError(
                 502,
                 "Failed to fetch application",
+                "Database Error"
+            );
+        }
+    }
+
+    async getUserApplicationBasedOnStatus(
+        status: GrantApplicationStatus,
+        cycleId: string,
+        page: number,
+        numberOfResults: number
+    ): Promise<GrantApplication[]> {
+        try {
+            const applications = await this.grantApplicationRepository.find({
+                where: {
+                    cycleId,
+                    status,
+                },
+                skip: (page - 1) * numberOfResults,
+                take: numberOfResults,
+            });
+
+            return applications;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Failed to fetch applications based on status",
+                "Database Error"
+            );
+        }
+    }
+
+    async getApplicationDetailsWithSlug(
+        applicationSlug: string
+    ): Promise<GrantApplication | null> {
+        try {
+            const application = await this.grantApplicationRepository.findOne({
+                where: {slug: applicationSlug},
+                relations: ["cycle", "teammates"],
+            });
+
+            return application;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Failed to fetch applications with project",
+                "Database Error"
+            );
+        }
+    }
+
+    async getUserCreatedProjects(
+        userId: string,
+        page: number,
+        numberOfResults: number
+    ): Promise<GrantApplication[]> {
+        try {
+            const applications = await this.grantApplicationRepository.find({
+                where: {
+                    status: GrantApplicationStatus.APPROVED,
+                    applicantId: userId,
+                },
+                skip: (page - 1) * numberOfResults,
+                take: numberOfResults,
+            });
+
+            return applications;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Failed to fetch user  projects",
                 "Database Error"
             );
         }

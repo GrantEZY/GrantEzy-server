@@ -64,12 +64,12 @@ export class PublicService {
                 );
             }
 
-            const cycle =
+            const cycles =
                 await this.cycleAggregateRepository.getProgramActiveCycle(
                     program.id
                 );
 
-            if (!cycle) {
+            if (cycles.length === 0) {
                 throw new ApiError(
                     404,
                     "No Active Cycle Found for this Program",
@@ -80,7 +80,7 @@ export class PublicService {
             return {
                 status: 200,
                 message: "Program Cycle Details Fetched Successfully",
-                res: {program, cycle},
+                res: {program, cycles},
             };
         } catch (error) {
             this.handleError(error);

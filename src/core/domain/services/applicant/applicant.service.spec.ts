@@ -22,6 +22,7 @@ import {
     riskAndMileStones,
     saved_Application,
     SAVED_CYCLE,
+    saved_project,
     SAVED_USER,
 } from "./applicant.service.mock.data";
 import ApiError from "../../../../shared/errors/api.error";
@@ -35,6 +36,10 @@ import {
     UserAggregatePort,
     USER_AGGREGATE_PORT,
 } from "../../../../ports/outputs/repository/user/user.aggregate.port";
+import {
+    ProjectAggregatePort,
+    PROJECT_AGGREGATE_PORT,
+} from "../../../../ports/outputs/repository/project/project.aggregate.port";
 import {CycleInviteQueue} from "../../../../infrastructure/driven/queue/queues/cycle.invite.queue";
 describe("Applicant ", () => {
     let applicationService: ApplicantService;
@@ -44,6 +49,7 @@ describe("Applicant ", () => {
     let userSharedService: jest.Mocked<UserSharedService>;
     let userAggregateRepository: jest.Mocked<UserAggregatePort>;
     let cycleInviteQueue: jest.Mocked<CycleInviteQueue>;
+    let projectAggregateRepository: jest.Mocked<ProjectAggregatePort>;
     beforeEach(async () => {
         const moduleReference: TestingModule = await Test.createTestingModule({
             providers: [
@@ -72,6 +78,10 @@ describe("Applicant ", () => {
                     provide: USER_INVITE_AGGREGATE_PORT,
                     useValue: createMock<UserInviteAggregatePort>(),
                 },
+                {
+                    provide: PROJECT_AGGREGATE_PORT,
+                    useValue: createMock<ProjectAggregatePort>(),
+                },
             ],
         }).compile();
 
@@ -95,6 +105,9 @@ describe("Applicant ", () => {
         cycleInviteQueue = moduleReference.get(
             CycleInviteQueue
         ) as jest.Mocked<CycleInviteQueue>;
+        projectAggregateRepository = moduleReference.get(
+            PROJECT_AGGREGATE_PORT
+        ) as jest.Mocked<ProjectAggregatePort>;
     });
 
     it("to be Defined", () => {
@@ -1084,6 +1097,108 @@ describe("Applicant ", () => {
                 expect((error as ApiError).status).toBe(403);
                 expect((error as ApiError).message).toBe(
                     "Application can be only deleted by the applicant"
+                );
+            }
+        });
+    });
+
+    describe("Get User Projects", () => {
+        it("Get Successful User Applications", async () => {
+            applicationAggregateRepository.getUserCreatedProjects.mockResolvedValue(
+                [saved_Application, saved_Application, saved_Application] as any
+            );
+
+            const result = await applicationService.getUserProjects(
+                "uuid",
+                1,
+                10
+            );
+
+            expect(result).toEqual({
+                status: 200,
+                message: "User Created Applications Converted To Projects",
+                res: {
+                    applications: [
+                        saved_Application,
+                        saved_Application,
+                        saved_Application,
+                    ],
+                },
+            });
+        });
+    });
+
+    describe("Get Project Details", () => {
+        it("SuccessFul Project Details", async () => {
+            applicationAggregateRepository.findBySlug.mockResolvedValue(
+                saved_Application as any
+            );
+
+            projectAggregateRepository.getProjectDetailsWithApplicationId.mockResolvedValue(
+                saved_project as any
+            );
+
+            const result = await applicationService.getProjectDetails(
+                "slug",
+                "uuid"
+            );
+
+            expect(result).toEqual({
+                status: 200,
+                message: "Project Details",
+                res: {
+                    project: saved_project,
+                },
+            });
+        });
+
+        it("Application Not Found", async () => {
+            try {
+                applicationAggregateRepository.findBySlug.mockResolvedValue(
+                    null
+                );
+
+                await applicationService.getProjectDetails("slug", "uuid");
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).message).toBe(
+                    "Application Not Found"
+                );
+            }
+        });
+
+        it("Application Not Accesible", async () => {
+            try {
+                applicationAggregateRepository.findBySlug.mockResolvedValue(
+                    saved_Application as any
+                );
+
+                await applicationService.getProjectDetails("slug", "uuid1");
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe(
+                    "Application Not Created By User"
+                );
+            }
+        });
+
+        it("Project Not Found", async () => {
+            try {
+                applicationAggregateRepository.findBySlug.mockResolvedValue(
+                    saved_Application as any
+                );
+
+                projectAggregateRepository.getProjectDetailsWithApplicationId.mockResolvedValue(
+                    null
+                );
+                await applicationService.getProjectDetails("slug", "uuid");
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe(
+                    "Application Is Not a Project"
                 );
             }
         });

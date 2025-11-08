@@ -30,7 +30,7 @@ export class CycleInviteBodyDTO {
     @IsObject()
     round: ProgramRound;
 
-    @IsUUID()
+    @IsString()
     token: string;
 
     @IsString()
@@ -43,7 +43,22 @@ export class CycleInviteBodyDTO {
     invitedBy: string;
 }
 
-export type EmailBody = InviteEmailDTO | CycleInviteBodyDTO;
+export class ForgotPasswordEmailDTO {
+    @IsEmail()
+    email: string;
+
+    @IsUUID()
+    token: string;
+
+    @IsString()
+    slug: string;
+}
+
+export type EmailBody =
+    | InviteEmailDTO
+    | CycleInviteBodyDTO
+    | ForgotPasswordEmailDTO
+    | ProjectCreationDTO;
 
 export class EmailWorkerJobDTO {
     type: EmailNotifications;
@@ -64,7 +79,7 @@ export class CycleInviteDTO {
     @IsObject()
     round: ProgramRound;
 
-    @IsUUID()
+    @IsString()
     token: string;
 
     @IsString()
@@ -75,4 +90,15 @@ export class CycleInviteDTO {
 
     @IsString()
     invitedBy: string;
+}
+
+export class ProjectCreationDTO {
+    @IsString()
+    applicationName: string;
+
+    @IsString()
+    userName: string;
+
+    @IsEmail()
+    email: string;
 }

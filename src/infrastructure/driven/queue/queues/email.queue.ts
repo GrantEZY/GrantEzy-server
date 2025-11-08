@@ -4,12 +4,14 @@ import {Queue} from "bullmq";
 import ApiError from "../../../../shared/errors/api.error";
 import {
     CycleInviteDTO,
+    ForgotPasswordEmailDTO,
     InviteEmailDTO,
 } from "../../../driving/dtos/queue/queue.dto";
 import {EmailResponse} from "../../response-dtos/queue/queue.response-dto";
 import {Logger} from "@nestjs/common";
 import {v4 as uuid} from "uuid";
 import {EmailNotifications} from "../../../../core/domain/constants/notification.constants";
+import {User} from "../../../../core/domain/aggregates/user.aggregate";
 @Injectable()
 export class EmailQueue {
     private logger;
@@ -77,6 +79,82 @@ export class EmailQueue {
             };
         } catch (error) {
             this.logger.log(`Error in Adding to Invite Email Queue`);
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                500,
+                "Issue In Sending Email",
+                "Email Queue Error"
+            );
+        }
+    }
+
+    async addForgotPasswordEmailToQueue(
+        email: string,
+        data: ForgotPasswordEmailDTO
+    ): Promise<EmailResponse> {
+        try {
+            const uniqueId = uuid();
+            const jobId = `${uniqueId}-${email}-forgot-password-request`;
+            const job = await this.emailQueue.add(
+                jobId,
+                {type: EmailNotifications.FORGOT_PASSWORD, data},
+                {
+                    removeOnComplete: true,
+                }
+            );
+
+            return {
+                status: true,
+                queue: {
+                    name: job.name,
+                },
+            };
+        } catch (error) {
+            this.logger.log(`Error in Adding to Forgot Password Email Queue`);
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                500,
+                "Issue In Sending Email",
+                "Email Queue Error"
+            );
+        }
+    }
+
+    async createProjectEmailToQueue(
+        userDatas: User[],
+        applicationName: string
+    ): Promise<EmailResponse> {
+        try {
+            const jobs = userDatas.map((data) => {
+                const uniqueId = uuid();
+                const {email} = data.contact;
+                const {firstName, lastName} = data.person;
+
+                const jobId =
+                    uniqueId + "-" + email + "-create-project-confirmation"; // eslint-disable-line
+                return {
+                    name: jobId,
+                    data: {
+                        applicationName,
+                        email,
+                        userName: `${firstName} ${lastName}`,
+                    },
+                };
+            });
+            const addedJobs = await this.emailQueue.addBulk(jobs);
+
+            return {
+                status: true,
+                queue: {
+                    name: "Jobs Added Successfully " + String(addedJobs.length),
+                },
+            };
+        } catch (error) {
+            this.logger.log(`Error in Adding to Create Project Email Queue`);
             if (error instanceof ApiError) {
                 throw error;
             }

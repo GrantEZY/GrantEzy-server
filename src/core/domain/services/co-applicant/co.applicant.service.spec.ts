@@ -9,10 +9,15 @@ import {
     UserAggregatePort,
     USER_AGGREGATE_PORT,
 } from "../../../../ports/outputs/repository/user/user.aggregate.port";
+import {
+    ProjectAggregatePort,
+    PROJECT_AGGREGATE_PORT,
+} from "../../../../ports/outputs/repository/project/project.aggregate.port";
 import {createMock} from "@golevelup/ts-jest";
 import {
     dummyUserInvite,
     saved_Application,
+    saved_project,
     SAVED_USER,
 } from "./co.applicant.mock.data";
 import {SharedApplicationService} from "../shared/application/shared.application.service";
@@ -22,6 +27,7 @@ describe("CoApplicantService", () => {
     let applicationAggregateRepository: jest.Mocked<GrantApplicationAggregatePort>;
     let sharedApplicationService: jest.Mocked<SharedApplicationService>;
     let userAggregateRepository: jest.Mocked<UserAggregatePort>;
+    let projectAggregateRepository: jest.Mocked<ProjectAggregatePort>;
     beforeEach(async () => {
         const moduleReference: TestingModule = await Test.createTestingModule({
             providers: [
@@ -38,6 +44,10 @@ describe("CoApplicantService", () => {
                     provide: SharedApplicationService,
                     useValue: createMock<SharedApplicationService>(),
                 },
+                {
+                    provide: PROJECT_AGGREGATE_PORT,
+                    useValue: createMock<ProjectAggregatePort>(),
+                },
             ],
         }).compile();
 
@@ -51,6 +61,9 @@ describe("CoApplicantService", () => {
         userAggregateRepository = moduleReference.get(
             USER_AGGREGATE_PORT
         ) as jest.Mocked<UserAggregatePort>;
+        projectAggregateRepository = moduleReference.get(
+            PROJECT_AGGREGATE_PORT
+        ) as jest.Mocked<ProjectAggregatePort>;
     });
 
     it("should be defined", () => {
@@ -266,6 +279,84 @@ describe("CoApplicantService", () => {
                 expect(error).toBeInstanceOf(ApiError);
                 expect((error as ApiError).status).toBe(404);
                 expect((error as ApiError).message).toBe("User Not Found");
+            }
+        });
+    });
+
+    describe("Get User Linked Projects", () => {
+        it("Successful Fetch Projects", async () => {
+            userAggregateRepository.getUserLinkedProjects.mockResolvedValue([
+                saved_Application,
+                saved_Application,
+            ] as any);
+
+            const result = await coApplicationService.getUserLinkedProjects(
+                "uuid",
+                1,
+                10
+            );
+
+            expect(result).toEqual({
+                status: 200,
+                message: "User Linked Projects",
+                res: {
+                    applications: [saved_Application, saved_Application],
+                },
+            });
+        });
+    });
+
+    describe("Get Project Details", () => {
+        it("Successful Project Details Fetch", async () => {
+            applicationAggregateRepository.getApplicationDetailsWithSlug.mockResolvedValue(
+                saved_Application as any
+            );
+
+            projectAggregateRepository.getProjectDetailsWithApplicationId.mockResolvedValue(
+                saved_project as any
+            );
+
+            const result = await coApplicationService.getProjectDetails(
+                "slug",
+                "uuid"
+            );
+
+            expect(result).toEqual({
+                status: 200,
+                message: "Project Details",
+                res: {
+                    project: saved_project,
+                },
+            });
+        });
+
+        it("Application Not Found", async () => {
+            try {
+                applicationAggregateRepository.getApplicationDetailsWithSlug.mockResolvedValue(
+                    null
+                );
+                await coApplicationService.getProjectDetails("slug", "uuid");
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).message).toBe(
+                    "Application Not Found"
+                );
+            }
+        });
+
+        it("User Not Linked With the Application", async () => {
+            try {
+                applicationAggregateRepository.getApplicationDetailsWithSlug.mockResolvedValue(
+                    saved_Application as any
+                );
+                await coApplicationService.getProjectDetails("slug", "uuid1");
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe(
+                    "User Not Linked With the Application"
+                );
             }
         });
     });

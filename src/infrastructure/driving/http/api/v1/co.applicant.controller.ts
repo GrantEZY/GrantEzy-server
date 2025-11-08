@@ -5,13 +5,18 @@ import {CoApplicantControllerPort} from "../../../../../ports/inputs/controllers
 import {CurrentUser} from "../../../../../shared/decorators/currentuser.decorator";
 import {
     CoApplicantApplicationDTO,
+    GetProjectDetailsDTO,
     GetTokenDetailsDTO,
     SubmitInviteStatusDTO,
+    GetUserLinkedProjectsPaginationDTO,
 } from "../../../dtos/co.applicant.dto";
 import {AccessTokenJwt} from "../../../../../shared/types/jwt.types";
 import ApiError from "../../../../../shared/errors/api.error";
 import {Response} from "express";
-import {CO_APPLICANT_RESPONSES} from "../../../../../config/swagger/docs/co.applicant.swagger";
+import {
+    CO_APPLICANT_PROJECT_RESPONSES,
+    CO_APPLICANT_RESPONSES,
+} from "../../../../../config/swagger/docs/co.applicant.swagger";
 @ApiTags("Co-Applicants")
 @Controller("co-applicant")
 export class CoApplicantController implements CoApplicantControllerPort {
@@ -75,6 +80,58 @@ export class CoApplicantController implements CoApplicantControllerPort {
                 await this.coApplicantService.updateTeamMateInviteStatus(
                     inviteStatusData
                 );
+
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Get("/get-user-linked-projects")
+    @ApiResponse(
+        CO_APPLICANT_PROJECT_RESPONSES.GET_USER_LINKED_PROJECTS.SUCCESS
+    )
+    async getUserLinkedProjects(
+        @Query() parameters: GetUserLinkedProjectsPaginationDTO,
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+
+            const result = await this.coApplicantService.getUserLinkedProjects(
+                id,
+                parameters.page,
+                parameters.numberOfResults
+            );
+
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Get("/get-project-details")
+    @ApiResponse(CO_APPLICANT_PROJECT_RESPONSES.GET_PROJECT_DETAILS.SUCCESS)
+    @ApiResponse(CO_APPLICANT_PROJECT_RESPONSES.GET_PROJECT_DETAILS.FORBIDDEN)
+    @ApiResponse(
+        CO_APPLICANT_PROJECT_RESPONSES.GET_PROJECT_DETAILS.APPLICATION_NOT_FOUND
+    )
+    @ApiResponse(
+        CO_APPLICANT_PROJECT_RESPONSES.GET_PROJECT_DETAILS.NOT_A_PROJECT
+    )
+    async getProjectDetails(
+        @Query() parameters: GetProjectDetailsDTO,
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+
+            const result = await this.coApplicantService.getProjectDetails(
+                parameters.applicationSlug,
+                id
+            );
 
             return response.status(result.status).json(result);
         } catch (error) {

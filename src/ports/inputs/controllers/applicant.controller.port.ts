@@ -9,6 +9,8 @@ import {
     DeleteApplicationDTO,
     GetApplicationWithCycleDetailsDTO,
     GetUserCreatedApplicationDTO,
+    GetProjectDetailsDTO,
+    GetUserProjectsPaginationDTO,
 } from "../../../infrastructure/driving/dtos/applicant.dto";
 import {AccessTokenJwt} from "../../../shared/types/jwt.types";
 import {Response} from "express";
@@ -75,6 +77,18 @@ export interface ApplicantControllerPort {
     deleteUserApplication(
         user: AccessTokenJwt,
         body: DeleteApplicationDTO,
+        response: Response
+    ): Promise<Response>;
+
+    getUserCreatedProjects(
+        parameters: GetUserProjectsPaginationDTO,
+        user: AccessTokenJwt,
+        response: Response
+    ): Promise<Response>;
+
+    getProjectDetails(
+        parameters: GetProjectDetailsDTO,
+        user: AccessTokenJwt,
         response: Response
     ): Promise<Response>;
     handleError(error: unknown, response: Response): Response;

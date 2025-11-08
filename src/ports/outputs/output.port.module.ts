@@ -36,6 +36,12 @@ import {VerificationTokenEntity} from "../../core/domain/entities/verification.e
 import {Review} from "../../core/domain/aggregates/review.aggregate";
 import {REVIEW_AGGREGATE_PORT} from "./repository/review/review.aggregate.port";
 import {ReviewAggregateRepository} from "../../infrastructure/driven/database/repositories/review.aggregate.repository";
+import {FORGOT_PASSWORD_PORT} from "./repository/forgotpassword/forgotpassword.aggregate.port";
+import {ForgotPasswordAggregate} from "../../core/domain/aggregates/forgotpassword.aggregate";
+import {ForgotPasswordAggregateRepository} from "../../infrastructure/driven/database/repositories/forgotpassword.aggregate.repository";
+import {Project} from "../../core/domain/aggregates/project.aggregate";
+import {PROJECT_AGGREGATE_PORT} from "./repository/project/project.aggregate.port";
+import {ProjectAggregateRepository} from "../../infrastructure/driven/database/repositories/project.aggregate.repository";
 @Global()
 @Module({
     imports: [
@@ -52,6 +58,8 @@ import {ReviewAggregateRepository} from "../../infrastructure/driven/database/re
             UserNotifications,
             VerificationTokenEntity,
             Review,
+            ForgotPasswordAggregate,
+            Project,
         ]),
         JwtModule.register({}),
     ],
@@ -82,6 +90,14 @@ import {ReviewAggregateRepository} from "../../infrastructure/driven/database/re
             provide: USER_INVITE_AGGREGATE_PORT,
             useClass: UserInviteAggregateRepository,
         },
+        {
+            provide: FORGOT_PASSWORD_PORT,
+            useClass: ForgotPasswordAggregateRepository,
+        },
+        {
+            provide: PROJECT_AGGREGATE_PORT,
+            useClass: ProjectAggregateRepository,
+        },
     ],
     exports: [
         USER_AGGREGATE_PORT,
@@ -96,6 +112,8 @@ import {ReviewAggregateRepository} from "../../infrastructure/driven/database/re
         ORGANIZATION_ENTITY_PORT,
         GRANT_APPLICATION_AGGREGATE_PORT,
         REVIEW_AGGREGATE_PORT,
+        FORGOT_PASSWORD_PORT,
+        PROJECT_AGGREGATE_PORT,
     ],
 })
 export class OutputPortModule {}

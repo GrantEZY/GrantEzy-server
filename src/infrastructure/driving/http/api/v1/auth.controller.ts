@@ -10,14 +10,21 @@ import {
 import {Response} from "express";
 import {AuthService} from "../../../../../core/domain/services/auth/auth.service";
 import {AuthControllerPort} from "../../../../../ports/inputs/controllers/auth.controller.port";
-import {LoginDTO, RegisterDTO} from "../../../dtos/auth.dto";
+import {
+    LoginDTO,
+    RegisterDTO,
+    ForgotPasswordDTO,
+    UpdatePasswordDTO,
+} from "../../../dtos/auth.dto";
 import ApiError from "../../../../../shared/errors/api.error";
 import {ApiTags, ApiResponse} from "@nestjs/swagger";
 import {
+    ForgotPasswordSwagger,
     LoginSwagger,
     LogoutSwagger,
     RefreshSwagger,
     RegisterSwagger,
+    UpdatePasswordSwagger,
 } from "../../../../../config/swagger/docs/auth.swagger";
 import {CurrentUser} from "../../../../../shared/decorators/currentuser.decorator";
 import {
@@ -153,6 +160,43 @@ export class AuthController implements AuthControllerPort {
                     accessToken: result.res?.accessToken,
                 },
             });
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Public()
+    @Post("/forgot-password")
+    @ApiResponse(ForgotPasswordSwagger.SUCCESS)
+    @ApiResponse(ForgotPasswordSwagger.USER_NOT_FOUND)
+    @ApiResponse(ForgotPasswordSwagger.EMAIL_SEND_ERROR)
+    async forgotPassword(
+        @Res() response: Response,
+        @Body() data: ForgotPasswordDTO
+    ): Promise<Response> {
+        try {
+            const result = await this.authUseCase.forgotPassword(data);
+
+            return response.status(result.status).json(response);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Public()
+    @Post("/update-password")
+    @ApiResponse(UpdatePasswordSwagger.SUCCESS)
+    @ApiResponse(UpdatePasswordSwagger.FORGOT_REQUEST_NOT_FOUND)
+    @ApiResponse(UpdatePasswordSwagger.TOKEN_INVALID)
+    @ApiResponse(UpdatePasswordSwagger.USER_NOT_FOUND)
+    async updatePassword(
+        @Res() response: Response,
+        @Body() data: UpdatePasswordDTO
+    ): Promise<Response> {
+        try {
+            const result = await this.authUseCase.updatePassword(data);
+
+            return response.status(result.status).json(result);
         } catch (error) {
             return this.handleError(error, response);
         }

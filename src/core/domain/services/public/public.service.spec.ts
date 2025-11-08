@@ -101,16 +101,16 @@ describe("PublicService", () => {
             programAggregateRepository.findByslug.mockResolvedValue(
                 mockPrograms[0] as any
             );
-            cycleAggregateRepository.getProgramActiveCycle.mockResolvedValue(
-                mockCycle as any
-            );
+            cycleAggregateRepository.getProgramActiveCycle.mockResolvedValue([
+                mockCycle as any,
+            ]);
 
             const result =
                 await publicService.getProgramCycleDetails("program-1");
             expect(result).toEqual({
                 status: 200,
                 message: "Program Cycle Details Fetched Successfully",
-                res: {program: mockPrograms[0], cycle: mockCycle},
+                res: {program: mockPrograms[0], cycles: [mockCycle]},
             });
             expect(programAggregateRepository.findByslug).toHaveBeenCalledWith(
                 "program-1"
@@ -155,7 +155,7 @@ describe("PublicService", () => {
                     mockPrograms[0] as any
                 );
                 cycleAggregateRepository.getProgramActiveCycle.mockResolvedValue(
-                    null as any
+                    [] as any
                 );
                 await publicService.getProgramCycleDetails("program-1");
             } catch (error) {

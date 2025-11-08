@@ -91,3 +91,33 @@ export class LoginDTO {
     @MaxLength(20)
     password: string;
 }
+
+export class ForgotPasswordDTO {
+    @ApiProperty({
+        example: "tylerdurden@gmail.com",
+        description: "User's email address",
+    })
+    @IsEmail()
+    @IsNotEmpty({message: "Email is required"})
+    email: string;
+}
+
+export class UpdatePasswordDTO {
+    @IsString()
+    token: string;
+
+    @IsString()
+    slug: string;
+
+    @ApiProperty({
+        example: "StrongPassword123!",
+        description: "User's password",
+        minLength: 8,
+        maxLength: 20,
+    })
+    @IsString()
+    @IsNotEmpty()
+    @MinLength(8)
+    @MaxLength(20)
+    newPassword: string;
+}

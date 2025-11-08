@@ -192,3 +192,118 @@ export const CO_APPLICANT_RESPONSES = {
     },
   },
 };
+
+
+export const CO_APPLICANT_PROJECT_RESPONSES = {
+  GET_USER_LINKED_PROJECTS: {
+    SUCCESS: {
+      status: 200,
+      description: "Fetched all projects linked to the user as a teammate",
+      example: {
+        status: 200,
+        message: "User Linked Projects",
+        res: {
+          applications: [
+            {
+              id: "uuid",
+              title: "Linked Project Title",
+              applicantId: "uuid",
+              teammates: [
+                { personId: "uuid", name: "John Doe", role: "CO_APPLICANT" },
+              ],
+              cycleId: "uuid",
+              createdAt: "2025-11-01T10:00:00Z",
+            },
+          ],
+        },
+      },
+    },
+
+    NO_LINKED_PROJECTS: {
+      status: 200,
+      description: "No linked projects found for this user",
+      example: {
+        status: 200,
+        message: "No Linked Projects Found",
+        res: { applications: [] },
+      },
+    },
+
+    ERROR: {
+      status: 500,
+      description: "Unexpected error while fetching linked projects",
+      example: {
+        status: 500,
+        message: "Internal Server Error",
+        res: null,
+      },
+    },
+  },
+
+  GET_PROJECT_DETAILS: {
+    SUCCESS: {
+      status: 200,
+      description: "Fetched project details for linked user",
+      example: {
+        status: 200,
+        message: "Project Details",
+        res: {
+          project: {
+            id: "uuid",
+            title: "Linked Project Example",
+            description: "This project was linked to the current user",
+            applicationId: "uuid",
+            applicantId: "uuid",
+            teammates: [
+              { personId: "uuid", name: "Alice Smith", role: "Co-Applicant" },
+              { personId: "uuid", name: "Bob Kumar", role: "Research Partner" },
+            ],
+            createdAt: "2025-10-30T09:00:00Z",
+            updatedAt: "2025-11-02T14:10:00Z",
+          },
+        },
+      },
+    },
+
+    APPLICATION_NOT_FOUND: {
+      status: 404,
+      description: "Application not found for given slug",
+      example: {
+        status: 404,
+        message: "Application Not Found",
+        res: null,
+      },
+    },
+
+    FORBIDDEN: {
+      status: 403,
+      description: "User is not linked with this application",
+      example: {
+        status: 403,
+        message: "User Not Linked With the Application",
+        res: null,
+      },
+    },
+
+    NOT_A_PROJECT: {
+      status: 404,
+      description: "Application exists but has not yet been converted to a project",
+      example: {
+        status: 404,
+        message: "Application Is Not A Project",
+        res: null,
+      },
+    },
+
+    ERROR: {
+      status: 500,
+      description: "Unexpected error while fetching project details",
+      example: {
+        status: 500,
+        message: "Internal Server Error",
+        res: null,
+      },
+    },
+  },
+};
+
