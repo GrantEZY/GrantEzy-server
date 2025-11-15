@@ -37,5 +37,10 @@ export interface ProjectManagementControllerPort {
         user: AccessTokenJwt,
         response: Response
     ): Promise<Response>;
+    getApplicantCycleReviewCriterias(
+        parameters: GetCycleCriteriasDTO,
+        user: AccessTokenJwt,
+        response: Response
+    ): Promise<Response>;
     handleError(error: unknown, response: Response): Response;
 }

@@ -16,6 +16,7 @@ import {AccessTokenJwt} from "../../../../../shared/types/jwt.types";
 import {
     PROJECT_MANAGEMENT_RESPONSES,
     CYCLE_CRITERIA_RESPONSES,
+    APPLICANT_PROJECT_MANAGEMENT,
 } from "../../../../../config/swagger/docs/project.management.swagger";
 @ApiTags("Project Management")
 @Controller("pt-management")
@@ -150,6 +151,38 @@ export class ProjectManagementController
             return this.handleError(error, response);
         }
     }
+
+    @Get("/get-applicant-project-cycle-review-criteria")
+    @ApiResponse(APPLICANT_PROJECT_MANAGEMENT.GET_USER_CYCLE_CRITERIA.SUCCESS)
+    @ApiResponse(
+        APPLICANT_PROJECT_MANAGEMENT.GET_USER_CYCLE_CRITERIA.CYCLE_NOT_FOUND
+    )
+    @ApiResponse(
+        APPLICANT_PROJECT_MANAGEMENT.GET_USER_CYCLE_CRITERIA
+            .INVALID_PROJECT_STATUS
+    )
+    @ApiResponse(
+        APPLICANT_PROJECT_MANAGEMENT.GET_USER_CYCLE_CRITERIA.USER_NOT_IN_CYCLE
+    )
+    async getApplicantCycleReviewCriterias(
+        @Query() parameters: GetCycleCriteriasDTO,
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+
+            const result =
+                await this.projectManagementService.getUserProjectCycleCriteria(
+                    parameters,
+                    id
+                );
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
     handleError(error: unknown, response: Response): Response {
         if (error instanceof ApiError) {
             return response.status(error.status).json({

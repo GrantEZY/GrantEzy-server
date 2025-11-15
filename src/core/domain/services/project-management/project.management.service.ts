@@ -311,6 +311,64 @@ export class ProjectManagementService {
         }
     }
 
+    async getUserProjectCycleCriteria(
+        details: GetCycleCriteriasDTO,
+        userId: string
+    ): Promise<GetCycleAssessmentCriteriasResponse> {
+        try {
+            const {cycleSlug} = details;
+
+            const cycle =
+                await this.cycleAggregateRepository.findCycleByslug(cycleSlug);
+
+            if (!cycle) {
+                throw new ApiError(404, "Cycle Not Found", "Conflict Error");
+            }
+
+            const application =
+                await this.grantApplicationRepository.findUserCycleApplication(
+                    userId,
+                    cycle.id
+                );
+
+            if (!application) {
+                throw new ApiError(
+                    403,
+                    "User Doesn't have a project for this cycle",
+                    "Conflict Error"
+                );
+            }
+
+            if (
+                !(
+                    application.status === GrantApplicationStatus.APPROVED ||
+                    application.status === GrantApplicationStatus.ARCHIVED
+                )
+            ) {
+                throw new ApiError(
+                    403,
+                    "Project wasn't should be active or successfully archived",
+                    "Conflict Error"
+                );
+            }
+
+            const criterias =
+                await this.criteriaRepository.getCycleEvaluationCriterias(
+                    cycle.id
+                );
+
+            return {
+                status: 200,
+                message: "Criterias For Cycle",
+                res: {
+                    criterias,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
     /**
      * Handles and standardizes all service errors.
      */

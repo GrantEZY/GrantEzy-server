@@ -25,7 +25,7 @@ export class CycleAssessmentAggregate {
 
     @ManyToOne(() => CycleAssessmentCriteriaAggregate, {
         onDelete: "CASCADE",
-        eager: false,
+        eager: true,
     })
     @JoinColumn({name: "criteriaId"})
     criteria: CycleAssessmentCriteriaAggregate;

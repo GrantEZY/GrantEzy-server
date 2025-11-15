@@ -273,3 +273,68 @@ export const CYCLE_CRITERIA_RESPONSES = {
     },
   },
 };
+
+export const APPLICANT_PROJECT_MANAGEMENT = {
+  "GET_USER_CYCLE_CRITERIA": {
+    "SUCCESS": {
+      "status": 200,
+      "description": "Successfully retrieved all evaluation criterias for the cycle for the user",
+      "example": {
+        "status": 200,
+        "message": "Criterias For Cycle",
+        "res": {
+          "criterias": [
+            {
+              "id": "uuid-of-criteria",
+              "name": "Code Quality Evaluation",
+              "reviewBrief": "Assess code modularity and maintainability",
+              "slug": "code-quality-evaluation",
+              "createdAt": "2025-11-05T12:00:00.000Z"
+            }
+          ]
+        }
+      }
+    },
+
+    "CYCLE_NOT_FOUND": {
+      "status": 404,
+      "description": "The specified cycle was not found",
+      "example": {
+        "status": 404,
+        "message": "Cycle Not Found",
+        "res": null
+      }
+    },
+
+    "USER_NOT_IN_CYCLE": {
+      "status": 403,
+      "description": "The user has no project/application under this cycle",
+      "example": {
+        "status": 403,
+        "message": "User Doesn't have a project for this cycle",
+        "res": null
+      }
+    },
+
+    "INVALID_PROJECT_STATUS": {
+      "status": 403,
+      "description": "The user’s project for this cycle is not approved or archived",
+      "example": {
+        "status": 403,
+        "message": "Project wasn't should be active or successfully archived",
+        "res": null
+      }
+    },
+
+    "INTERNAL_ERROR": {
+      "status": 500,
+      "description": "Unexpected server error occurred while fetching user cycle criteria",
+      "example": {
+        "status": 500,
+        "message": "Internal Server Error",
+        "res": null
+      }
+    }
+  }
+}
+
