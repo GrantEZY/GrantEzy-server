@@ -406,4 +406,108 @@ describe("Project Management Service", () => {
             });
         });
     });
+
+    describe("Get Applicant Project Cycle Reviews", () => {
+        it("Successful fetch of cycle criterias", async () => {
+            cycleAggregateRepository.findCycleByslug.mockResolvedValue(
+                dummyCycle as any
+            );
+
+            const newApplication = JSON.parse(
+                JSON.stringify(saved_Application)
+            );
+
+            newApplication.status = GrantApplicationStatus.APPROVED;
+
+            applicationAggregateRepository.findUserCycleApplication.mockResolvedValue(
+                newApplication as any
+            );
+
+            criteriaRepository.getCycleEvaluationCriterias.mockResolvedValue([
+                dummyCycleAssessmentCriteria,
+                dummyCycleAssessmentCriteria,
+            ] as any);
+
+            const result =
+                await projectManagementService.getUserProjectCycleCriteria(
+                    {cycleSlug: "slug"},
+                    "uuid"
+                );
+
+            expect(result).toEqual({
+                status: 200,
+                message: "Criterias For Cycle",
+                res: {
+                    criterias: [
+                        dummyCycleAssessmentCriteria,
+                        dummyCycleAssessmentCriteria,
+                    ],
+                },
+            });
+        });
+
+        it("Cycle Not Found", async () => {
+            try {
+                cycleAggregateRepository.findCycleByslug.mockResolvedValue(
+                    null
+                );
+
+                await projectManagementService.getUserProjectCycleCriteria(
+                    {cycleSlug: "slug"},
+                    "uuid"
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).message).toBe("Cycle Not Found");
+            }
+        });
+
+        it("Application Not Found", async () => {
+            try {
+                cycleAggregateRepository.findCycleByslug.mockResolvedValue(
+                    dummyCycle as any
+                );
+
+                applicationAggregateRepository.findUserCycleApplication.mockResolvedValue(
+                    null
+                );
+
+                await projectManagementService.getUserProjectCycleCriteria(
+                    {cycleSlug: "slug"},
+                    "uuid"
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe(
+                    "User Doesn't have a project for this cycle"
+                );
+            }
+        });
+
+        it("Application Is Not Approved Or Archived ", async () => {
+            try {
+                cycleAggregateRepository.findCycleByslug.mockResolvedValue(
+                    dummyCycle as any
+                );
+
+                const newApplication = JSON.parse(
+                    JSON.stringify(saved_Application)
+                );
+
+                newApplication.status = GrantApplicationStatus.REJECTED;
+
+                applicationAggregateRepository.findUserCycleApplication.mockResolvedValue(
+                    newApplication
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe(
+                    "Project wasn't should be active or successfully archived"
+                );
+            }
+        });
+    });
 });

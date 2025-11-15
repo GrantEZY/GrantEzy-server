@@ -12,6 +12,7 @@ const saved_Application = {
         },
     },
     teammates: [{personId: "uuid"}],
+    status: "SUBMITTED",
     teamMateInvites: [{email: "inthrak04@gmail.com", inviteAs: "TEAMMATE"}],
     cycle: {
         name: "Cycle 123",
