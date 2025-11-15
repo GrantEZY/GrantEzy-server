@@ -10,12 +10,14 @@ import {
     Column,
     PrimaryGeneratedColumn,
     OneToMany,
+    Index,
 } from "typeorm";
 import {CycleAssessmentCriteriaAggregate} from "./cycle.assessment.criteria.aggregate";
 import {Project} from "./project.aggregate";
 import {ProjectReviewAggregate} from "./project.review.aggregate";
 
 @Entity({name: "cycle_assessment"})
+@Index("idx_criteria_project", ["criteriaId", "projectId"])
 export class CycleAssessmentAggregate {
     @PrimaryGeneratedColumn("uuid")
     id: string;
@@ -70,7 +72,7 @@ export class CycleAssessmentAggregate {
         () => ProjectReviewAggregate,
         (review) => review.reviewSubmission,
         {
-            eager: false,
+            eager: true,
         }
     )
     reviews: ProjectReviewAggregate[];

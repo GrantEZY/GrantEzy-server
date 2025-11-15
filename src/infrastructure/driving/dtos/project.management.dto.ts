@@ -162,3 +162,18 @@ export class GetCycleCriteriasDTO {
     @IsUUID()
     cycleSlug: string;
 }
+
+export class GetCycleCriteriaDetailsWithSubmissionDTO {
+    @ApiProperty({
+        description: "slug of the cycle",
+        example: "4b7d1f330f2e4b7a91e35f58f3c9d4ab",
+    })
+    @IsUUID()
+    cycleSlug: string;
+
+    @ApiProperty({
+        description: "slug of the criteria",
+        example: "4b7d1f330f2e4b7a91e35f58f3c9d4ab",
+    })
+    criteriaSlug: string;
+}

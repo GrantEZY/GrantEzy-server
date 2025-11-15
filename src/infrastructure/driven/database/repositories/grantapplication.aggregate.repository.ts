@@ -394,7 +394,7 @@ export class GrantApplicationRepository
                     applicantId: userId,
                     cycleId,
                 },
-                relations: ["teamMateInvites", "cycle"],
+                relations: ["teamMateInvites", "cycle", "project"],
             });
 
             return application;
@@ -424,6 +424,7 @@ export class GrantApplicationRepository
                     "teammates",
                     "cycle.program",
                     "applicant",
+                    "project",
                 ],
             });
 

@@ -335,6 +335,99 @@ export const APPLICANT_PROJECT_MANAGEMENT = {
         "res": null
       }
     }
+  },"GET_USER_REVIEW_CRITERIA_DETAILS": {
+    "SUCCESS": {
+      "status": 200,
+      "description": "Successfully retrieved the review criteria details and the user's submission for that project and cycle",
+      "example": {
+        "status": 200,
+        "message": "Project Cycle Review Details",
+        "res": {
+          "criteria": {
+            "id": "uuid-of-criteria",
+            "name": "Design Review Criteria",
+            "reviewBrief": "Evaluate completeness of design specification",
+            "slug": "design-review",
+            "createdAt": "2025-11-05T12:00:00.000Z"
+          },
+          "cycleSubmission": {
+            "id": "uuid-of-assessment",
+            "criteriaId": "uuid-of-criteria",
+            "projectId": "uuid-of-project",
+            "reviewBrief": "User's submitted review notes",
+            "reviewDocument": {
+              "title": "Design Review Document",
+              "description": "Full submission document",
+              "fileName": "design-review.pdf",
+              "fileSize": 240392,
+              "mimeType": "application/pdf",
+              "storageUrl": "https://storage.server.com/design-review.pdf",
+              "metaData": {}
+            },
+            "slug": "design-review-submission",
+            "reviews": [
+              {
+                "id": "uuid-of-review",
+                "comment": "Great submission",
+                "rating": 4
+              }
+            ],
+            "createdAt": "2025-11-10T12:00:00.000Z",
+            "updatedAt": "2025-11-12T12:00:00.000Z"
+          }
+        }
+      }
+    },
+
+    "CYCLE_NOT_FOUND": {
+      "status": 404,
+      "description": "The specified cycle was not found",
+      "example": {
+        "status": 404,
+        "message": "Cycle Not Found",
+        "res": null
+      }
+    },
+
+    "USER_NOT_IN_CYCLE": {
+      "status": 403,
+      "description": "The user does not have a project inside this cycle",
+      "example": {
+        "status": 403,
+        "message": "User Doesn't have a project for this cycle",
+        "res": null
+      }
+    },
+
+    "INVALID_PROJECT_STATUS": {
+      "status": 403,
+      "description": "The user's project is not approved or archived, thus cannot access review criteria",
+      "example": {
+        "status": 403,
+        "message": "Project wasn't should be active or successfully archived",
+        "res": null
+      }
+    },
+
+    "CRITERIA_NOT_FOUND": {
+      "status": 404,
+      "description": "The review criteria with the given slug was not found",
+      "example": {
+        "status": 404,
+        "message": "Review Criteria Not Found",
+        "res": null
+      }
+    },
+
+    "INTERNAL_ERROR": {
+      "status": 500,
+      "description": "Unexpected server error occurred while fetching the review criteria details",
+      "example": {
+        "status": 500,
+        "message": "Internal Server Error",
+        "res": null
+      }
+    }
   }
 }
 

@@ -6,6 +6,7 @@ import {
     CreateCycleProjectsEvalCriteriaDTO,
     CreateProjectDTO,
     GetCycleProjectsDTO,
+    GetCycleCriteriaDetailsWithSubmissionDTO,
     GetProjectDetailsDTO,
     GetCycleCriteriasDTO,
 } from "../../../dtos/project.management.dto";
@@ -174,6 +175,40 @@ export class ProjectManagementController
 
             const result =
                 await this.projectManagementService.getUserProjectCycleCriteria(
+                    parameters,
+                    id
+                );
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Get("/get-applicant-cycle-assessment-submission")
+    @ApiResponse(
+        APPLICANT_PROJECT_MANAGEMENT.GET_USER_REVIEW_CRITERIA_DETAILS.SUCCESS
+    )
+    @ApiResponse(
+        APPLICANT_PROJECT_MANAGEMENT.GET_USER_REVIEW_CRITERIA_DETAILS
+            .CRITERIA_NOT_FOUND
+    )
+    @ApiResponse(
+        APPLICANT_PROJECT_MANAGEMENT.GET_USER_REVIEW_CRITERIA_DETAILS
+            .CYCLE_NOT_FOUND
+    )
+    @ApiResponse(
+        APPLICANT_PROJECT_MANAGEMENT.GET_USER_REVIEW_CRITERIA_DETAILS
+            .USER_NOT_IN_CYCLE
+    )
+    async getApplicantCycleAssessmentSubmission(
+        @Query() parameters: GetCycleCriteriaDetailsWithSubmissionDTO,
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+            const result =
+                await this.projectManagementService.getUserProjectReviewCriteria(
                     parameters,
                     id
                 );

@@ -15,6 +15,7 @@ import ApiError from "../../../../shared/errors/api.error";
 import {
     CreateCycleProjectsEvalCriteriaDTO,
     CreateProjectDTO,
+    GetCycleCriteriaDetailsWithSubmissionDTO,
     GetCycleCriteriasDTO,
     GetCycleProjectsDTO,
     GetProjectDetailsDTO,
@@ -24,6 +25,7 @@ import {
     CreateCriteriaResponse,
     CreateProjectResponse,
     GetCycleAssessmentCriteriasResponse,
+    GetCycleAssessmentDetailsForApplicantResponse,
     GetCycleProjectsResponse,
     GetProjectDetailsResponse,
 } from "../../../../infrastructure/driven/response-dtos/project.management.response-dto";
@@ -33,6 +35,10 @@ import {
     CycleAssessmentCriteriaAggregatePort,
     CYCLE_ASSESSMENT_CRITERIA_AGGREGATE_PORT,
 } from "../../../../ports/outputs/repository/cycleAssessmentCriteria/cycle.assessment.criteria.aggregate.port";
+import {
+    CycleAssessmentAggregatePort,
+    CYCLE_ASSESSMENT_AGGREGATE_PORT,
+} from "../../../../ports/outputs/repository/cycleAssessment/cycle.assessment.aggregate.port";
 @Injectable()
 export class ProjectManagementService {
     constructor(
@@ -47,6 +53,9 @@ export class ProjectManagementService {
 
         @Inject(CYCLE_ASSESSMENT_CRITERIA_AGGREGATE_PORT)
         private readonly criteriaRepository: CycleAssessmentCriteriaAggregatePort,
+
+        @Inject(CYCLE_ASSESSMENT_AGGREGATE_PORT)
+        private readonly assessmentRepository: CycleAssessmentAggregatePort,
 
         private readonly emailQueue: EmailQueue,
         private readonly sharedApplicationService: SharedApplicationService
@@ -362,6 +371,77 @@ export class ProjectManagementService {
                 message: "Criterias For Cycle",
                 res: {
                     criterias,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async getUserProjectReviewCriteria(
+        details: GetCycleCriteriaDetailsWithSubmissionDTO,
+        userId: string
+    ): Promise<GetCycleAssessmentDetailsForApplicantResponse> {
+        try {
+            const {cycleSlug, criteriaSlug} = details;
+
+            const cycle =
+                await this.cycleAggregateRepository.findCycleByslug(cycleSlug);
+
+            if (!cycle) {
+                throw new ApiError(404, "Cycle Not Found", "Conflict Error");
+            }
+
+            const application =
+                await this.grantApplicationRepository.findUserCycleApplication(
+                    userId,
+                    cycle.id
+                );
+
+            if (!application?.projectId) {
+                throw new ApiError(
+                    403,
+                    "User Doesn't have a project for this cycle",
+                    "Conflict Error"
+                );
+            }
+
+            if (
+                !(
+                    application.status === GrantApplicationStatus.APPROVED ||
+                    application.status === GrantApplicationStatus.ARCHIVED
+                )
+            ) {
+                throw new ApiError(
+                    403,
+                    "Project wasn't should be active or successfully archived",
+                    "Conflict Error"
+                );
+            }
+
+            const criteria =
+                await this.criteriaRepository.getCriteriaDetails(criteriaSlug);
+
+            if (!criteria) {
+                throw new ApiError(
+                    404,
+                    "Review Criteria Not Found",
+                    "Conflict Error"
+                );
+            }
+
+            const cycleSubmission =
+                await this.assessmentRepository.getCriteriaWithCriteriaIdAndProjectId(
+                    criteria.id,
+                    application.projectId
+                );
+
+            return {
+                status: 200,
+                message: "Project Cycle Review Details",
+                res: {
+                    criteria,
+                    cycleSubmission,
                 },
             };
         } catch (error) {

@@ -46,6 +46,8 @@ import {CycleAssessmentAggregate} from "../../core/domain/aggregates/cycle.asses
 import {CycleAssessmentCriteriaAggregate} from "../../core/domain/aggregates/cycle.assessment.criteria.aggregate";
 import {CycleAssessmentCriteriaAggregateRepository} from "../../infrastructure/driven/database/repositories/cycle.assessment.criteria.aggregate.repository";
 import {CYCLE_ASSESSMENT_CRITERIA_AGGREGATE_PORT} from "./repository/cycleAssessmentCriteria/cycle.assessment.criteria.aggregate.port";
+import {CycleAssessmentAggregateRepository} from "../../infrastructure/driven/database/repositories/cycle.assessment.aggregate.repository";
+import {CYCLE_ASSESSMENT_AGGREGATE_PORT} from "./repository/cycleAssessment/cycle.assessment.aggregate.port";
 @Global()
 @Module({
     imports: [
@@ -108,6 +110,10 @@ import {CYCLE_ASSESSMENT_CRITERIA_AGGREGATE_PORT} from "./repository/cycleAssess
             provide: CYCLE_ASSESSMENT_CRITERIA_AGGREGATE_PORT,
             useClass: CycleAssessmentCriteriaAggregateRepository,
         },
+        {
+            provide: CYCLE_ASSESSMENT_AGGREGATE_PORT,
+            useClass: CycleAssessmentAggregateRepository,
+        },
     ],
     exports: [
         USER_AGGREGATE_PORT,
@@ -125,6 +131,7 @@ import {CYCLE_ASSESSMENT_CRITERIA_AGGREGATE_PORT} from "./repository/cycleAssess
         FORGOT_PASSWORD_PORT,
         PROJECT_AGGREGATE_PORT,
         CYCLE_ASSESSMENT_CRITERIA_AGGREGATE_PORT,
+        CYCLE_ASSESSMENT_AGGREGATE_PORT,
     ],
 })
 export class OutputPortModule {}
