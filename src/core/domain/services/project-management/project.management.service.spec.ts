@@ -5,6 +5,10 @@ import {
     GrantApplicationAggregatePort,
 } from "../../../../ports/outputs/repository/grantapplication/grantapplication.aggregate.port";
 import {
+    CycleAssessmentAggregatePort,
+    CYCLE_ASSESSMENT_AGGREGATE_PORT,
+} from "../../../../ports/outputs/repository/cycleAssessment/cycle.assessment.aggregate.port";
+import {
     CycleAggregatePort,
     CYCLE_AGGREGATE_PORT,
 } from "../../../../ports/outputs/repository/cycle/cycle.aggregate.port";
@@ -24,6 +28,7 @@ import {
     dummyCycle,
     dummyCycleAssessmentCriteria,
     saved_Application,
+    saved_Assessment,
     saved_project,
 } from "./project.management.mock.data";
 import ApiError from "../../../../shared/errors/api.error";
@@ -37,6 +42,7 @@ describe("Project Management Service", () => {
     let cycleAggregateRepository: jest.Mocked<CycleAggregatePort>;
     let sharedApplicationService: jest.Mocked<SharedApplicationService>;
     let criteriaRepository: jest.Mocked<CycleAssessmentCriteriaAggregatePort>;
+    let assessmentRepository: jest.Mocked<CycleAssessmentAggregatePort>;
     beforeEach(async () => {
         const moduleReference: TestingModule = await Test.createTestingModule({
             providers: [
@@ -66,6 +72,10 @@ describe("Project Management Service", () => {
                     useValue:
                         createMock<CycleAssessmentCriteriaAggregatePort>(),
                 },
+                {
+                    provide: CYCLE_ASSESSMENT_AGGREGATE_PORT,
+                    useValue: createMock<CycleAssessmentAggregatePort>(),
+                },
             ],
         }).compile();
 
@@ -92,6 +102,10 @@ describe("Project Management Service", () => {
         criteriaRepository = moduleReference.get(
             CYCLE_ASSESSMENT_CRITERIA_AGGREGATE_PORT
         ) as jest.Mocked<CycleAssessmentCriteriaAggregatePort>;
+
+        assessmentRepository = moduleReference.get(
+            CYCLE_ASSESSMENT_AGGREGATE_PORT
+        ) as jest.Mocked<CycleAssessmentAggregatePort>;
     });
 
     it("to be Defined", () => {
@@ -500,6 +514,70 @@ describe("Project Management Service", () => {
 
                 applicationAggregateRepository.findUserCycleApplication.mockResolvedValue(
                     newApplication
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe(
+                    "Project wasn't should be active or successfully archived"
+                );
+            }
+        });
+    });
+
+    describe(" Applicant Cycle Assessment Submission", () => {
+        it("Success fetch of the details", async () => {
+            cycleAggregateRepository.findCycleByslug.mockResolvedValue(
+                dummyCycle as any
+            );
+
+            const newApplication = JSON.parse(
+                JSON.stringify(saved_Application)
+            );
+
+            newApplication.status = GrantApplicationStatus.APPROVED;
+
+            applicationAggregateRepository.findUserCycleApplication.mockResolvedValue(
+                newApplication as any
+            );
+
+            criteriaRepository.getCriteriaDetails.mockResolvedValue(
+                dummyCycleAssessmentCriteria as any
+            );
+
+            assessmentRepository.getCriteriaWithCriteriaIdAndProjectId.mockResolvedValue(
+                saved_Assessment as any
+            );
+
+            const result =
+                await projectManagementService.getUserProjectReviewCriteria(
+                    {cycleSlug: "slug", criteriaSlug: "slug"},
+                    "uuid"
+                );
+
+            expect(result).toEqual({
+                status: 200,
+                message: "Project Cycle Review Details",
+                res: {
+                    criteria: dummyCycleAssessmentCriteria,
+                    cycleSubmission: saved_Assessment,
+                },
+            });
+        });
+
+        it("Project Not Found", async () => {
+            try {
+                cycleAggregateRepository.findCycleByslug.mockResolvedValue(
+                    dummyCycle as any
+                );
+
+                applicationAggregateRepository.findUserCycleApplication.mockResolvedValue(
+                    saved_Application as any
+                );
+
+                await projectManagementService.getUserProjectReviewCriteria(
+                    {cycleSlug: "slug", criteriaSlug: "slug"},
+                    "uuid"
                 );
             } catch (error) {
                 expect(error).toBeInstanceOf(ApiError);

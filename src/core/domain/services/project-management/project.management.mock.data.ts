@@ -11,6 +11,7 @@ const saved_Application = {
             email: "email",
         },
     },
+    projectId: "id",
     teammates: [{personId: "uuid"}],
     status: "SUBMITTED",
     teamMateInvites: [{email: "inthrak04@gmail.com", inviteAs: "TEAMMATE"}],
@@ -192,6 +193,39 @@ const createCriteriaData = {
     },
 };
 
+const saved_Assessment = {
+    id: "d13c6f5e-9b02-4a71-9f4c-b9b8f502c111",
+    criteriaId: "5e6c9c20-2ad1-4d5a-8ea3-3dd93f2f9011",
+    criteria: {
+        id: "5e6c9c20-2ad1-4d5a-8ea3-3dd93f2f9011",
+        name: "UI/UX Quality Review",
+        reviewBrief:
+            "Evaluate user interface clarity, usability, and accessibility.",
+        slug: "ui-ux-quality-review",
+        createdAt: "2025-11-01T10:30:00.000Z",
+        updatedAt: "2025-11-01T10:30:00.000Z",
+    },
+    projectId: "a92d5f8f-6c82-4f40-8f7f-a8be2cc4c222",
+    project: null,
+    reviewBrief:
+        "User submitted a UI/UX review covering layout, spacing, and accessibility topics.",
+    reviewDocument: {
+        title: "UI UX Review Document",
+        description:
+            "Detailed breakdown of UI/UX review findings and improvements.",
+        fileName: "ui-ux-review.pdf",
+        fileSize: 183204,
+        mimeType: "application/pdf",
+        storageUrl: "https://storage.server.com/files/ui-ux-review.pdf",
+        metaData: {
+            pageCount: 12,
+            submittedBy: "user123",
+            version: "1.0",
+        },
+    },
+    slug: "ui-ux-review-assessment",
+};
+
 export {
     saved_Application,
     saved_project,
@@ -199,4 +233,5 @@ export {
     dummyCycle,
     dummyCycleAssessmentCriteria,
     createCriteriaData,
+    saved_Assessment,
 };
