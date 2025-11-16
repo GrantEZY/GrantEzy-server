@@ -13,6 +13,10 @@ export interface CycleAssessmentCriteriaAggregatePort {
     getCriteriaDetails(
         slug: string
     ): Promise<CycleAssessmentCriteriaAggregate | null>;
+
+    getCriteriaDetailsWithId(
+        criteriaId: string
+    ): Promise<CycleAssessmentCriteriaAggregate | null>;
 }
 
 export const CYCLE_ASSESSMENT_CRITERIA_AGGREGATE_PORT = Symbol(

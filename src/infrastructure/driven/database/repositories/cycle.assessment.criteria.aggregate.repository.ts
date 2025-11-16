@@ -103,4 +103,28 @@ export class CycleAssessmentCriteriaAggregateRepository
             );
         }
     }
+    async getCriteriaDetailsWithId(
+        criteriaId: string
+    ): Promise<CycleAssessmentCriteriaAggregate | null> {
+        try {
+            const criteria = await this.criteriaRepository.findOne({
+                where: {
+                    id: criteriaId,
+                },
+                relations: ["cycle"],
+            });
+
+            return criteria;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+
+            throw new ApiError(
+                502,
+                "Failed to fetch  criteria details",
+                "Database Error"
+            );
+        }
+    }
 }

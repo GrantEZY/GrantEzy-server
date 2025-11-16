@@ -115,7 +115,6 @@ export class GetProjectDetailsDTO {
         description: "slug of the cycle",
         example: "4b7d1f330f2e4b7a91e35f58f3c9d4ab",
     })
-    @IsUUID()
     cycleSlug: string;
 
     @ApiProperty({
@@ -159,7 +158,6 @@ export class GetCycleCriteriasDTO {
         description: "slug of the cycle",
         example: "4b7d1f330f2e4b7a91e35f58f3c9d4ab",
     })
-    @IsUUID()
     cycleSlug: string;
 }
 
@@ -168,7 +166,6 @@ export class GetCycleCriteriaDetailsWithSubmissionDTO {
         description: "slug of the cycle",
         example: "4b7d1f330f2e4b7a91e35f58f3c9d4ab",
     })
-    @IsUUID()
     cycleSlug: string;
 
     @ApiProperty({
@@ -176,4 +173,31 @@ export class GetCycleCriteriaDetailsWithSubmissionDTO {
         example: "4b7d1f330f2e4b7a91e35f58f3c9d4ab",
     })
     criteriaSlug: string;
+}
+
+export class SubmitDetailsForReviewDTO {
+    @ApiProperty({
+        description: "Unique Identifier for application",
+        example: "4b7d1f33-0f2e-4b7a-91e3-5f58f3c9d4ab",
+    })
+    @IsUUID()
+    criteriaId: string;
+
+    @ApiProperty({
+        description: "slug of the cycle",
+        example: "4b7d1f330f2e4b7a91e35f58f3c9d4ab",
+    })
+    cycleSlug: string;
+
+    @ApiProperty({
+        description: "Brief Review",
+    })
+    @IsString()
+    reviewStatement: string;
+
+    @ApiProperty({type: DocumentObjectDTO, description: "Review File"})
+    @IsOptional()
+    @ValidateNested()
+    @Type(() => DocumentObjectDTO)
+    reviewSubmissionFile: DocumentObjectDTO;
 }

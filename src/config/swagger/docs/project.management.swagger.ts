@@ -428,6 +428,100 @@ export const APPLICANT_PROJECT_MANAGEMENT = {
         "res": null
       }
     }
+  }, "CREATE_PROJECT_ASSESSMENT": {
+    "SUCCESS_CREATED": {
+      "status": 201,
+      "description": "Successfully created a new project assessment submission for the given criteria and project",
+      "example": {
+        "status": 201,
+        "message": "Project Assessment Created",
+        "res": {
+          "submission": {
+            "id": "c3af7a39-3e22-4df7-91d9-fd3e21990011",
+            "criteriaId": "5e6c9c20-2ad1-4d5a-8ea3-3dd93f2f9011",
+            "projectId": "a92d5f8f-6c82-4f40-8f7f-a8be2cc4c222",
+            "reviewBrief": "This project demonstrates great architecture and scalability improvements.",
+            "reviewDocument": {
+              "title": "Architecture Review",
+              "description": "Submitted architectural review document",
+              "fileName": "architecture-review.pdf",
+              "fileSize": 203301,
+              "mimeType": "application/pdf",
+              "storageUrl": "https://storage.server.com/files/architecture-review.pdf",
+              "metaData": {
+                "version": "1.0",
+                "pageCount": 8
+              }
+            },
+            "slug": "architecture-review-assessment",
+            "createdAt": "2025-11-10T12:00:00.000Z",
+            "updatedAt": "2025-11-10T12:00:00.000Z"
+          }
+        }
+      }
+    },
+
+    "SUCCESS_UPDATED": {
+      "status": 200,
+      "description": "Successfully updated an already submitted assessment for the project",
+      "example": {
+        "status": 200,
+        "message": "Project Assessment Updated",
+        "res": {
+          "submission": {
+            "id": "c3af7a39-3e22-4df7-91d9-fd3e21990011",
+            "criteriaId": "5e6c9c20-2ad1-4d5a-8ea3-3dd93f2f9011",
+            "projectId": "a92d5f8f-6c82-4f40-8f7f-a8be2cc4c222",
+            "reviewBrief": "Updated review: improved modularity and better documentation.",
+            "reviewDocument": {
+              "title": "Updated Architecture Review",
+              "description": "Updated submission document",
+              "fileName": "architecture-review-v2.pdf",
+              "fileSize": 223102,
+              "mimeType": "application/pdf",
+              "storageUrl": "https://storage.server.com/files/architecture-review-v2.pdf",
+              "metaData": {
+                "version": "2.0",
+                "pageCount": 9
+              }
+            },
+            "slug": "architecture-review-assessment",
+            "createdAt": "2025-11-10T12:00:00.000Z",
+            "updatedAt": "2025-11-11T09:15:00.000Z"
+          }
+        }
+      }
+    },
+
+    "CRITERIA_NOT_FOUND": {
+      "status": 404,
+      "description": "The given criteria ID does not exist under the specified cycle",
+      "example": {
+        "status": 404,
+        "message": "Criteria Not Found",
+        "res": null
+      }
+    },
+
+    "APPLICATION_NOT_PROJECT": {
+      "status": 403,
+      "description": "The user has an application but not a valid project under the cycle for submission",
+      "example": {
+        "status": 403,
+        "message": "Application Is Not a Project",
+        "res": null
+      }
+    },
+
+    "INTERNAL_ERROR": {
+      "status": 500,
+      "description": "Unexpected error occurred while creating/updating an assessment",
+      "example": {
+        "status": 500,
+        "message": "Internal Server Error",
+        "res": null
+      }
+    }
   }
 }
 

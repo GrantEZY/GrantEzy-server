@@ -19,10 +19,12 @@ import {
     GetCycleCriteriasDTO,
     GetCycleProjectsDTO,
     GetProjectDetailsDTO,
+    SubmitDetailsForReviewDTO,
 } from "../../../../infrastructure/driving/dtos/project.management.dto";
 import {GrantApplicationStatus} from "../../constants/status.constants";
 import {
     CreateCriteriaResponse,
+    CreateProjectAssessmentSubmissionResponse,
     CreateProjectResponse,
     GetCycleAssessmentCriteriasResponse,
     GetCycleAssessmentDetailsForApplicantResponse,
@@ -442,6 +444,87 @@ export class ProjectManagementService {
                 res: {
                     criteria,
                     cycleSubmission,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async createAssessmentForProject(
+        details: SubmitDetailsForReviewDTO,
+        userId: string
+    ): Promise<CreateProjectAssessmentSubmissionResponse> {
+        try {
+            const {
+                criteriaId,
+                cycleSlug,
+                reviewStatement,
+                reviewSubmissionFile,
+            } = details;
+
+            const criteria =
+                await this.criteriaRepository.getCriteriaDetailsWithId(
+                    criteriaId
+                );
+            if (!criteria || criteria.cycle.slug != cycleSlug) {
+                throw new ApiError(404, "Criteria Not Found", "Conflict Error");
+            }
+
+            const application =
+                await this.grantApplicationRepository.findUserCycleApplication(
+                    userId,
+                    criteria.cycleId
+                );
+
+            if (!application?.projectId) {
+                throw new ApiError(
+                    403,
+                    "Application Is Not a Project",
+                    "Conflict Error"
+                );
+            }
+
+            const submittedAssessment =
+                await this.assessmentRepository.getCriteriaWithCriteriaIdAndProjectId(
+                    criteriaId,
+                    application.projectId
+                );
+
+            if (submittedAssessment) {
+                const newSubmittedAssessment =
+                    await this.assessmentRepository.updateAssessmentForProject(
+                        submittedAssessment,
+                        {
+                            projectId: application.projectId,
+                            criteriaId,
+                            reviewBrief: reviewStatement,
+                            reviewFile: reviewSubmissionFile,
+                        }
+                    );
+
+                return {
+                    status: 200,
+                    message: "Project Assessment Updated",
+                    res: {
+                        submission: newSubmittedAssessment,
+                    },
+                };
+            }
+
+            const assessmentSubmission =
+                await this.assessmentRepository.createAssessmentForProject(
+                    application.projectId,
+                    criteriaId,
+                    reviewStatement,
+                    reviewSubmissionFile
+                );
+
+            return {
+                status: 201,
+                message: "Project Assessment Created",
+                res: {
+                    submission: assessmentSubmission,
                 },
             };
         } catch (error) {

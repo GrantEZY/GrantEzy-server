@@ -171,6 +171,9 @@ const dummyCycleAssessmentCriteria = {
     id: "c1d5d0a3-9d99-4b29-9efb-3b724c1a8c11",
     name: "Design Quality Review",
     cycleId: "cycle-12345",
+    cycle: {
+        slug: "cycle-12345",
+    },
     reviewBrief:
         "Assess the overall design quality and UX compliance of the product module.",
     createdAt: new Date("2025-11-01T10:00:00Z"),
@@ -226,6 +229,28 @@ const saved_Assessment = {
     slug: "ui-ux-review-assessment",
 };
 
+const dummySubmissionData = {
+    criteriaId: "4b7d1f33-0f2e-4b7a-91e3-5f58f3c9d4ab",
+    cycleSlug: "cycle-12345",
+    reviewStatement:
+        "The project demonstrates strong architectural patterns, clean modular structure, and improved performance.",
+    reviewSubmissionFile: {
+        title: "Project Architecture Review",
+        description:
+            "A detailed evaluation document outlining code quality, structure, and scalability aspects.",
+        fileName: "architecture-review.pdf",
+        fileSize: 182304,
+        mimeType: "application/pdf",
+        storageUrl:
+            "https://storage.server.com/uploads/architecture-review.pdf",
+        metaData: {
+            version: "1.0",
+            submittedAt: "2025-11-08T10:22:00.000Z",
+            pageCount: 7,
+        },
+    },
+};
+
 export {
     saved_Application,
     saved_project,
@@ -234,4 +259,5 @@ export {
     dummyCycleAssessmentCriteria,
     createCriteriaData,
     saved_Assessment,
+    dummySubmissionData,
 };

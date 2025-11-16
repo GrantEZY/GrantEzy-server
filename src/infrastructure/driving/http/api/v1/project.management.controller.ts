@@ -9,6 +9,7 @@ import {
     GetCycleCriteriaDetailsWithSubmissionDTO,
     GetProjectDetailsDTO,
     GetCycleCriteriasDTO,
+    SubmitDetailsForReviewDTO,
 } from "../../../dtos/project.management.dto";
 import ApiError from "../../../../../shared/errors/api.error";
 import {ProjectManagementService} from "../../../../../core/domain/services/project-management/project.management.service";
@@ -210,6 +211,39 @@ export class ProjectManagementController
             const result =
                 await this.projectManagementService.getUserProjectReviewCriteria(
                     parameters,
+                    id
+                );
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Post("/create-applicant-project-assessment-submission")
+    @ApiResponse(
+        APPLICANT_PROJECT_MANAGEMENT.CREATE_PROJECT_ASSESSMENT.SUCCESS_CREATED
+    )
+    @ApiResponse(
+        APPLICANT_PROJECT_MANAGEMENT.CREATE_PROJECT_ASSESSMENT.SUCCESS_UPDATED
+    )
+    @ApiResponse(
+        APPLICANT_PROJECT_MANAGEMENT.CREATE_PROJECT_ASSESSMENT
+            .APPLICATION_NOT_PROJECT
+    )
+    @ApiResponse(
+        APPLICANT_PROJECT_MANAGEMENT.CREATE_PROJECT_ASSESSMENT
+            .CRITERIA_NOT_FOUND
+    )
+    async createApplicantProjectAssessmentSubmission(
+        @Body() body: SubmitDetailsForReviewDTO,
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+            const result =
+                await this.projectManagementService.createAssessmentForProject(
+                    body,
                     id
                 );
             return response.status(result.status).json(result);
