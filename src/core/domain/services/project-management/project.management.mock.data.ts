@@ -173,6 +173,9 @@ const dummyCycleAssessmentCriteria = {
     cycleId: "cycle-12345",
     cycle: {
         slug: "cycle-12345",
+        program: {
+            managerId: "uuid",
+        },
     },
     reviewBrief:
         "Assess the overall design quality and UX compliance of the product module.",

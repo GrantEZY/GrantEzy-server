@@ -715,4 +715,87 @@ describe("Project Management Service", () => {
             }
         });
     });
+
+    describe("Get Cycle Criteria Assessments", () => {
+        it("Success fetch of the assessments", async () => {
+            criteriaRepository.getCriteriaDetails.mockResolvedValue(
+                dummyCycleAssessmentCriteria as any
+            );
+
+            assessmentRepository.getAssessmentSubmissionForACycleCriteria.mockResolvedValue(
+                [dummySubmissionData, dummySubmissionData] as any
+            );
+
+            const result =
+                await projectManagementService.getCycleCriteriaAssessments(
+                    {
+                        cycleSlug: "cycle-12345",
+                        criteriaSlug: "slug",
+                        page: 1,
+                        numberOfResults: 10,
+                    },
+                    "uuid"
+                );
+
+            expect(result).toEqual({
+                status: 200,
+                message: "Criteria Submissions For Assessment",
+                res: {
+                    submissions: [dummySubmissionData, dummySubmissionData],
+                    criteria: dummyCycleAssessmentCriteria,
+                },
+            });
+        });
+
+        it("Criteria Not Found", async () => {
+            try {
+                const criteriaDetails = JSON.parse(
+                    JSON.stringify(dummyCycleAssessmentCriteria)
+                );
+
+                criteriaDetails.cycle.slug = "slug";
+                criteriaRepository.getCriteriaDetails.mockResolvedValue(
+                    criteriaDetails as any
+                );
+
+                await projectManagementService.getCycleCriteriaAssessments(
+                    {
+                        cycleSlug: "cycle-12345",
+                        criteriaSlug: "slug",
+                        page: 1,
+                        numberOfResults: 10,
+                    },
+                    "uuid"
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).message).toBe("Criteria Not Found");
+            }
+        });
+
+        it("Only Program Manager Can Access The Details", async () => {
+            try {
+                criteriaRepository.getCriteriaDetails.mockResolvedValue(
+                    dummyCycleAssessmentCriteria as any
+                );
+
+                await projectManagementService.getCycleCriteriaAssessments(
+                    {
+                        cycleSlug: "cycle-12345",
+                        criteriaSlug: "slug",
+                        page: 1,
+                        numberOfResults: 10,
+                    },
+                    "uuid1"
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe(
+                    "Only Program Manager Can Access the Criteria Submissions"
+                );
+            }
+        });
+    });
 });
