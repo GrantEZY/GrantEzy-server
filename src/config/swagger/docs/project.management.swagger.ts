@@ -522,6 +522,80 @@ export const APPLICANT_PROJECT_MANAGEMENT = {
         "res": null
       }
     }
+  },"GET_CYCLE_CRITERIA_ASSESSMENTS": {
+    "SUCCESS": {
+      "status": 200,
+      "description": "Successfully retrieved all assessment submissions for the given criteria within the cycle",
+      "example": {
+        "status": 200,
+        "message": "Criteria Submissions For Assessment",
+        "res": {
+          "submissions": [
+            {
+              "id": "uuid-of-submission",
+              "projectId": "uuid-of-project",
+              "criteriaId": "uuid-of-criteria",
+              "reviewBrief": "The work demonstrates strong modularity and maintainability.",
+              "reviewDocument": {
+                "title": "Review Attachment",
+                "description": "Detailed evaluation document",
+                "fileName": "project-review.pdf",
+                "fileSize": 182304,
+                "mimeType": "application/pdf",
+                "storageUrl": "https://storage.example.com/reviews/project-review.pdf",
+                "metaData": {
+                  "submittedAt": "2025-11-08T10:22:00.000Z"
+                }
+              },
+              "slug": "assessment-slug-example",
+              "createdAt": "2025-11-08T10:22:00.000Z",
+              "updatedAt": "2025-11-08T10:22:00.000Z"
+            }
+          ],
+          "criteria": {
+            "id": "uuid-of-criteria",
+            "name": "Code Quality Evaluation",
+            "reviewBrief": "Assess code modularity and maintainability",
+            "slug": "code-quality-evaluation",
+            "createdAt": "2025-11-05T12:00:00.000Z",
+            "cycle": {
+              "id": "uuid-of-cycle",
+              "slug": "cycle-q4-2025"
+            }
+          }
+        }
+      }
+    },
+
+    "CRITERIA_NOT_FOUND": {
+      "status": 404,
+      "description": "The specified criteria was not found or does not belong to the given cycle",
+      "example": {
+        "status": 404,
+        "message": "Criteria Not Found",
+        "res": null
+      }
+    },
+
+    "UNAUTHORIZED_MANAGER": {
+      "status": 403,
+      "description": "Only the Program Manager of the cycle may view submissions for this criteria",
+      "example": {
+        "status": 403,
+        "message": "Only Program Manager Can Access the Criteria Submissions",
+        "res": null
+      }
+    },
+
+    "INTERNAL_ERROR": {
+      "status": 500,
+      "description": "Unexpected server error occurred while fetching assessment submissions",
+      "example": {
+        "status": 500,
+        "message": "Internal Server Error",
+        "res": null
+      }
+    }
   }
 }
 

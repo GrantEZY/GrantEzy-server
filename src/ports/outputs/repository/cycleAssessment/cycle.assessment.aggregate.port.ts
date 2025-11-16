@@ -23,6 +23,12 @@ export interface CycleAssessmentAggregatePort {
             reviewFile: DocumentObjectDTO;
         }
     ): Promise<CycleAssessmentAggregate>;
+
+    getAssessmentSubmissionForACycleCriteria(
+        criteriaId: string,
+        page: number,
+        numberOfResults: number
+    ): Promise<CycleAssessmentAggregate[]>;
 }
 
 export const CYCLE_ASSESSMENT_AGGREGATE_PORT = Symbol(

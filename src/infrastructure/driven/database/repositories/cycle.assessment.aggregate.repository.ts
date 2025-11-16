@@ -106,4 +106,32 @@ export class CycleAssessmentAggregateRepository
             );
         }
     }
+
+    async getAssessmentSubmissionForACycleCriteria(
+        criteriaId: string,
+        page: number,
+        numberOfResults: number
+    ): Promise<CycleAssessmentAggregate[]> {
+        try {
+            const submissions = await this.assessmentRepository.find({
+                where: {
+                    criteriaId,
+                },
+                relations: ["project"],
+                skip: (page - 1) * numberOfResults,
+                take: numberOfResults,
+            });
+
+            return submissions;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Error in getting assessment submission",
+                "Database Error"
+            );
+        }
+    }
 }

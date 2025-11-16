@@ -201,3 +201,35 @@ export class SubmitDetailsForReviewDTO {
     @Type(() => DocumentObjectDTO)
     reviewSubmissionFile: DocumentObjectDTO;
 }
+
+export class GetCycleCriteriaDetailsWithAssessmentsDTO {
+    @ApiProperty({
+        description: "slug of the cycle",
+        example: "4b7d1f330f2e4b7a91e35f58f3c9d4ab",
+    })
+    cycleSlug: string;
+
+    @ApiProperty({
+        description: "slug of the criteria",
+        example: "4b7d1f330f2e4b7a91e35f58f3c9d4ab",
+    })
+    criteriaSlug: string;
+
+    @IsInt()
+    @IsPositive()
+    @Type(() => Number)
+    @ApiProperty({
+        description: "Page Number for pagination",
+        example: 1,
+    })
+    page: number;
+
+    @ApiProperty({
+        description: "Number Of Results per page for pagination",
+        example: 1,
+    })
+    @IsInt()
+    @Min(1)
+    @Type(() => Number)
+    numberOfResults: number;
+}

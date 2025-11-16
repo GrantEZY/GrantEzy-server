@@ -20,6 +20,7 @@ import {
     GetCycleProjectsDTO,
     GetProjectDetailsDTO,
     SubmitDetailsForReviewDTO,
+    GetCycleCriteriaDetailsWithAssessmentsDTO,
 } from "../../../../infrastructure/driving/dtos/project.management.dto";
 import {GrantApplicationStatus} from "../../constants/status.constants";
 import {
@@ -28,6 +29,7 @@ import {
     CreateProjectResponse,
     GetCycleAssessmentCriteriasResponse,
     GetCycleAssessmentDetailsForApplicantResponse,
+    GetCycleAssessmentSubmissionsResponse,
     GetCycleProjectsResponse,
     GetProjectDetailsResponse,
 } from "../../../../infrastructure/driven/response-dtos/project.management.response-dto";
@@ -525,6 +527,50 @@ export class ProjectManagementService {
                 message: "Project Assessment Created",
                 res: {
                     submission: assessmentSubmission,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async getCycleCriteriaAssessments(
+        details: GetCycleCriteriaDetailsWithAssessmentsDTO,
+        userId: string
+    ): Promise<GetCycleAssessmentSubmissionsResponse> {
+        try {
+            const {criteriaSlug, cycleSlug, page, numberOfResults} = details;
+
+            const criteria =
+                await this.criteriaRepository.getCriteriaDetails(criteriaSlug);
+
+            if (!criteria || criteria.cycle.slug != cycleSlug) {
+                throw new ApiError(404, "Criteria Not Found", "Conflict Error");
+            }
+
+            const managerId = criteria.cycle.program?.managerId;
+
+            if (managerId !== userId) {
+                throw new ApiError(
+                    403,
+                    "Only Program Manager Can Access the Criteria Submissions",
+                    "Conflict Error"
+                );
+            }
+
+            const submissions =
+                await this.assessmentRepository.getAssessmentSubmissionForACycleCriteria(
+                    criteria.id,
+                    page,
+                    numberOfResults
+                );
+
+            return {
+                status: 200,
+                message: "Criteria Submissions For Assessment",
+                res: {
+                    submissions,
+                    criteria,
                 },
             };
         } catch (error) {

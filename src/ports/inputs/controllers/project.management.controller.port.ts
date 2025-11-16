@@ -6,6 +6,7 @@ import {
     GetProjectDetailsDTO,
     GetCycleCriteriaDetailsWithSubmissionDTO,
     SubmitDetailsForReviewDTO,
+    GetCycleCriteriaDetailsWithAssessmentsDTO,
 } from "../../../infrastructure/driving/dtos/project.management.dto";
 import {Response} from "express";
 import {AccessTokenJwt} from "../../../shared/types/jwt.types";
@@ -51,6 +52,11 @@ export interface ProjectManagementControllerPort {
     ): Promise<Response>;
     createApplicantProjectAssessmentSubmission(
         body: SubmitDetailsForReviewDTO,
+        user: AccessTokenJwt,
+        response: Response
+    ): Promise<Response>;
+    getCycleCriteriaSubmissions(
+        parameters: GetCycleCriteriaDetailsWithAssessmentsDTO,
         user: AccessTokenJwt,
         response: Response
     ): Promise<Response>;

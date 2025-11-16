@@ -88,6 +88,7 @@ export class CycleAssessmentCriteriaAggregateRepository
                 where: {
                     slug,
                 },
+                relations: ["cycle"],
             });
 
             return criteria;

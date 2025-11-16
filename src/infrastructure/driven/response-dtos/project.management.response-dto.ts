@@ -34,6 +34,11 @@ export class CreateProjectAsessmentSubmissionDetails {
     submission: CycleAssessmentAggregate;
 }
 
+export class GetCycleAssessmentSubmissionsDetails {
+    submissions: CycleAssessmentAggregate[];
+    criteria: CycleAssessmentCriteriaAggregate;
+}
+
 export class CreateProjectResponse extends ApiResponse(CreateProjectData) {}
 export class GetCycleProjectsResponse extends ApiResponse(GetCycleProjects) {}
 export class GetProjectDetailsResponse extends ApiResponse(GetProjectDetails) {}
@@ -49,4 +54,8 @@ export class GetCycleAssessmentDetailsForApplicantResponse extends ApiResponse(
 
 export class CreateProjectAssessmentSubmissionResponse extends ApiResponse(
     CreateProjectAsessmentSubmissionDetails
+) {}
+
+export class GetCycleAssessmentSubmissionsResponse extends ApiResponse(
+    GetCycleAssessmentSubmissionsDetails
 ) {}

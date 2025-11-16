@@ -10,6 +10,7 @@ import {
     GetProjectDetailsDTO,
     GetCycleCriteriasDTO,
     SubmitDetailsForReviewDTO,
+    GetCycleCriteriaDetailsWithAssessmentsDTO,
 } from "../../../dtos/project.management.dto";
 import ApiError from "../../../../../shared/errors/api.error";
 import {ProjectManagementService} from "../../../../../core/domain/services/project-management/project.management.service";
@@ -246,6 +247,38 @@ export class ProjectManagementController
                     body,
                     id
                 );
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Get("/get-cycle-criteria-assessments")
+    @ApiResponse(
+        APPLICANT_PROJECT_MANAGEMENT.GET_CYCLE_CRITERIA_ASSESSMENTS.SUCCESS
+    )
+    @ApiResponse(
+        APPLICANT_PROJECT_MANAGEMENT.GET_CYCLE_CRITERIA_ASSESSMENTS
+            .CRITERIA_NOT_FOUND
+    )
+    @ApiResponse(
+        APPLICANT_PROJECT_MANAGEMENT.GET_CYCLE_CRITERIA_ASSESSMENTS
+            .UNAUTHORIZED_MANAGER
+    )
+    async getCycleCriteriaSubmissions(
+        @Query() parameters: GetCycleCriteriaDetailsWithAssessmentsDTO,
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+
+            const result =
+                await this.projectManagementService.getCycleCriteriaAssessments(
+                    parameters,
+                    id
+                );
+
             return response.status(result.status).json(result);
         } catch (error) {
             return this.handleError(error, response);
