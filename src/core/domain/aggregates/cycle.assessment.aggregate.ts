@@ -9,11 +9,15 @@ import {
     ManyToOne,
     Column,
     PrimaryGeneratedColumn,
+    OneToMany,
+    Index,
 } from "typeorm";
 import {CycleAssessmentCriteriaAggregate} from "./cycle.assessment.criteria.aggregate";
 import {Project} from "./project.aggregate";
+import {ProjectReviewAggregate} from "./project.review.aggregate";
 
 @Entity({name: "cycle_assessment"})
+@Index("idx_criteria_project", ["criteriaId", "projectId"])
 export class CycleAssessmentAggregate {
     @PrimaryGeneratedColumn("uuid")
     id: string;
@@ -23,7 +27,7 @@ export class CycleAssessmentAggregate {
 
     @ManyToOne(() => CycleAssessmentCriteriaAggregate, {
         onDelete: "CASCADE",
-        eager: false,
+        eager: true,
     })
     @JoinColumn({name: "criteriaId"})
     criteria: CycleAssessmentCriteriaAggregate;
@@ -60,6 +64,18 @@ export class CycleAssessmentAggregate {
         },
     })
     reviewDocument: DocumentObject;
+
+    @Column({unique: true, nullable: true})
+    slug: string;
+
+    @OneToMany(
+        () => ProjectReviewAggregate,
+        (review) => review.reviewSubmission,
+        {
+            eager: true,
+        }
+    )
+    reviews: ProjectReviewAggregate[];
 
     @CreateDateColumn()
     createdAt: Date;

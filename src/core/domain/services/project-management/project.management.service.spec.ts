@@ -5,9 +5,17 @@ import {
     GrantApplicationAggregatePort,
 } from "../../../../ports/outputs/repository/grantapplication/grantapplication.aggregate.port";
 import {
+    CycleAssessmentAggregatePort,
+    CYCLE_ASSESSMENT_AGGREGATE_PORT,
+} from "../../../../ports/outputs/repository/cycleAssessment/cycle.assessment.aggregate.port";
+import {
     CycleAggregatePort,
     CYCLE_AGGREGATE_PORT,
 } from "../../../../ports/outputs/repository/cycle/cycle.aggregate.port";
+import {
+    CycleAssessmentCriteriaAggregatePort,
+    CYCLE_ASSESSMENT_CRITERIA_AGGREGATE_PORT,
+} from "../../../../ports/outputs/repository/cycleAssessmentCriteria/cycle.assessment.criteria.aggregate.port";
 import {
     ProjectAggregatePort,
     PROJECT_AGGREGATE_PORT,
@@ -15,9 +23,13 @@ import {
 import {ProjectManagementService} from "./project.management.service";
 import {EmailQueue} from "../../../../infrastructure/driven/queue/queues/email.queue";
 import {
+    createCriteriaData,
     createProjectData,
     dummyCycle,
+    dummyCycleAssessmentCriteria,
+    dummySubmissionData,
     saved_Application,
+    saved_Assessment,
     saved_project,
 } from "./project.management.mock.data";
 import ApiError from "../../../../shared/errors/api.error";
@@ -30,6 +42,8 @@ describe("Project Management Service", () => {
     let emailQueue: jest.Mocked<EmailQueue>;
     let cycleAggregateRepository: jest.Mocked<CycleAggregatePort>;
     let sharedApplicationService: jest.Mocked<SharedApplicationService>;
+    let criteriaRepository: jest.Mocked<CycleAssessmentCriteriaAggregatePort>;
+    let assessmentRepository: jest.Mocked<CycleAssessmentAggregatePort>;
     beforeEach(async () => {
         const moduleReference: TestingModule = await Test.createTestingModule({
             providers: [
@@ -54,6 +68,15 @@ describe("Project Management Service", () => {
                     provide: SharedApplicationService,
                     useValue: createMock<SharedApplicationService>(),
                 },
+                {
+                    provide: CYCLE_ASSESSMENT_CRITERIA_AGGREGATE_PORT,
+                    useValue:
+                        createMock<CycleAssessmentCriteriaAggregatePort>(),
+                },
+                {
+                    provide: CYCLE_ASSESSMENT_AGGREGATE_PORT,
+                    useValue: createMock<CycleAssessmentAggregatePort>(),
+                },
             ],
         }).compile();
 
@@ -77,6 +100,13 @@ describe("Project Management Service", () => {
         sharedApplicationService = moduleReference.get(
             SharedApplicationService
         ) as jest.Mocked<SharedApplicationService>;
+        criteriaRepository = moduleReference.get(
+            CYCLE_ASSESSMENT_CRITERIA_AGGREGATE_PORT
+        ) as jest.Mocked<CycleAssessmentCriteriaAggregatePort>;
+
+        assessmentRepository = moduleReference.get(
+            CYCLE_ASSESSMENT_AGGREGATE_PORT
+        ) as jest.Mocked<CycleAssessmentAggregatePort>;
     });
 
     it("to be Defined", () => {
@@ -329,6 +359,441 @@ describe("Project Management Service", () => {
                 expect((error as ApiError).status).toBe(403);
                 expect((error as ApiError).message).toBe(
                     "Application Is Not a Project"
+                );
+            }
+        });
+    });
+
+    describe("Create Cycle Criteria", () => {
+        it("Successful creation of criteria", async () => {
+            cycleAggregateRepository.findById.mockResolvedValue(
+                dummyCycle as any
+            );
+
+            criteriaRepository.createCycleCriteria.mockResolvedValue(
+                dummyCycleAssessmentCriteria as any
+            );
+
+            emailQueue.cycleReviewToQueue.mockResolvedValue({
+                status: true,
+            } as any);
+
+            const result = await projectManagementService.createCycleCriteria(
+                createCriteriaData,
+                "uuid"
+            );
+
+            expect(result).toEqual({
+                status: 201,
+                message: "Criteria Created Successfully",
+                res: {
+                    criteriaName: dummyCycleAssessmentCriteria.name,
+                },
+            });
+        });
+    });
+
+    describe("Get Cycle Details", () => {
+        it("Get Cycle Criterias", async () => {
+            cycleAggregateRepository.findCycleByslug.mockResolvedValue(
+                dummyCycle as any
+            );
+
+            criteriaRepository.getCycleEvaluationCriterias.mockResolvedValue([
+                dummyCycleAssessmentCriteria,
+                dummyCycleAssessmentCriteria,
+            ] as any);
+
+            const result = await projectManagementService.getCycleCriteria(
+                {cycleSlug: "slug"},
+                "uuid"
+            );
+
+            expect(result).toEqual({
+                status: 200,
+                message: "Criterias For Cycle",
+                res: {
+                    criterias: [
+                        dummyCycleAssessmentCriteria,
+                        dummyCycleAssessmentCriteria,
+                    ],
+                },
+            });
+        });
+    });
+
+    describe("Get Applicant Project Cycle Reviews", () => {
+        it("Successful fetch of cycle criterias", async () => {
+            cycleAggregateRepository.findCycleByslug.mockResolvedValue(
+                dummyCycle as any
+            );
+
+            const newApplication = JSON.parse(
+                JSON.stringify(saved_Application)
+            );
+
+            newApplication.status = GrantApplicationStatus.APPROVED;
+
+            applicationAggregateRepository.findUserCycleApplication.mockResolvedValue(
+                newApplication as any
+            );
+
+            criteriaRepository.getCycleEvaluationCriterias.mockResolvedValue([
+                dummyCycleAssessmentCriteria,
+                dummyCycleAssessmentCriteria,
+            ] as any);
+
+            const result =
+                await projectManagementService.getUserProjectCycleCriteria(
+                    {cycleSlug: "slug"},
+                    "uuid"
+                );
+
+            expect(result).toEqual({
+                status: 200,
+                message: "Criterias For Cycle",
+                res: {
+                    criterias: [
+                        dummyCycleAssessmentCriteria,
+                        dummyCycleAssessmentCriteria,
+                    ],
+                },
+            });
+        });
+
+        it("Cycle Not Found", async () => {
+            try {
+                cycleAggregateRepository.findCycleByslug.mockResolvedValue(
+                    null
+                );
+
+                await projectManagementService.getUserProjectCycleCriteria(
+                    {cycleSlug: "slug"},
+                    "uuid"
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).message).toBe("Cycle Not Found");
+            }
+        });
+
+        it("Application Not Found", async () => {
+            try {
+                cycleAggregateRepository.findCycleByslug.mockResolvedValue(
+                    dummyCycle as any
+                );
+
+                applicationAggregateRepository.findUserCycleApplication.mockResolvedValue(
+                    null
+                );
+
+                await projectManagementService.getUserProjectCycleCriteria(
+                    {cycleSlug: "slug"},
+                    "uuid"
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe(
+                    "User Doesn't have a project for this cycle"
+                );
+            }
+        });
+
+        it("Application Is Not Approved Or Archived ", async () => {
+            try {
+                cycleAggregateRepository.findCycleByslug.mockResolvedValue(
+                    dummyCycle as any
+                );
+
+                const newApplication = JSON.parse(
+                    JSON.stringify(saved_Application)
+                );
+
+                newApplication.status = GrantApplicationStatus.REJECTED;
+
+                applicationAggregateRepository.findUserCycleApplication.mockResolvedValue(
+                    newApplication
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe(
+                    "Project wasn't should be active or successfully archived"
+                );
+            }
+        });
+    });
+
+    describe(" Applicant Cycle Assessment Submission", () => {
+        it("Success fetch of the details", async () => {
+            cycleAggregateRepository.findCycleByslug.mockResolvedValue(
+                dummyCycle as any
+            );
+
+            const newApplication = JSON.parse(
+                JSON.stringify(saved_Application)
+            );
+
+            newApplication.status = GrantApplicationStatus.APPROVED;
+
+            applicationAggregateRepository.findUserCycleApplication.mockResolvedValue(
+                newApplication as any
+            );
+
+            criteriaRepository.getCriteriaDetails.mockResolvedValue(
+                dummyCycleAssessmentCriteria as any
+            );
+
+            assessmentRepository.getCriteriaWithCriteriaIdAndProjectId.mockResolvedValue(
+                saved_Assessment as any
+            );
+
+            const result =
+                await projectManagementService.getUserProjectReviewCriteria(
+                    {cycleSlug: "slug", criteriaSlug: "slug"},
+                    "uuid"
+                );
+
+            expect(result).toEqual({
+                status: 200,
+                message: "Project Cycle Review Details",
+                res: {
+                    criteria: dummyCycleAssessmentCriteria,
+                    cycleSubmission: saved_Assessment,
+                },
+            });
+        });
+
+        it("Project Not Found", async () => {
+            try {
+                cycleAggregateRepository.findCycleByslug.mockResolvedValue(
+                    dummyCycle as any
+                );
+
+                applicationAggregateRepository.findUserCycleApplication.mockResolvedValue(
+                    saved_Application as any
+                );
+
+                await projectManagementService.getUserProjectReviewCriteria(
+                    {cycleSlug: "slug", criteriaSlug: "slug"},
+                    "uuid"
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe(
+                    "Project wasn't should be active or successfully archived"
+                );
+            }
+        });
+    });
+    describe("Project Review Assessment Submission", () => {
+        it("Successful Creation Of Assessment ", async () => {
+            criteriaRepository.getCriteriaDetailsWithId.mockResolvedValue(
+                dummyCycleAssessmentCriteria as any
+            );
+            const newApplication = JSON.parse(
+                JSON.stringify(saved_Application)
+            );
+
+            newApplication.status = GrantApplicationStatus.APPROVED;
+
+            applicationAggregateRepository.findUserCycleApplication.mockResolvedValue(
+                newApplication as any
+            );
+
+            assessmentRepository.getCriteriaWithCriteriaIdAndProjectId.mockResolvedValue(
+                null
+            );
+
+            assessmentRepository.createAssessmentForProject.mockResolvedValue(
+                saved_Assessment as any
+            );
+
+            const result =
+                await projectManagementService.createAssessmentForProject(
+                    dummySubmissionData as any,
+                    "uuid"
+                );
+
+            expect(result).toEqual({
+                status: 201,
+                message: "Project Assessment Created",
+                res: {
+                    submission: saved_Assessment,
+                },
+            });
+        });
+
+        it("Update Assessment For already existing assessment", async () => {
+            criteriaRepository.getCriteriaDetailsWithId.mockResolvedValue(
+                dummyCycleAssessmentCriteria as any
+            );
+            const newApplication = JSON.parse(
+                JSON.stringify(saved_Application)
+            );
+
+            newApplication.status = GrantApplicationStatus.APPROVED;
+
+            applicationAggregateRepository.findUserCycleApplication.mockResolvedValue(
+                newApplication as any
+            );
+
+            assessmentRepository.getCriteriaWithCriteriaIdAndProjectId.mockResolvedValue(
+                saved_Assessment as any
+            );
+
+            assessmentRepository.updateAssessmentForProject.mockResolvedValue(
+                saved_Assessment as any
+            );
+
+            const result =
+                await projectManagementService.createAssessmentForProject(
+                    dummySubmissionData as any,
+                    "uuid"
+                );
+
+            expect(result).toEqual({
+                status: 200,
+                message: "Project Assessment Updated",
+                res: {
+                    submission: saved_Assessment,
+                },
+            });
+            expect(
+                assessmentRepository.updateAssessmentForProject
+            ).toHaveBeenCalled();
+            expect(
+                assessmentRepository.createAssessmentForProject
+            ).not.toHaveBeenCalled();
+        });
+
+        it("Application Not Found", async () => {
+            try {
+                criteriaRepository.getCriteriaDetailsWithId.mockResolvedValue(
+                    dummyCycleAssessmentCriteria as any
+                );
+
+                applicationAggregateRepository.findUserCycleApplication.mockResolvedValue(
+                    null
+                );
+
+                await projectManagementService.createAssessmentForProject(
+                    dummySubmissionData as any,
+                    "uuid"
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe(
+                    "Application Is Not a Project"
+                );
+            }
+        });
+
+        it("Criteria doesn't belong to cycle", async () => {
+            try {
+                const newDetails = JSON.parse(
+                    JSON.stringify(dummyCycleAssessmentCriteria)
+                );
+
+                newDetails.cycle.slug = "slug";
+
+                criteriaRepository.getCriteriaDetailsWithId.mockResolvedValue(
+                    dummyCycleAssessmentCriteria as any
+                );
+                await projectManagementService.createAssessmentForProject(
+                    dummySubmissionData as any,
+                    "uuid"
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).message).toBe("Criteria Not Found");
+            }
+        });
+    });
+
+    describe("Get Cycle Criteria Assessments", () => {
+        it("Success fetch of the assessments", async () => {
+            criteriaRepository.getCriteriaDetails.mockResolvedValue(
+                dummyCycleAssessmentCriteria as any
+            );
+
+            assessmentRepository.getAssessmentSubmissionForACycleCriteria.mockResolvedValue(
+                [dummySubmissionData, dummySubmissionData] as any
+            );
+
+            const result =
+                await projectManagementService.getCycleCriteriaAssessments(
+                    {
+                        cycleSlug: "cycle-12345",
+                        criteriaSlug: "slug",
+                        page: 1,
+                        numberOfResults: 10,
+                    },
+                    "uuid"
+                );
+
+            expect(result).toEqual({
+                status: 200,
+                message: "Criteria Submissions For Assessment",
+                res: {
+                    submissions: [dummySubmissionData, dummySubmissionData],
+                    criteria: dummyCycleAssessmentCriteria,
+                },
+            });
+        });
+
+        it("Criteria Not Found", async () => {
+            try {
+                const criteriaDetails = JSON.parse(
+                    JSON.stringify(dummyCycleAssessmentCriteria)
+                );
+
+                criteriaDetails.cycle.slug = "slug";
+                criteriaRepository.getCriteriaDetails.mockResolvedValue(
+                    criteriaDetails as any
+                );
+
+                await projectManagementService.getCycleCriteriaAssessments(
+                    {
+                        cycleSlug: "cycle-12345",
+                        criteriaSlug: "slug",
+                        page: 1,
+                        numberOfResults: 10,
+                    },
+                    "uuid"
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).message).toBe("Criteria Not Found");
+            }
+        });
+
+        it("Only Program Manager Can Access The Details", async () => {
+            try {
+                criteriaRepository.getCriteriaDetails.mockResolvedValue(
+                    dummyCycleAssessmentCriteria as any
+                );
+
+                await projectManagementService.getCycleCriteriaAssessments(
+                    {
+                        cycleSlug: "cycle-12345",
+                        criteriaSlug: "slug",
+                        page: 1,
+                        numberOfResults: 10,
+                    },
+                    "uuid1"
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe(
+                    "Only Program Manager Can Access the Criteria Submissions"
                 );
             }
         });

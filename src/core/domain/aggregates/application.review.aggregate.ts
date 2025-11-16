@@ -18,8 +18,8 @@ import {User} from "./user.aggregate";
 import {Money} from "../value-objects/project.metrics.object";
 import {Scores} from "../value-objects/review.scores.object";
 
-@Entity({name: "reviews"})
-export class Review {
+@Entity({name: "applicationReviews"})
+export class ApplicationReviewAggregate {
     @PrimaryGeneratedColumn("uuid")
     id: string;
 
@@ -77,7 +77,7 @@ export class Review {
     @Column({type: "uuid"})
     reviewerId: string;
 
-    @ManyToOne(() => User, (user) => user.personId, {eager: true})
+    @ManyToOne(() => User, {eager: true})
     @JoinColumn({name: "reviewerId"})
     reviewer: User;
 

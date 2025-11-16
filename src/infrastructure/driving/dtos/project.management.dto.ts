@@ -115,7 +115,6 @@ export class GetProjectDetailsDTO {
         description: "slug of the cycle",
         example: "4b7d1f330f2e4b7a91e35f58f3c9d4ab",
     })
-    @IsUUID()
     cycleSlug: string;
 
     @ApiProperty({
@@ -152,4 +151,85 @@ export class CreateCycleProjectsEvalCriteriaDTO {
     @ValidateNested()
     @Type(() => DocumentObjectDTO)
     templateFile?: DocumentObjectDTO;
+}
+
+export class GetCycleCriteriasDTO {
+    @ApiProperty({
+        description: "slug of the cycle",
+        example: "4b7d1f330f2e4b7a91e35f58f3c9d4ab",
+    })
+    cycleSlug: string;
+}
+
+export class GetCycleCriteriaDetailsWithSubmissionDTO {
+    @ApiProperty({
+        description: "slug of the cycle",
+        example: "4b7d1f330f2e4b7a91e35f58f3c9d4ab",
+    })
+    cycleSlug: string;
+
+    @ApiProperty({
+        description: "slug of the criteria",
+        example: "4b7d1f330f2e4b7a91e35f58f3c9d4ab",
+    })
+    criteriaSlug: string;
+}
+
+export class SubmitDetailsForReviewDTO {
+    @ApiProperty({
+        description: "Unique Identifier for application",
+        example: "4b7d1f33-0f2e-4b7a-91e3-5f58f3c9d4ab",
+    })
+    @IsUUID()
+    criteriaId: string;
+
+    @ApiProperty({
+        description: "slug of the cycle",
+        example: "4b7d1f330f2e4b7a91e35f58f3c9d4ab",
+    })
+    cycleSlug: string;
+
+    @ApiProperty({
+        description: "Brief Review",
+    })
+    @IsString()
+    reviewStatement: string;
+
+    @ApiProperty({type: DocumentObjectDTO, description: "Review File"})
+    @IsOptional()
+    @ValidateNested()
+    @Type(() => DocumentObjectDTO)
+    reviewSubmissionFile: DocumentObjectDTO;
+}
+
+export class GetCycleCriteriaDetailsWithAssessmentsDTO {
+    @ApiProperty({
+        description: "slug of the cycle",
+        example: "4b7d1f330f2e4b7a91e35f58f3c9d4ab",
+    })
+    cycleSlug: string;
+
+    @ApiProperty({
+        description: "slug of the criteria",
+        example: "4b7d1f330f2e4b7a91e35f58f3c9d4ab",
+    })
+    criteriaSlug: string;
+
+    @IsInt()
+    @IsPositive()
+    @Type(() => Number)
+    @ApiProperty({
+        description: "Page Number for pagination",
+        example: 1,
+    })
+    page: number;
+
+    @ApiProperty({
+        description: "Number Of Results per page for pagination",
+        example: 1,
+    })
+    @IsInt()
+    @Min(1)
+    @Type(() => Number)
+    numberOfResults: number;
 }

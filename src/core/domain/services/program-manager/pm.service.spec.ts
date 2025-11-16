@@ -26,7 +26,7 @@ import {
 import {
     ReviewerAggregatePort,
     REVIEW_AGGREGATE_PORT,
-} from "../../../../ports/outputs/repository/review/review.aggregate.port";
+} from "../../../../ports/outputs/repository/review/application.review.aggregate.port";
 import {createMock} from "@golevelup/ts-jest";
 import {
     inputCycle,

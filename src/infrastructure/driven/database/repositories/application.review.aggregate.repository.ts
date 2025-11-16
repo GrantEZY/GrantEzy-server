@@ -1,5 +1,5 @@
-import {ReviewerAggregatePort} from "../../../../ports/outputs/repository/review/review.aggregate.port";
-import {Review} from "../../../../core/domain/aggregates/review.aggregate";
+import {ReviewerAggregatePort} from "../../../../ports/outputs/repository/review/application.review.aggregate.port";
+import {ApplicationReviewAggregate} from "../../../../core/domain/aggregates/application.review.aggregate";
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
@@ -13,14 +13,14 @@ import {MoneyBuilder} from "../../../../core/domain/value-objects/project.metric
 @Injectable()
 export class ReviewAggregateRepository implements ReviewerAggregatePort {
     constructor(
-        @InjectRepository(Review)
-        private readonly reviewRepository: Repository<Review>
+        @InjectRepository(ApplicationReviewAggregate)
+        private readonly reviewRepository: Repository<ApplicationReviewAggregate>
     ) {}
 
     async addReviewerToApplication(
         userId: string,
         applicationId: string
-    ): Promise<Review> {
+    ): Promise<ApplicationReviewAggregate> {
         try {
             const id = uuid(); // eslint-disable-line
             const slug = slugify(id);
@@ -44,7 +44,9 @@ export class ReviewAggregateRepository implements ReviewerAggregatePort {
         }
     }
 
-    async getReviewById(reviewId: string): Promise<Review | null> {
+    async getReviewById(
+        reviewId: string
+    ): Promise<ApplicationReviewAggregate | null> {
         try {
             return await this.reviewRepository.findOne({where: {id: reviewId}});
         } catch (error) {
@@ -58,7 +60,7 @@ export class ReviewAggregateRepository implements ReviewerAggregatePort {
     getUserApplicationReview(
         userId: string,
         applicationId: string
-    ): Promise<Review | null> {
+    ): Promise<ApplicationReviewAggregate | null> {
         try {
             return this.reviewRepository.findOne({
                 where: {reviewerId: userId, applicationId: applicationId},
@@ -76,9 +78,9 @@ export class ReviewAggregateRepository implements ReviewerAggregatePort {
     }
 
     async modifyReview(
-        review: Review,
+        review: ApplicationReviewAggregate,
         updateDetails: UpdateReviewDTO
-    ): Promise<Review> {
+    ): Promise<ApplicationReviewAggregate> {
         try {
             const {scores, recommendation, budget} = updateDetails;
 
@@ -108,9 +110,9 @@ export class ReviewAggregateRepository implements ReviewerAggregatePort {
     }
 
     async changeReviewStatus(
-        review: Review,
+        review: ApplicationReviewAggregate,
         status: ReviewStatus
-    ): Promise<Review> {
+    ): Promise<ApplicationReviewAggregate> {
         try {
             review.status = status;
             return await this.reviewRepository.save(review);
@@ -130,7 +132,7 @@ export class ReviewAggregateRepository implements ReviewerAggregatePort {
         applicationId: string,
         page: number,
         numberOfResults: number
-    ): Promise<Review[]> {
+    ): Promise<ApplicationReviewAggregate[]> {
         try {
             const reviews = await this.reviewRepository.find({
                 where: {applicationId},
@@ -154,7 +156,7 @@ export class ReviewAggregateRepository implements ReviewerAggregatePort {
         userId: string,
         page: number,
         numberOfResults: number
-    ): Promise<Review[]> {
+    ): Promise<ApplicationReviewAggregate[]> {
         try {
             const reviews = await this.reviewRepository.find({
                 where: {
@@ -177,7 +179,9 @@ export class ReviewAggregateRepository implements ReviewerAggregatePort {
         }
     }
 
-    async findBySlug(reviewSlug: string): Promise<Review | null> {
+    async findBySlug(
+        reviewSlug: string
+    ): Promise<ApplicationReviewAggregate | null> {
         try {
             const review = await this.reviewRepository.findOne({
                 where: {slug: reviewSlug},

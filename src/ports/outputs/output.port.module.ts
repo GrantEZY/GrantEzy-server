@@ -33,15 +33,21 @@ import {UserInviteAggregateRepository} from "../../infrastructure/driven/databas
 import {Notification} from "../../core/domain/entities/notification.entity";
 import {UserNotifications} from "../../core/domain/aggregates/usernotifications.aggregate";
 import {VerificationTokenEntity} from "../../core/domain/entities/verification.entity";
-import {Review} from "../../core/domain/aggregates/review.aggregate";
-import {REVIEW_AGGREGATE_PORT} from "./repository/review/review.aggregate.port";
-import {ReviewAggregateRepository} from "../../infrastructure/driven/database/repositories/review.aggregate.repository";
+import {ApplicationReviewAggregate} from "../../core/domain/aggregates/application.review.aggregate";
+import {REVIEW_AGGREGATE_PORT} from "./repository/review/application.review.aggregate.port";
+import {ReviewAggregateRepository} from "../../infrastructure/driven/database/repositories/application.review.aggregate.repository";
 import {FORGOT_PASSWORD_PORT} from "./repository/forgotpassword/forgotpassword.aggregate.port";
 import {ForgotPasswordAggregate} from "../../core/domain/aggregates/forgotpassword.aggregate";
 import {ForgotPasswordAggregateRepository} from "../../infrastructure/driven/database/repositories/forgotpassword.aggregate.repository";
 import {Project} from "../../core/domain/aggregates/project.aggregate";
 import {PROJECT_AGGREGATE_PORT} from "./repository/project/project.aggregate.port";
 import {ProjectAggregateRepository} from "../../infrastructure/driven/database/repositories/project.aggregate.repository";
+import {CycleAssessmentAggregate} from "../../core/domain/aggregates/cycle.assessment.aggregate";
+import {CycleAssessmentCriteriaAggregate} from "../../core/domain/aggregates/cycle.assessment.criteria.aggregate";
+import {CycleAssessmentCriteriaAggregateRepository} from "../../infrastructure/driven/database/repositories/cycle.assessment.criteria.aggregate.repository";
+import {CYCLE_ASSESSMENT_CRITERIA_AGGREGATE_PORT} from "./repository/cycleAssessmentCriteria/cycle.assessment.criteria.aggregate.port";
+import {CycleAssessmentAggregateRepository} from "../../infrastructure/driven/database/repositories/cycle.assessment.aggregate.repository";
+import {CYCLE_ASSESSMENT_AGGREGATE_PORT} from "./repository/cycleAssessment/cycle.assessment.aggregate.port";
 @Global()
 @Module({
     imports: [
@@ -57,9 +63,11 @@ import {ProjectAggregateRepository} from "../../infrastructure/driven/database/r
             Notification,
             UserNotifications,
             VerificationTokenEntity,
-            Review,
+            ApplicationReviewAggregate,
             ForgotPasswordAggregate,
             Project,
+            CycleAssessmentAggregate,
+            CycleAssessmentCriteriaAggregate,
         ]),
         JwtModule.register({}),
     ],
@@ -98,6 +106,14 @@ import {ProjectAggregateRepository} from "../../infrastructure/driven/database/r
             provide: PROJECT_AGGREGATE_PORT,
             useClass: ProjectAggregateRepository,
         },
+        {
+            provide: CYCLE_ASSESSMENT_CRITERIA_AGGREGATE_PORT,
+            useClass: CycleAssessmentCriteriaAggregateRepository,
+        },
+        {
+            provide: CYCLE_ASSESSMENT_AGGREGATE_PORT,
+            useClass: CycleAssessmentAggregateRepository,
+        },
     ],
     exports: [
         USER_AGGREGATE_PORT,
@@ -114,6 +130,8 @@ import {ProjectAggregateRepository} from "../../infrastructure/driven/database/r
         REVIEW_AGGREGATE_PORT,
         FORGOT_PASSWORD_PORT,
         PROJECT_AGGREGATE_PORT,
+        CYCLE_ASSESSMENT_CRITERIA_AGGREGATE_PORT,
+        CYCLE_ASSESSMENT_AGGREGATE_PORT,
     ],
 })
 export class OutputPortModule {}

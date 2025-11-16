@@ -27,7 +27,7 @@ import {
 } from "../value-objects/revenue.info.object";
 import {Risk} from "../value-objects/risk.object";
 import {ProjectMilestone} from "../value-objects/project.status.object";
-import {Review} from "./review.aggregate";
+import {ApplicationReviewAggregate} from "./application.review.aggregate";
 import {QuotedBudget} from "../value-objects/quotedbudget.object";
 import {BudgetComponent} from "../value-objects/quotedbudget.object";
 import {ApplicationDocumentsObject} from "../value-objects/applicationdocuments.object";
@@ -401,8 +401,12 @@ export class GrantApplication {
     })
     applicationDocuments: ApplicationDocumentsObject | null;
 
-    @OneToMany(() => Review, (review) => review.application, {eager: false})
-    reviews: Review[];
+    @OneToMany(
+        () => ApplicationReviewAggregate,
+        (review) => review.application,
+        {eager: false}
+    )
+    reviews: ApplicationReviewAggregate[];
 
     @Column({nullable: true})
     projectId: string | null;
