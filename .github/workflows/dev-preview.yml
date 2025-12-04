@@ -3,12 +3,12 @@ name: CI Checks and Build For main Branch
 
 on:
   push:
-    branches: [main]
+    branches: [dev-preview]
 
 jobs:
   setup:
     name: Setup Node.js, pnpm, and Install Dependencies
-    runs-on: ubuntu-22.04
+    runs-on: grantezyserver
 
     outputs:
       cache-hit: ${{ steps.cache-pnpm-store.outputs.cache-hit }}
@@ -48,7 +48,7 @@ jobs:
   prettier:
     name: Prettier Check
     needs: setup
-    runs-on: ubuntu-22.04
+    runs-on: grantezyserver
 
     steps:
       - name: Checkout repository
@@ -87,7 +87,7 @@ jobs:
   lint:
     name: Lint Check
     needs: setup
-    runs-on: ubuntu-22.04
+    runs-on: grantezyserver
 
     steps:
       - name: Checkout repository
@@ -126,7 +126,7 @@ jobs:
   test:
     name: Run Tests
     needs: setup
-    runs-on: ubuntu-22.04
+    runs-on: grantezyserver
 
     steps:
       - name: Checkout repository
