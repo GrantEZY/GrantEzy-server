@@ -388,7 +388,14 @@ export class UserAggregateRepository implements UserAggregatePort {
                     where: {
                         personId: userId,
                     },
-                    relations: ["myApplications", "linkedApplications"],
+                    relations: [
+                        "myApplications",
+                        "myApplications.cycle",
+                        "myApplications.cycle.program",
+                        "linkedApplications",
+                        "linkedApplications.cycle",
+                        "linkedApplications.cycle.program"
+                    ],
                 });
 
             return userwithApplicationDetails;
