@@ -8,6 +8,7 @@ import {CreateProgramDTO} from "../../../driving/dtos/gcv.dto";
 import {ProgramDetails} from "../../../../core/domain/value-objects/program.details.object";
 import {Duration} from "../../../../core/domain/value-objects/duration.object";
 import {Money} from "../../../../core/domain/value-objects/project.metrics.object";
+import {CycleStatus} from "../../../../core/domain/constants/status.constants";
 import {UpdateProgramDTO} from "../../../driving/dtos/shared/shared.program.dto";
 import {ProgramStatus} from "../../../../core/domain/constants/status.constants";
 import {v4 as uuid} from "uuid";
@@ -185,16 +186,15 @@ export class ProgramAggregateRepository implements ProgramAggregatePort {
         numberOfResults: number
     ): Promise<Program[]> {
         try {
-            const programs = await this.programRepository.find({
-                where: {
-                    status: ProgramStatus.ACTIVE,
-                },
-                skip: (page - 1) * numberOfResults,
-                take: numberOfResults,
-                order: {
-                    createdAt: "DESC",
-                },
-            });
+            const programs = await this.programRepository
+                .createQueryBuilder("program")
+                .leftJoinAndSelect("program.cycles", "cycle")
+                .where("program.status = :status", { status: ProgramStatus.ACTIVE })
+                .andWhere("cycle.status = :cycleStatus", { cycleStatus: CycleStatus.OPEN })
+                .skip((page - 1) * numberOfResults)
+                .take(numberOfResults)
+                .orderBy("program.createdAt", "DESC")
+                .getMany();
 
             return programs;
         } catch (error) {
