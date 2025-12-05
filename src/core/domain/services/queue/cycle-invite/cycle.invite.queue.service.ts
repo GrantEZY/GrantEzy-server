@@ -58,13 +58,12 @@ export class CycleInviteQueueService {
                 }
             }
 
-            const emailStatus =
-                await this.emailQueue.addCycleInviteEmailToQueue(
-                    email,
-                    userDetails
-                );
+            // Use different email template based on role
+            const emailStatus = userDetails.role === 'REVIEWER'
+                ? await this.emailQueue.addReviewerInviteEmailToQueue(email, userDetails)
+                : await this.emailQueue.addCycleInviteEmailToQueue(email, userDetails);
 
-            if (!emailStatus) {
+            if (!emailStatus.status) {
                 throw new ApiError(
                     403,
                     "Email  Invite Error conflict",

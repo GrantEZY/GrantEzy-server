@@ -99,8 +99,68 @@ export const CycleInviteEmailTemplate: EmailTemplateType = {
       </p>
 
       <p style="margin-top: 20px;">
-        Once logged in, you’ll be able to access the cycle application and perform your role as
+        Once logged in, you'll be able to access the cycle application and perform your role as
         <strong>${(values as CycleInviteDTO).role}</strong>.
+      </p>
+
+      <p>Best regards,<br/>The GrantEzy Team</p>
+    </div>
+  `,
+};
+
+export const ReviewerInviteEmailTemplate: EmailTemplateType = {
+    subject: `You've been invited to review an application`,
+    body: (values: EmailBody) => `
+    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+      <h2 style="color: #2c3e50;">Review Request for Grant Application 📝</h2>
+
+      <p>Hello,</p>
+      <p>
+        <strong>${(values as CycleInviteDTO).invitedBy}</strong> has invited you to review the application
+        <strong>${(values as CycleInviteDTO).applicationName}</strong> under the program
+        <strong>${(values as CycleInviteDTO).programName}</strong>.
+      </p>
+
+      <p>
+        As a reviewer, you will be able to evaluate the application based on specific criteria
+        and provide your expert feedback to help with the selection process.
+      </p>
+
+      <table cellpadding="6" cellspacing="0" border="0"
+             style="background: #f8f9fa; border: 1px solid #ddd; border-radius: 6px; margin: 16px 0;">
+        <tr>
+          <td><strong>Your Email:</strong></td>
+          <td>${(values as CycleInviteDTO).email}</td>
+        </tr>
+        <tr>
+          <td><strong>Role:</strong></td>
+          <td>Reviewer</td>
+        </tr>
+        <tr>
+          <td><strong>Program:</strong></td>
+          <td>${(values as CycleInviteDTO).programName}</td>
+        </tr>
+        <tr>
+          <td><strong>Application:</strong></td>
+          <td>${(values as CycleInviteDTO).applicationName}</td>
+        </tr>
+        <tr>
+          <td><strong>Round:</strong></td>
+          <td>${String((values as CycleInviteDTO).round.year)} - ${(values as CycleInviteDTO).round.type}</td>
+        </tr>
+      </table>
+
+      <p>
+        👉 <a href="${BASE_URL ?? "http://localhost"}/reviewer/invite?token=${(values as CycleInviteDTO).token}&slug=${(values as CycleInviteDTO).slug}"
+              style="background: #2196F3; color: white; padding: 12px 24px;
+                     text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
+            Accept or Decline Review Request
+        </a>
+      </p>
+
+      <p style="color: #666; font-size: 14px;">
+        By accepting, you'll be able to access the application details and submit your review.
+        If you decline, the program manager will be notified.
       </p>
 
       <p>Best regards,<br/>The GrantEzy Team</p>

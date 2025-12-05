@@ -3,6 +3,7 @@ import {ReviewerService} from "../../../../../core/domain/services/reviewer/revi
 import {ApiTags} from "@nestjs/swagger";
 import ApiError from "../../../../../shared/errors/api.error";
 import {Response} from "express";
+import {Public} from "../../../../../shared/decorators/public.decorator";
 import {ReviewerControllerPort} from "../../../../../ports/inputs/controllers/reviewer.controller.port";
 import {
     GetTokenDetailsDTO,
@@ -22,6 +23,7 @@ import {
 export class ReviewerController implements ReviewerControllerPort {
     constructor(private readonly reviewService: ReviewerService) {}
 
+    @Public()
     @Get("/get-token-details")
     @ApiResponse(REVIEWER_RESPONSES.GET_TOKEN_DETAILS.SUCCESS)
     @ApiResponse(REVIEWER_RESPONSES.GET_TOKEN_DETAILS.APPLICATION_NOT_FOUND)
@@ -43,6 +45,7 @@ export class ReviewerController implements ReviewerControllerPort {
         }
     }
 
+    @Public()
     @Patch("/update-invite-status")
     @ApiResponse(REVIEWER_RESPONSES.UPDATE_REVIEW_INVITE.SUCCESS_ACCEPTED)
     @ApiResponse(REVIEWER_RESPONSES.UPDATE_REVIEW_INVITE.SUCCESS_REJECTED)
