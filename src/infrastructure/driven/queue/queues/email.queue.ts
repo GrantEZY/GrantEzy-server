@@ -91,6 +91,40 @@ export class EmailQueue {
         }
     }
 
+    async addReviewerInviteEmailToQueue(
+        email: string,
+        data: CycleInviteDTO
+    ): Promise<EmailResponse> {
+        try {
+            const uniqueId = uuid();
+            const jobId = `${uniqueId}-${email}-reviewer-invite`;
+            const job = await this.emailQueue.add(
+                jobId,
+                {type: EmailNotifications.REVIEWER_INVITE_REQUEST, data},
+                {
+                    removeOnComplete: true,
+                }
+            );
+
+            return {
+                status: true,
+                queue: {
+                    name: job.name,
+                },
+            };
+        } catch (error) {
+            this.logger.log(`Error in Adding to Reviewer Invite Email Queue`);
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                500,
+                "Issue In Sending Email",
+                "Email Queue Error"
+            );
+        }
+    }
+
     async addForgotPasswordEmailToQueue(
         email: string,
         data: ForgotPasswordEmailDTO

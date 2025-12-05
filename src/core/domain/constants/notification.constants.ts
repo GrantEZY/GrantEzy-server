@@ -1,5 +1,6 @@
 import {
     CycleInviteEmailTemplate,
+    ReviewerInviteEmailTemplate,
     EmailTemplateType,
     InviteUserEmailTemplate,
     ForgotPasswordEmailTemplate,
@@ -15,6 +16,7 @@ export enum EmailNotifications {
     PROGRAM_ENROLLMENT = "You've been enrolled in a new program",
     PROGRAM_COMPLETION = "Congratulations on completing your program!",
     CYCLE_INVITE_REQUEST = "We value your invite",
+    REVIEWER_INVITE_REQUEST = "Review invitation for application",
     NEWSLETTER = "Latest updates from GrantEzy",
     ACCOUNT_DELETION = "Your account has been deleted",
     SUPPORT_RESPONSE = "Response from GrantEzy Support",
@@ -48,6 +50,7 @@ export const EmailNotificationTemplateMapper: Record<
 > = {
     [EmailNotifications.INVITE_USER]: InviteUserEmailTemplate,
     [EmailNotifications.CYCLE_INVITE_REQUEST]: CycleInviteEmailTemplate,
+    [EmailNotifications.REVIEWER_INVITE_REQUEST]: ReviewerInviteEmailTemplate,
     [EmailNotifications.FORGOT_PASSWORD]: ForgotPasswordEmailTemplate,
     [EmailNotifications.PROJECT_CREATED]:
         ProjectCreatedFromApplicationEmailTemplate,

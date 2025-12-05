@@ -3,6 +3,7 @@ import {ApiTags, ApiResponse} from "@nestjs/swagger";
 import {CoApplicantService} from "../../../../../core/domain/services/co-applicant/co.applicant.service";
 import {CoApplicantControllerPort} from "../../../../../ports/inputs/controllers/co.applicant.controller.port";
 import {CurrentUser} from "../../../../../shared/decorators/currentuser.decorator";
+import {Public} from "../../../../../shared/decorators/public.decorator";
 import {
     CoApplicantApplicationDTO,
     GetProjectDetailsDTO,
@@ -43,6 +44,7 @@ export class CoApplicantController implements CoApplicantControllerPort {
         }
     }
 
+    @Public()
     @Get("/get-token-details")
     @ApiResponse(CO_APPLICANT_RESPONSES.GET_TOKEN_DETAILS.SUCCESS)
     @ApiResponse(CO_APPLICANT_RESPONSES.GET_TOKEN_DETAILS.APPLICATION_NOT_FOUND)
@@ -64,6 +66,7 @@ export class CoApplicantController implements CoApplicantControllerPort {
         }
     }
 
+    @Public()
     @Patch("/update-user-invite-status")
     @ApiResponse(CO_APPLICANT_RESPONSES.UPDATE_INVITE_STATUS.SUCCESS_ACCEPTED)
     @ApiResponse(
