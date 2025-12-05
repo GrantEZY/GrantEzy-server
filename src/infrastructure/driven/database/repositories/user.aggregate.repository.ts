@@ -393,7 +393,7 @@ export class UserAggregateRepository implements UserAggregatePort {
                         "myApplications.cycle.program",
                         "linkedApplications",
                         "linkedApplications.cycle",
-                        "linkedApplications.cycle.program"
+                        "linkedApplications.cycle.program",
                     ],
                 });
 

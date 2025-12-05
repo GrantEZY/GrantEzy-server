@@ -189,8 +189,12 @@ export class ProgramAggregateRepository implements ProgramAggregatePort {
             const programs = await this.programRepository
                 .createQueryBuilder("program")
                 .leftJoinAndSelect("program.cycles", "cycle")
-                .where("program.status = :status", { status: ProgramStatus.ACTIVE })
-                .andWhere("cycle.status = :cycleStatus", { cycleStatus: CycleStatus.OPEN })
+                .where("program.status = :status", {
+                    status: ProgramStatus.ACTIVE,
+                })
+                .andWhere("cycle.status = :cycleStatus", {
+                    cycleStatus: CycleStatus.OPEN,
+                })
                 .skip((page - 1) * numberOfResults)
                 .take(numberOfResults)
                 .orderBy("program.createdAt", "DESC")

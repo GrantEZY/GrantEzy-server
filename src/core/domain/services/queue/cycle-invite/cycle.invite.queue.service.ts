@@ -9,6 +9,7 @@ import {UserSharedService} from "../../shared/user/shared.user.service";
 import {UpdateRole} from "../../../../../infrastructure/driving/dtos/shared/shared.user.dto";
 import {EmailQueue} from "../../../../../infrastructure/driven/queue/queues/email.queue";
 import {User} from "../../../aggregates/user.aggregate";
+import {UserRoles} from "../../../constants/userRoles.constants";
 @Injectable()
 export class CycleInviteQueueService {
     constructor(
@@ -59,9 +60,16 @@ export class CycleInviteQueueService {
             }
 
             // Use different email template based on role
-            const emailStatus = userDetails.role === 'REVIEWER'
-                ? await this.emailQueue.addReviewerInviteEmailToQueue(email, userDetails)
-                : await this.emailQueue.addCycleInviteEmailToQueue(email, userDetails);
+            const emailStatus =
+                userDetails.role === UserRoles.REVIEWER
+                    ? await this.emailQueue.addReviewerInviteEmailToQueue(
+                          email,
+                          userDetails
+                      )
+                    : await this.emailQueue.addCycleInviteEmailToQueue(
+                          email,
+                          userDetails
+                      );
 
             if (!emailStatus.status) {
                 throw new ApiError(

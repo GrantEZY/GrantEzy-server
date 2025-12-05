@@ -204,7 +204,7 @@ export class AuthController implements AuthControllerPort {
 
     setCookie(response: Response, cookieName: string, value: string): void {
         const isProduction = process.env.NODE_ENV === "production";
-        
+
         const cookieOptions = {
             httpOnly: true,
             // Use 'lax' in development (works with localhost), 'none' in production (for cross-origin)
