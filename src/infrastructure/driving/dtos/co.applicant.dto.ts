@@ -1,5 +1,6 @@
 import {ApiProperty} from "@nestjs/swagger";
 import {IsUUID, IsString, IsInt} from "class-validator";
+import {Type} from "class-transformer";
 import {InviteStatus} from "../../../core/domain/constants/invite.constants";
 export class CoApplicantApplicationDTO {
     @ApiProperty({
@@ -49,6 +50,7 @@ export class GetUserLinkedProjectsPaginationDTO {
         description: "page number for pagination",
         example: "1",
     })
+    @Type(() => Number)
     @IsInt()
     page: number;
 
@@ -56,6 +58,7 @@ export class GetUserLinkedProjectsPaginationDTO {
         description: "number Of Results in One Page",
         example: "1",
     })
+    @Type(() => Number)
     @IsInt()
     numberOfResults: number;
 }

@@ -12,7 +12,6 @@ import {slugify} from "../../../../shared/helpers/slug.generator";
 import {v4 as uuid} from "uuid";
 import {ExperienceDTO, UpdateProfileDTO} from "../../../driving/dtos/user.dto";
 import {Experience} from "../../../../core/domain/value-objects/experience.object";
-import {GrantApplicationStatus} from "../../../../core/domain/constants/status.constants";
 import {GrantApplication} from "../../../../core/domain/aggregates/grantapplication.aggregate";
 @Injectable()
 export class UserAggregateRepository implements UserAggregatePort {
@@ -445,10 +444,9 @@ export class UserAggregateRepository implements UserAggregatePort {
                     "user.linkedApplications",
                     "linkedApplications"
                 )
+                .leftJoinAndSelect("linkedApplications.cycle", "cycle")
+                .leftJoinAndSelect("cycle.program", "program")
                 .where("user.personId = :userId", {userId})
-                .andWhere("linkedApplications.status = :status", {
-                    status: GrantApplicationStatus.APPROVED,
-                })
                 .orderBy("linkedApplications.createdAt", "DESC")
                 .skip((page - 1) * numberOfResults)
                 .take(numberOfResults);
