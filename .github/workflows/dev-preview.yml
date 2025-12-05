@@ -8,7 +8,7 @@ on:
 jobs:
   setup:
     name: Setup Node.js, pnpm, and Install Dependencies
-    runs-on: [self-hosted, linux, x64]
+    runs-on: [self-hosted, Linux, X64]
 
     outputs:
       cache-hit: ${{ steps.cache-pnpm-store.outputs.cache-hit }}
@@ -48,7 +48,7 @@ jobs:
   prettier:
     name: Prettier Check
     needs: setup
-    runs-on: [self-hosted, linux, x64]
+    runs-on: [self-hosted, Linux, X64]
 
     steps:
       - name: Checkout repository
@@ -87,7 +87,7 @@ jobs:
   lint:
     name: Lint Check
     needs: setup
-    runs-on: [self-hosted, linux, x64]
+    runs-on: [self-hosted, Linux, X64]
 
     steps:
       - name: Checkout repository
@@ -126,7 +126,7 @@ jobs:
   test:
     name: Run Tests
     needs: setup
-    runs-on: [self-hosted, linux, x64]
+    runs-on: [self-hosted, Linux, X64]
 
     steps:
       - name: Checkout repository
