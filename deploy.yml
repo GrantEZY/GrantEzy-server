@@ -77,7 +77,7 @@ services:
             - .:/app
             - /app/node_modules
         env_file:
-            - .env
+            - .env.local
         environment:
             NODE_ENV: development
         depends_on:
