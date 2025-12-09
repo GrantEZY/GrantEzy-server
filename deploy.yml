@@ -1,0 +1,149 @@
+services:
+    # ======================================
+    # DATABASE SERVICES
+    # ======================================
+
+    grantezy-server-pg:
+        image: postgres:16
+        container_name: grantezy-deploy-pg
+        profiles: ["dev", "staged", "prod"]
+        env_file:
+            - .env
+        environment:
+            POSTGRES_DB: ${POSTGRES_DB}
+            POSTGRES_USER: ${POSTGRES_USERNAME}
+            POSTGRES_PASSWORD: ${POSTGRES_SECRET}
+        volumes:
+            - grantezy_pg_data:/var/lib/postgresql/data-pg
+        networks:
+            - grantezy-network
+        restart: unless-stopped
+
+    grantezy-server-pgadmin:
+        image: dpage/pgadmin4
+        container_name: grantezy-deploy-pgadmin
+        profiles: ["dev", "staged", "prod"]
+        environment:
+            PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+            PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+        depends_on:
+            - grantezy-server-pg
+        volumes:
+            - pgadmin_data:/var/lib/pgadmin-data
+        networks:
+            - grantezy-network
+        restart: unless-stopped
+
+    # ======================================
+    # REDIS SERVICES
+    # ======================================
+
+    grantezy-server-redis:
+        image: redis:7
+        container_name: grantezy-deploy-redis
+        profiles: ["dev", "staged", "prod"]
+        volumes:
+            - redis_data:/data
+        networks:
+            - grantezy-network
+        restart: unless-stopped
+
+    grantezy-server-redis-commander:
+        image: rediscommander/redis-commander:latest
+        container_name: grantezy-deploy-redis-commander
+        profiles: ["dev", "staged", "prod"]
+        environment:
+            REDIS_HOSTS: local:grantezy-server-redis:6379
+        depends_on:
+            - grantezy-server-redis
+        networks:
+            - grantezy-network
+        restart: unless-stopped
+
+    # ======================================
+    # DEVELOPMENT API
+    # ======================================
+
+    grantezy-server-dev:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            target: dev
+        container_name: grantezy-api-dev
+        profiles: ["dev"]
+        ports:
+            - "${DEV_PORT:-5000}:5000"
+        volumes:
+            - .:/app
+            - /app/node_modules
+        env_file:
+            - .env.local
+        environment:
+            NODE_ENV: development
+        depends_on:
+            - grantezy-server-pg
+            - grantezy-server-redis
+        networks:
+            - grantezy-network
+        restart: unless-stopped
+
+    # ======================================
+    # STAGING API
+    # ======================================
+
+    grantezy-server-staged:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            target: production
+        container_name: grantezy-api-staged
+        profiles: ["staged"]
+        ports:
+            - "${STAGED_PORT:-6000}:5000"
+        env_file:
+            - .env.staged
+        environment:
+            NODE_ENV: staging
+        depends_on:
+            - grantezy-server-pg
+            - grantezy-server-redis
+        networks:
+            - grantezy-network
+        restart: unless-stopped
+
+    # ======================================
+    # PRODUCTION API
+    # ======================================
+
+    grantezy-server-prod:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            target: production
+        container_name: grantezy-api-prod
+        profiles: ["prod"]
+        ports:
+            - "${PROD_PORT:-7000}:5000"
+        env_file:
+            - .env.prod
+        environment:
+            NODE_ENV: production
+        depends_on:
+            - grantezy-server-pg
+            - grantezy-server-redis
+        networks:
+            - grantezy-network
+        restart: unless-stopped
+
+# ======================================
+# NETWORKS & VOLUMES
+# ======================================
+
+networks:
+    grantezy-network:
+        driver: bridge
+
+volumes:
+    grantezy_pg_data:
+    pgadmin_data:
+    redis_data:
