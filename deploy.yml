@@ -1,0 +1,120 @@
+services:
+    # ======================================
+    # Extend services from docker-compose.yml
+    # ======================================
+    grantezy-server-pg:
+        extends:
+            file: docker-compose.yml
+            service: grantezy-pg
+        networks:
+            - grantezy-network
+
+    grantezy-server-pgadmin:
+        extends:
+            file: docker-compose.yml
+            service: pgadmin
+        networks:
+            - grantezy-network
+        depends_on:
+            - grantezy-server-pg
+
+    grantezy-server-redis:
+        extends:
+            file: docker-compose.yml
+            service: redis
+        networks:
+            - grantezy-network
+
+    grantezy-server-redis-commander:
+        extends:
+            file: docker-compose.yml
+            service: redis-commander
+        networks:
+            - grantezy-network
+        depends_on:
+            - grantezy-server-redis
+
+    # ======================================
+    # Development Server
+    # ======================================
+    grantezy-server-dev:
+        build:
+            context: .
+            target: dev
+            dockerfile: Dockerfile
+        container_name: grantezy-api-dev
+        ports:
+            - "${DEV_PORT:-5000}:5000"
+        volumes:
+            - .:/app
+            - /app/node_modules
+            - /app/dist
+        env_file:
+            - .env
+        environment:
+            NODE_ENV: development
+        depends_on:
+            - grantezy-server-pg
+            - grantezy-server-redis
+        networks:
+            - grantezy-network
+        restart: unless-stopped
+        profiles: ["dev"]
+
+    # ======================================
+    # Staging Server
+    # ======================================
+    grantezy-server-staged:
+        build:
+            context: .
+            target: production
+            dockerfile: Dockerfile
+        container_name: grantezy-api-staged
+        ports:
+            - "${STAGED_PORT:-6000}:5000"
+        env_file:
+            - .env.staged
+        environment:
+            NODE_ENV: staging
+        depends_on:
+            - grantezy-server-pg
+            - grantezy-server-redis
+        networks:
+            - grantezy-network
+        restart: unless-stopped
+        profiles: ["staged"]
+
+    # ======================================
+    # Production Server
+    # ======================================
+    grantezy-server-prod:
+        build:
+            context: .
+            target: production
+            dockerfile: Dockerfile
+        container_name: grantezy-api-prod
+        ports:
+            - "${PROD_PORT:-7000}:5000"
+        env_file:
+            - .env.prod
+        environment:
+            NODE_ENV: production
+        depends_on:
+            - grantezy-server-pg
+            - grantezy-server-redis
+        networks:
+            - grantezy-network
+        restart: unless-stopped
+        profiles: ["prod"]
+
+# ======================================
+# Networks & Volumes
+# ======================================
+networks:
+    grantezy-network:
+        driver: bridge
+
+volumes:
+    grantezy_pg_data:
+    pgadmin_data:
+    redis_data:
