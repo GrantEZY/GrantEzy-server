@@ -1,3 +1,53 @@
-node_modules/
-dist/
+# Dependencies
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store
+
+# Build output
+dist
+build
+.next
+out
+
+# Testing
+coverage
+.nyc_output
+*.test.ts
+*.spec.ts
+test
+e2e
+
+# Development files
+.git
+.gitignore
+.env*.local
+.vscode
+.idea
 .eslintcache
+
+# Documentation
+README.md
+CHANGELOG.md
+*.md
+docs
+
+# CI/CD
+.github
+.gitlab-ci.yml
+.circleci
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Logs
+logs
+*.log
