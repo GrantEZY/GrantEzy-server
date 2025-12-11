@@ -173,6 +173,63 @@ export const PROJECT_MANAGEMENT_RESPONSES = {
   },
 };
 
+export const PROJECT_ASSESSMENT_REVIEWER_RESPONSES = {
+  ASSIGN: {
+    SUCCESS: {
+      status: 200,
+      description: "Reviewer assigned successfully for project assessment",
+      example: {
+        status: 200,
+        message: "Reviewer Assigned Successfully",
+        res: {
+          email: "reviewer@example.com",
+          application: "AI Research Project",
+        },
+      },
+    },
+
+    ASSESSMENT_NOT_FOUND: {
+      status: 404,
+      description: "The project assessment with the given ID was not found",
+      example: {
+        status: 404,
+        message: "Assessment Not Found",
+        res: null,
+      },
+    },
+
+    UNAUTHORIZED_MANAGER: {
+      status: 403,
+      description: "Only the program manager of the project can assign reviewers",
+      example: {
+        status: 403,
+        message: "Only Program Manager Can Assign Reviewer",
+        res: null,
+      },
+    },
+
+    INVITE_FAILED: {
+      status: 500,
+      description: "Failed to send the reviewer invitation email",
+      example: {
+        status: 500,
+        message: "Failed to send invite email",
+        res: null,
+      },
+    },
+
+    INTERNAL_ERROR: {
+      status: 500,
+      description:
+        "Unexpected error occurred while assigning a reviewer for project assessment",
+      example: {
+        status: 500,
+        message: "Internal Server Error",
+        res: null,
+      },
+    },
+  },
+};
 
 export const CYCLE_CRITERIA_RESPONSES = {
   CREATE_CRITERIA: {

@@ -12,7 +12,10 @@ import {
 import {REVIEWER_RESPONSES} from "../../../../../config/swagger/docs/reviewer.swagger";
 import {ApiResponse} from "@nestjs/swagger";
 import {AccessTokenJwt} from "../../../../../shared/types/jwt.types";
-import {SubmitReviewDTO} from "../../../dtos/reviewer.dto";
+import {
+    SubmitProjectAssessmentReviewInviteStatusDTO,
+    SubmitReviewDTO,
+} from "../../../dtos/reviewer.dto";
 import {CurrentUser} from "../../../../../shared/decorators/currentuser.decorator";
 import {
     GetUserReviewsDTO,
@@ -106,7 +109,7 @@ export class ReviewerController implements ReviewerControllerPort {
     @Get("/get-review-details")
     @ApiResponse(REVIEWER_RESPONSES.GET_REVIEW_DETAILS.SUCCESS)
     @ApiResponse(REVIEWER_RESPONSES.GET_REVIEW_DETAILS.REVIEW_NOT_FOUND)
-    @ApiResponse(REVIEWER_RESPONSES.GET_REVIEW_DETAILS.REVIEW_NOT_FOUND)
+    @ApiResponse(REVIEWER_RESPONSES.GET_REVIEW_DETAILS.UNAUTHORIZED_USER)
     async getReviewDetails(
         @Query() parameters: GetReviewDetailsDTO,
         @CurrentUser() user: AccessTokenJwt,
@@ -119,6 +122,27 @@ export class ReviewerController implements ReviewerControllerPort {
                 parameters,
                 id
             );
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Post("/submit-project-assessment-review-invite-status")
+    @ApiResponse(REVIEWER_RESPONSES.UPDATE_REVIEW_INVITE.SUCCESS_ACCEPTED)
+    @ApiResponse(REVIEWER_RESPONSES.UPDATE_REVIEW_INVITE.SUCCESS_REJECTED)
+    @ApiResponse(REVIEWER_RESPONSES.UPDATE_REVIEW_INVITE.USER_NOT_FOUND)
+    @ApiResponse(REVIEWER_RESPONSES.UPDATE_REVIEW_INVITE.CONFLICT_ERROR)
+    @ApiResponse(REVIEWER_RESPONSES.UPDATE_REVIEW_INVITE.ALREADY_REVIEWER)
+    async submitReviewerInviteStatus(
+        @Body() body: SubmitProjectAssessmentReviewInviteStatusDTO,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const result =
+                await this.reviewService.updateProjectAssessmentReviewerStatus(
+                    body
+                );
             return response.status(result.status).json(result);
         } catch (error) {
             return this.handleError(error, response);

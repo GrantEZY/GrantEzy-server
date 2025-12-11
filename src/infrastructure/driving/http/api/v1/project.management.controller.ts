@@ -11,6 +11,7 @@ import {
     GetCycleCriteriasDTO,
     SubmitDetailsForReviewDTO,
     GetCycleCriteriaDetailsWithAssessmentsDTO,
+    AddReviewerForProjectAssessmentDTO,
 } from "../../../dtos/project.management.dto";
 import ApiError from "../../../../../shared/errors/api.error";
 import {ProjectManagementService} from "../../../../../core/domain/services/project-management/project.management.service";
@@ -20,6 +21,7 @@ import {
     PROJECT_MANAGEMENT_RESPONSES,
     CYCLE_CRITERIA_RESPONSES,
     APPLICANT_PROJECT_MANAGEMENT,
+    PROJECT_ASSESSMENT_REVIEWER_RESPONSES,
 } from "../../../../../config/swagger/docs/project.management.swagger";
 @ApiTags("Project Management")
 @Controller("pt-management")
@@ -279,6 +281,33 @@ export class ProjectManagementController
                     id
                 );
 
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Post("/invite-reviewer-for-project-assessment")
+    @ApiResponse(PROJECT_ASSESSMENT_REVIEWER_RESPONSES.ASSIGN.SUCCESS)
+    @ApiResponse(
+        PROJECT_ASSESSMENT_REVIEWER_RESPONSES.ASSIGN.UNAUTHORIZED_MANAGER
+    )
+    @ApiResponse(
+        PROJECT_ASSESSMENT_REVIEWER_RESPONSES.ASSIGN.ASSESSMENT_NOT_FOUND
+    )
+    @ApiResponse(PROJECT_ASSESSMENT_REVIEWER_RESPONSES.ASSIGN.INVITE_FAILED)
+    async inviteReviewerForProjectAssessment(
+        @Body() body: AddReviewerForProjectAssessmentDTO,
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+            const result =
+                await this.projectManagementService.assignReviewForProjectAssessment(
+                    body,
+                    id
+                );
             return response.status(result.status).json(result);
         } catch (error) {
             return this.handleError(error, response);
