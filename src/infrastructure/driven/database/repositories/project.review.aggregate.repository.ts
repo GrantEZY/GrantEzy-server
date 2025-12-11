@@ -162,4 +162,32 @@ export class ProjectReviewAggregateRepository
             );
         }
     }
+
+    async getUserReviewByAssessmentSlugAndUserId(
+        assessmentSlug: string,
+        userId: string
+    ): Promise<ProjectReviewAggregate | null> {
+        try {
+            return await this.projectReviewRepository.findOne({
+                where: {
+                    reviewerId: userId,
+                    slug: assessmentSlug,
+                },
+                relations: [
+                    "reviewSubmission",
+                    "reviewSubmission.project",
+                    "reviewSubmission.criteria",
+                ],
+            });
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Failed to get user review by assessment slug and user ID",
+                "Database"
+            );
+        }
+    }
 }

@@ -5,6 +5,10 @@ import ApiError from "../../../../shared/errors/api.error";
 import {SubmitInviteStatusDTO} from "../../../../infrastructure/driving/dtos/co.applicant.dto";
 import {InviteAs, InviteStatus} from "../../constants/invite.constants";
 import {
+    CycleAssessmentAggregatePort,
+    CYCLE_ASSESSMENT_AGGREGATE_PORT,
+} from "../../../../ports/outputs/repository/cycleAssessment/cycle.assessment.aggregate.port";
+import {
     GrantApplicationAggregatePort,
     GRANT_APPLICATION_AGGREGATE_PORT,
 } from "../../../../ports/outputs/repository/grantapplication/grantapplication.aggregate.port";
@@ -24,6 +28,7 @@ import {
 import {
     GetReviewDetailsDTO,
     GetUserReviewsDTO,
+    ProjectReviewSubmissionDTO,
     SubmitProjectAssessmentReviewInviteStatusDTO,
     SubmitReviewDTO,
 } from "../../../../infrastructure/driving/dtos/reviewer.dto";
@@ -32,6 +37,9 @@ import {
     SubmitReviewResponse,
     UpdateReviewInviteResponse,
     GetReviewDetailsResponse,
+    GetUserProjectReviewsResponse,
+    GetProjectReviewDetailsResponse,
+    SubmitProjectAssessmentReviewResponse,
 } from "../../../../infrastructure/driven/response-dtos/reviewer.response-dto";
 import {
     PASSWORD_HASHER_PORT,
@@ -60,7 +68,9 @@ export class ReviewerService {
         @Inject(PASSWORD_HASHER_PORT)
         private readonly cryptoRepository: PasswordHasherPort,
         @Inject(PROJECT_REVIEW_AGGREGATE_PORT)
-        private readonly projectReviewAggregateRepository: ProjectReviewAggregatePort
+        private readonly projectReviewAggregateRepository: ProjectReviewAggregatePort,
+        @Inject(CYCLE_ASSESSMENT_AGGREGATE_PORT)
+        private readonly cycleAssessmentAggregateRepository: CycleAssessmentAggregatePort
     ) {}
 
     async getTokenDetails(
@@ -355,6 +365,55 @@ export class ReviewerService {
         }
     }
 
+    async submitProjectAssessmentReview(
+        details: ProjectReviewSubmissionDTO,
+        userId: string
+    ): Promise<SubmitProjectAssessmentReviewResponse> {
+        try {
+            const {assessmentId} = details;
+
+            const review =
+                await this.projectReviewAggregateRepository.findAssessmentReviewerByUserIdAndAssessmentId(
+                    userId,
+                    assessmentId
+                );
+            if (!review) {
+                throw new ApiError(404, "Review Not Found", "Not Found");
+            }
+
+            if (review.status === ReviewStatus.COMPLETED) {
+                throw new ApiError(
+                    400,
+                    "Review Already Completed",
+                    "Bad Request"
+                );
+            }
+
+            const updatedReview =
+                await this.projectReviewAggregateRepository.modifyReview(
+                    review,
+                    details
+                );
+
+            await this.projectReviewAggregateRepository.changeReviewStatus(
+                updatedReview,
+                ReviewStatus.COMPLETED
+            );
+
+            return {
+                status: 200,
+                message: "Project Assessment Review Submitted Successfully",
+                res: {
+                    reviewId: updatedReview.id,
+                    submissionId: updatedReview.submissionId,
+                    status: ReviewStatus.COMPLETED,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
     async getUserReviews(
         filter: GetUserReviewsDTO,
         userId: string
@@ -372,6 +431,66 @@ export class ReviewerService {
                 message: "User Reviews Fetch",
                 res: {
                     reviews,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async getUserProjectReviews(
+        filter: GetUserReviewsDTO,
+        userId: string
+    ): Promise<GetUserProjectReviewsResponse> {
+        try {
+            const reviews =
+                await this.projectReviewAggregateRepository.getUserReviews(
+                    userId,
+                    filter.page,
+                    filter.numberOfResults
+                );
+
+            return {
+                status: 200,
+                message: "User Project Reviews Fetch",
+                res: {
+                    reviews,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async getProjectReviewDetails(
+        assessmentSlug: string,
+        userId: string
+    ): Promise<GetProjectReviewDetailsResponse> {
+        try {
+            const assessment =
+                await this.cycleAssessmentAggregateRepository.findBySlug(
+                    assessmentSlug
+                );
+            if (!assessment) {
+                throw new ApiError(404, "Assessment Not Found", "Not Found");
+            }
+            const review =
+                await this.projectReviewAggregateRepository.findAssessmentReviewerByUserIdAndAssessmentId(
+                    userId,
+                    assessment.id
+                );
+            if (!review) {
+                throw new ApiError(404, "Review Not Found", "Not Found");
+            }
+
+            return {
+                status: 200,
+                message: "Project Review Details Fetched Successfully",
+                res: {
+                    review,
+                    assessment,
+                    project: assessment.project,
+                    criteria: assessment.criteria,
                 },
             };
         } catch (error) {

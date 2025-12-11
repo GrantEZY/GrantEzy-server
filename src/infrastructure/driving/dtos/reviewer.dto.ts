@@ -108,11 +108,11 @@ export class GetReviewDetailsDTO {
 
 export class ProjectReviewSubmissionDTO {
     @ApiProperty({
-        description: "ProjectId Id for which review is being submitted",
+        description: "AssessmentId for which review is being submitted",
         example: "a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6",
     })
     @IsUUID()
-    projectId: string;
+    assessmentId: string;
 
     @ApiProperty({
         description: "Recommendation for the application",

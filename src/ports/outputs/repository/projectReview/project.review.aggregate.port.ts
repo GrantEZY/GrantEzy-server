@@ -29,6 +29,11 @@ export interface ProjectReviewAggregatePort {
         page: number,
         numberOfResults: number
     ): Promise<ProjectReviewAggregate[]>;
+
+    getUserReviewByAssessmentSlugAndUserId(
+        assessmentSlug: string,
+        userId: string
+    ): Promise<ProjectReviewAggregate | null>;
 }
 export const PROJECT_REVIEW_AGGREGATE_PORT = Symbol(
     "ProjectReviewAggregatePort"
