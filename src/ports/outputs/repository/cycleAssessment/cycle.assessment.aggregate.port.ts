@@ -29,6 +29,8 @@ export interface CycleAssessmentAggregatePort {
         page: number,
         numberOfResults: number
     ): Promise<CycleAssessmentAggregate[]>;
+
+    findById(assessmentId: string): Promise<CycleAssessmentAggregate | null>;
 }
 
 export const CYCLE_ASSESSMENT_AGGREGATE_PORT = Symbol(

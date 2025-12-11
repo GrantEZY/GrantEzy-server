@@ -40,9 +40,9 @@ export const InviteUserEmailTemplate: EmailTemplateType = {
       </table>
 
       <p>
-        👉 <a href="https://grantezy.com/login" style="background: #4CAF50; color: white; padding: 10px 16px;
+        👉 <a href="${BASE_URL}" style="background: #4CAF50; color: white; padding: 10px 16px;
            text-decoration: none; border-radius: 5px; display: inline-block;">
-           Log in to GrantEzy
+           Visit GrantEzy
         </a>
       </p>
 
@@ -61,37 +61,37 @@ export const CycleInviteEmailTemplate: EmailTemplateType = {
 
       <p>Hello,</p>
       <p>
-        You have been invited by <strong>${(values as CycleInviteDTO).invitedBy}</strong> to join the application
-        <strong>${(values as CycleInviteDTO).applicationName}</strong> under the program
-        <strong>${(values as CycleInviteDTO).programName}</strong>.
+        You have been invited by <strong>${(values as unknown as CycleInviteDTO).invitedBy}</strong> to join the application
+        <strong>${(values as unknown as CycleInviteDTO).applicationName}</strong> under the program
+        <strong>${(values as unknown as CycleInviteDTO).programName}</strong>.
       </p>
 
       <table cellpadding="6" cellspacing="0" border="0"
              style="background: #f8f9fa; border: 1px solid #ddd; border-radius: 6px; margin: 16px 0;">
         <tr>
           <td><strong>Email:</strong></td>
-          <td>${(values as CycleInviteDTO).email}</td>
+          <td>${(values as unknown as CycleInviteDTO).email}</td>
         </tr>
         <tr>
           <td><strong>Role:</strong></td>
-          <td>${(values as CycleInviteDTO).role}</td>
+          <td>${(values as unknown as CycleInviteDTO).role}</td>
         </tr>
         <tr>
           <td><strong>Program:</strong></td>
-          <td>${(values as CycleInviteDTO).programName}</td>
+          <td>${(values as unknown as CycleInviteDTO).programName}</td>
         </tr>
         <tr>
           <td><strong>Application:</strong></td>
-          <td>${(values as CycleInviteDTO).applicationName}</td>
+          <td>${(values as unknown as CycleInviteDTO).applicationName}</td>
         </tr>
         <tr>
           <td><strong>Round:</strong></td>
-          <td>${String((values as CycleInviteDTO).round.year)} - ${(values as CycleInviteDTO).round.type}</td>
+          <td>${String((values as unknown as CycleInviteDTO).round.year)} - ${(values as unknown as CycleInviteDTO).round.type}</td>
         </tr>
       </table>
 
       <p>
-        👉 <a href="${BASE_URL ?? "http://localhost"}/invite-accept-or-reject/${(values as CycleInviteDTO).token}/${(values as CycleInviteDTO).slug}"
+        👉 <a href="${(values as unknown as CycleInviteDTO).inviteUrl}"
               style="background: #4CAF50; color: white; padding: 10px 16px;
                      text-decoration: none; border-radius: 5px; display: inline-block;">
             Accept Or Reject Invite
@@ -100,7 +100,7 @@ export const CycleInviteEmailTemplate: EmailTemplateType = {
 
       <p style="margin-top: 20px;">
         Once logged in, you'll be able to access the cycle application and perform your role as
-        <strong>${(values as CycleInviteDTO).role}</strong>.
+        <strong>${(values as unknown as CycleInviteDTO).role}</strong>.
       </p>
 
       <p>Best regards,<br/>The GrantEzy Team</p>
@@ -116,9 +116,9 @@ export const ReviewerInviteEmailTemplate: EmailTemplateType = {
 
       <p>Hello,</p>
       <p>
-        <strong>${(values as CycleInviteDTO).invitedBy}</strong> has invited you to review the application
-        <strong>${(values as CycleInviteDTO).applicationName}</strong> under the program
-        <strong>${(values as CycleInviteDTO).programName}</strong>.
+        <strong>${(values as unknown as CycleInviteDTO).invitedBy}</strong> has invited you to review the application
+        <strong>${(values as unknown as CycleInviteDTO).applicationName}</strong> under the program
+        <strong>${(values as unknown as CycleInviteDTO).programName}</strong>.
       </p>
 
       <p>
@@ -130,7 +130,7 @@ export const ReviewerInviteEmailTemplate: EmailTemplateType = {
              style="background: #f8f9fa; border: 1px solid #ddd; border-radius: 6px; margin: 16px 0;">
         <tr>
           <td><strong>Your Email:</strong></td>
-          <td>${(values as CycleInviteDTO).email}</td>
+          <td>${(values as unknown as CycleInviteDTO).email}</td>
         </tr>
         <tr>
           <td><strong>Role:</strong></td>
@@ -138,20 +138,20 @@ export const ReviewerInviteEmailTemplate: EmailTemplateType = {
         </tr>
         <tr>
           <td><strong>Program:</strong></td>
-          <td>${(values as CycleInviteDTO).programName}</td>
+          <td>${(values as unknown as CycleInviteDTO).programName}</td>
         </tr>
         <tr>
           <td><strong>Application:</strong></td>
-          <td>${(values as CycleInviteDTO).applicationName}</td>
+          <td>${(values as unknown as CycleInviteDTO).applicationName}</td>
         </tr>
         <tr>
           <td><strong>Round:</strong></td>
-          <td>${String((values as CycleInviteDTO).round.year)} - ${(values as CycleInviteDTO).round.type}</td>
+          <td>${String((values as unknown as CycleInviteDTO).round.year)} - ${(values as unknown as CycleInviteDTO).round.type}</td>
         </tr>
       </table>
 
       <p>
-        👉 <a href="${BASE_URL ?? "http://localhost"}/reviewer/invite?token=${(values as CycleInviteDTO).token}&slug=${(values as CycleInviteDTO).slug}"
+        👉 <a href="${(values as unknown as CycleInviteDTO).inviteUrl}"
               style="background: #2196F3; color: white; padding: 12px 24px;
                      text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
             Accept or Decline Review Request
@@ -282,6 +282,66 @@ export const CycleReviewCreatedEmailTemplate: EmailTemplateType = {
       </p>
 
       <p style="margin-top: 20px;">You’ll be notified about further updates related to this review.</p>
+
+      <p>Best regards,<br/>The GrantEzy Team</p>
+    </div>
+  `,
+};
+
+export const ProjectAssessmentReviewerInviteEmailTemplate: EmailTemplateType = {
+    subject: `You've been invited to evaluate a project`,
+    body: (values: EmailBody) => `
+    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+      <h2 style="color: #2c3e50;">Project Evaluation Invitation 📝</h2>
+
+      <p>Hello,</p>
+      <p>
+        <strong>${(values as unknown as CycleInviteDTO).invitedBy}</strong> has invited you to evaluate the project
+        <strong>${(values as unknown as CycleInviteDTO).applicationName}</strong> under the program
+        <strong>${(values as unknown as CycleInviteDTO).programName}</strong>.
+      </p>
+
+      <p>
+        As an evaluator, you will review the project's documentation and assess it based on defined criteria
+        to contribute your expert insights to the evaluation process.
+      </p>
+
+      <table cellpadding="6" cellspacing="0" border="0"
+             style="background: #f8f9fa; border: 1px solid #ddd; border-radius: 6px; margin: 16px 0;">
+        <tr>
+          <td><strong>Your Email:</strong></td>
+          <td>${(values as unknown as CycleInviteDTO).email}</td>
+        </tr>
+        <tr>
+          <td><strong>Role:</strong></td>
+          <td>Revi</td>
+        </tr>
+        <tr>
+          <td><strong>Program:</strong></td>
+          <td>${(values as unknown as CycleInviteDTO).programName}</td>
+        </tr>
+        <tr>
+          <td><strong>Project:</strong></td>
+          <td>${(values as unknown as CycleInviteDTO).applicationName}</td>
+        </tr>
+        <tr>
+          <td><strong>Evaluation Cycle:</strong></td>
+          <td>${String((values as unknown as CycleInviteDTO).round.year)} - ${(values as unknown as CycleInviteDTO).round.type}</td>
+        </tr>
+      </table>
+
+      <p>
+        👉 <a href="${(values as unknown as CycleInviteDTO).inviteUrl}"
+              style="background: #2196F3; color: white; padding: 12px 24px;
+                     text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
+            Accept or Decline Evaluation Request
+        </a>
+      </p>
+
+      <p style="color: #666; font-size: 14px;">
+        By accepting, you'll gain access to all project details and will be able to submit your evaluation.
+        If you decline, the project manager will be notified.
+      </p>
 
       <p>Best regards,<br/>The GrantEzy Team</p>
     </div>

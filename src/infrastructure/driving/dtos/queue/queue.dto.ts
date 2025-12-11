@@ -2,6 +2,7 @@ import {IsString, IsEmail, IsEnum, IsObject, IsUUID} from "class-validator";
 import {EmailNotifications} from "../../../../core/domain/constants/notification.constants";
 import {UserRoles} from "../../../../core/domain/constants/userRoles.constants";
 import {ProgramRound} from "../../../../core/domain/value-objects/program.round.object";
+import {InviteAs} from "../../../../core/domain/constants/invite.constants";
 
 export class InviteEmailDTO {
     @IsEmail()
@@ -74,6 +75,9 @@ export class CycleInviteDTO {
     @IsString()
     role: UserRoles.TEAM_MATE | UserRoles.REVIEWER;
 
+    @IsEnum(InviteAs)
+    inviteAs: InviteAs;
+
     @IsString()
     programName: string;
 
@@ -81,13 +85,10 @@ export class CycleInviteDTO {
     round: ProgramRound;
 
     @IsString()
-    token: string;
-
-    @IsString()
     applicationName: string;
 
     @IsString()
-    slug: string;
+    inviteUrl: string;
 
     @IsString()
     invitedBy: string;

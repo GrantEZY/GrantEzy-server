@@ -57,7 +57,8 @@ export class ReviewerController implements ReviewerControllerPort {
         @Res() response: Response
     ): Promise<Response> {
         try {
-            const result = await this.reviewService.updateInviteStatus(body);
+            const result =
+                await this.reviewService.updateApplicationReviewerStatus(body);
             return response.status(result.status).json(result);
         } catch (error) {
             return this.handleError(error, response);

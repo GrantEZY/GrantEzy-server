@@ -7,6 +7,7 @@ import {
     IsPositive,
     IsInt,
     Min,
+    IsString,
 } from "class-validator";
 import {InviteStatus} from "../../../core/domain/constants/invite.constants";
 import {
@@ -40,21 +41,6 @@ export class ScoresDTO {
     @IsNumber()
     @IsPositive()
     innovation: number;
-}
-
-export class SubmitInviteStatusDTO {
-    @ApiProperty({
-        description: "token for verification purpose",
-        example: "sgfksdjfgnsldkfjgsndlfkgjndkjf",
-    })
-    @IsUUID()
-    token: string;
-
-    @ApiProperty({
-        description: "Invite Response Status",
-        example: "ACCEPTED",
-    })
-    status: InviteStatus.ACCEPTED | InviteStatus.REJECTED;
 }
 
 export class SubmitReviewDTO {
@@ -116,6 +102,7 @@ export class GetReviewDetailsDTO {
         description: "Review Slug",
         example: "q3u4th938th3p48hoi9",
     })
+    @IsString()
     reviewSlug: string;
 }
 
@@ -135,5 +122,36 @@ export class ProjectReviewSubmissionDTO {
     recommendation: ProjectReviewRecommendation;
 
     @ApiProperty({type: () => String, description: "Review Analysis"})
+    @IsString()
     reviewAnalysis: string;
+}
+
+export class SubmitProjectAssessmentReviewInviteStatusDTO {
+    @ApiProperty({
+        description: "token for verification purpose",
+        example: "sgfksdjfgnsldkfjgsndlfkgjndkjf",
+    })
+    @IsString()
+    token: string;
+
+    @ApiProperty({
+        description: "slug for verification purpose",
+        example: "sgfksdjfgnsldkfjgsndlfkgjndkjf",
+    })
+    @IsString()
+    slug: string;
+
+    @ApiProperty({
+        description: "Encrypted Assessment Id",
+        example: "sgfksdjfgnsldkfjgsndlfkgjndkjf",
+    })
+    @IsString()
+    assessmentId: string;
+
+    @ApiProperty({
+        description: "Invite Response Status",
+        example: "ACCEPTED",
+    })
+    @IsEnum(InviteStatus)
+    status: InviteStatus.ACCEPTED | InviteStatus.REJECTED;
 }

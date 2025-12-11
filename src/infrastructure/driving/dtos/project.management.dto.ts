@@ -7,6 +7,7 @@ import {
     Min,
     IsString,
     IsOptional,
+    IsEmail,
 } from "class-validator";
 import {ApiProperty} from "@nestjs/swagger";
 import {QuotedBudgetDTO} from "./applicant.dto";
@@ -232,4 +233,20 @@ export class GetCycleCriteriaDetailsWithAssessmentsDTO {
     @Min(1)
     @Type(() => Number)
     numberOfResults: number;
+}
+
+export class AddReviewerForProjectAssessmentDTO {
+    @ApiProperty({
+        description: "Unique Identifier for assessment",
+        example: "4b7d1f33-0f2e-4b7a-91e3-5f58f3c9d4ab",
+    })
+    @IsUUID()
+    assessmentId: string;
+
+    @ApiProperty({
+        description: "Email of the reviewer to be invited",
+        example: "reviewer@example.com",
+    })
+    @IsEmail()
+    email: string;
 }

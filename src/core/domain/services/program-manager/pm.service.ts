@@ -49,6 +49,8 @@ import {
     UserAggregatePort,
 } from "../../../../ports/outputs/repository/user/user.aggregate.port";
 import {UserRoles} from "../../constants/userRoles.constants";
+import {ConfigService} from "@nestjs/config";
+import {ConfigType} from "../../../../config/env/app.types";
 @Injectable()
 export class ProgramManagerService {
     constructor(
@@ -65,7 +67,8 @@ export class ProgramManagerService {
         @Inject(REVIEW_AGGREGATE_PORT)
         private readonly reviewerAggregateRepository: ReviewerAggregatePort,
         private readonly sharedProgramService: SharedProgramService,
-        private readonly cycleInviteQueue: CycleInviteQueue
+        private readonly cycleInviteQueue: CycleInviteQueue,
+        private readonly configService: ConfigService<ConfigType>
     ) {}
 
     async createCycle(
@@ -410,15 +413,17 @@ export class ProgramManagerService {
                     InviteAs.REVIEWER
                 );
 
+            const baseUrl = this.configService.get("app").CLIENT_URL;
+
             const inviteResponse = await this.cycleInviteQueue.UserCycleInvite({
                 email,
                 invitedBy: user.person.firstName,
+                inviteAs: InviteAs.REVIEWER,
                 role: UserRoles.REVIEWER,
                 programName: cycle.program?.details.name ?? "Program",
                 round: cycle.round,
                 applicationName: application.basicDetails.title,
-                token: details[email][0],
-                slug: details[email][1],
+                inviteUrl: `${baseUrl as string}/reviewer/invite?token=${details[email][0]}&slug=${details[email][1]}`,
             });
 
             if (!inviteResponse.status) {

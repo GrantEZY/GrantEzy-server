@@ -129,6 +129,16 @@ export class SharedApplicationService {
                 );
             }
 
+            if (
+                type === InviteAs.PROJECT_REVIEWER &&
+                application.projectId != null
+            ) {
+                throw new ApiError(
+                    400,
+                    "Application is not a project",
+                    "Conflict Error"
+                );
+            }
             const isUpdateSuccess =
                 await this.userInviteAggregateRepository.updateUserInviteStatus(
                     invite,

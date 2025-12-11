@@ -134,4 +134,33 @@ export class CycleAssessmentAggregateRepository
             );
         }
     }
+
+    async findById(
+        assessmentId: string
+    ): Promise<CycleAssessmentAggregate | null> {
+        try {
+            const assessment = await this.assessmentRepository.findOne({
+                where: {
+                    id: assessmentId,
+                },
+                relations: [
+                    "project",
+                    "criteria",
+                    "criteria.cycle",
+                    "project.application",
+                ],
+            });
+
+            return assessment;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Error in fetching assessment by id",
+                "Database Error"
+            );
+        }
+    }
 }

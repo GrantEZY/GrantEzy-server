@@ -134,4 +134,32 @@ export class ProjectReviewAggregateRepository
             );
         }
     }
+
+    async findAssessmentReviewerByUserIdAndAssessmentId(
+        userId: string,
+        assessmentId: string
+    ): Promise<ProjectReviewAggregate | null> {
+        try {
+            return await this.projectReviewRepository.findOne({
+                where: {
+                    reviewerId: userId,
+                    submissionId: assessmentId,
+                },
+                relations: [
+                    "reviewSubmission",
+                    "reviewSubmission.project",
+                    "reviewSubmission.criteria",
+                ],
+            });
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Failed to find assessment reviewer by user ID and assessment ID",
+                "Database"
+            );
+        }
+    }
 }

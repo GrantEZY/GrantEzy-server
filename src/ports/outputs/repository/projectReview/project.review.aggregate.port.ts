@@ -19,6 +19,11 @@ export interface ProjectReviewAggregatePort {
 
     findBySlug(reviewSlug: string): Promise<ProjectReviewAggregate | null>;
 
+    findAssessmentReviewerByUserIdAndAssessmentId(
+        userId: string,
+        assessmentId: string
+    ): Promise<ProjectReviewAggregate | null>;
+
     getUserReviews(
         userId: string,
         page: number,

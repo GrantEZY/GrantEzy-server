@@ -21,6 +21,7 @@ import {
     GetProjectDetailsDTO,
     SubmitDetailsForReviewDTO,
     GetCycleCriteriaDetailsWithAssessmentsDTO,
+    AddReviewerForProjectAssessmentDTO,
 } from "../../../../infrastructure/driving/dtos/project.management.dto";
 import {GrantApplicationStatus} from "../../constants/status.constants";
 import {
@@ -40,9 +41,26 @@ import {
     CYCLE_ASSESSMENT_CRITERIA_AGGREGATE_PORT,
 } from "../../../../ports/outputs/repository/cycleAssessmentCriteria/cycle.assessment.criteria.aggregate.port";
 import {
+    UserAggregatePort,
+    USER_AGGREGATE_PORT,
+} from "../../../../ports/outputs/repository/user/user.aggregate.port";
+import {
     CycleAssessmentAggregatePort,
     CYCLE_ASSESSMENT_AGGREGATE_PORT,
 } from "../../../../ports/outputs/repository/cycleAssessment/cycle.assessment.aggregate.port";
+import {
+    UserInviteAggregatePort,
+    USER_INVITE_AGGREGATE_PORT,
+} from "../../../../ports/outputs/repository/user.invite/user.invite.aggregate.port";
+import {CycleInviteQueue} from "../../../../infrastructure/driven/queue/queues/cycle.invite.queue";
+import {InviteAs} from "../../constants/invite.constants";
+import {UserRoles} from "../../constants/userRoles.constants";
+import {ConfigService} from "@nestjs/config";
+import {ConfigType} from "../../../../config/env/app.types";
+import {
+    PasswordHasherPort,
+    PASSWORD_HASHER_PORT,
+} from "../../../../ports/outputs/crypto/hash.port";
 @Injectable()
 export class ProjectManagementService {
     constructor(
@@ -51,6 +69,9 @@ export class ProjectManagementService {
 
         @Inject(PROJECT_AGGREGATE_PORT)
         private readonly projectAggregateRepository: ProjectAggregatePort,
+
+        @Inject(USER_AGGREGATE_PORT)
+        private readonly userRepository: UserAggregatePort,
 
         @Inject(CYCLE_AGGREGATE_PORT)
         private readonly cycleAggregateRepository: CycleAggregatePort,
@@ -61,8 +82,16 @@ export class ProjectManagementService {
         @Inject(CYCLE_ASSESSMENT_AGGREGATE_PORT)
         private readonly assessmentRepository: CycleAssessmentAggregatePort,
 
+        @Inject(USER_INVITE_AGGREGATE_PORT)
+        private readonly userInviteRepository: UserInviteAggregatePort,
+
+        @Inject(PASSWORD_HASHER_PORT)
+        private readonly cryptoRepository: PasswordHasherPort,
+
         private readonly emailQueue: EmailQueue,
-        private readonly sharedApplicationService: SharedApplicationService
+        private readonly cycleInviteQueue: CycleInviteQueue,
+        private readonly sharedApplicationService: SharedApplicationService,
+        private readonly configService: ConfigService<ConfigType>
     ) {}
 
     /**
@@ -571,6 +600,86 @@ export class ProjectManagementService {
                 res: {
                     submissions,
                     criteria,
+                },
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async assignReviewForProjectAssessment(
+        details: AddReviewerForProjectAssessmentDTO,
+        userId: string
+    ) {
+        try {
+            const {assessmentId, email} = details;
+
+            const assessment =
+                await this.assessmentRepository.findById(assessmentId);
+
+            if (!assessment) {
+                throw new ApiError(
+                    404,
+                    "Assessment Not Found",
+                    "Conflict Error"
+                );
+            }
+
+            const managerId = assessment.criteria.cycle.program?.managerId;
+
+            const user = await this.userRepository.findById(userId, false);
+
+            if (user == null || managerId !== userId) {
+                throw new ApiError(
+                    403,
+                    "Only Program Manager Can Assign Reviewer",
+                    "Conflict Error"
+                );
+            }
+
+            const application = assessment.project.application!; // eslint-disable-line
+
+            const cycle = assessment.criteria.cycle;
+            const invite =
+                await this.userInviteRepository.addApplicationInvites(
+                    application.id,
+                    [email],
+                    InviteAs.PROJECT_REVIEWER
+                );
+
+            const baseUrl = this.configService.get("app").CLIENT_URL;
+
+            const encryptedAssessmentId = this.cryptoRepository.encrypt(
+                assessment.id
+            );
+
+            const inviteResponse = await this.cycleInviteQueue.UserCycleInvite({
+                email,
+                invitedBy: user.person.firstName,
+                inviteAs: InviteAs.PROJECT_REVIEWER,
+                role: UserRoles.REVIEWER,
+                programName: cycle.program?.details.name ?? "Program",
+                round: cycle.round,
+                applicationName: application.basicDetails.title,
+                inviteUrl: `${baseUrl as string}/project-assessment/invite-accept-or-reject/?token=${invite[email][0]}&slug=${invite[email][1]}&assessment=${encodeURIComponent(
+                    encryptedAssessmentId
+                )}`,
+            });
+
+            if (!inviteResponse.status) {
+                throw new ApiError(
+                    500,
+                    "Failed to send invite email",
+                    "Server Error"
+                );
+            }
+
+            return {
+                status: 200,
+                message: "Reviewer Assigned Successfully",
+                res: {
+                    email,
+                    application: application.basicDetails.title,
                 },
             };
         } catch (error) {
