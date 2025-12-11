@@ -9,10 +9,15 @@ import {
     GetTokenDetailsDTO,
     SubmitInviteStatusDTO,
 } from "../../../dtos/co.applicant.dto";
-import {REVIEWER_RESPONSES} from "../../../../../config/swagger/docs/reviewer.swagger";
+import {
+    PROJECT_ASSESSMENT_REVIEW_RESPONSES,
+    REVIEWER_RESPONSES,
+} from "../../../../../config/swagger/docs/reviewer.swagger";
 import {ApiResponse} from "@nestjs/swagger";
 import {AccessTokenJwt} from "../../../../../shared/types/jwt.types";
 import {
+    GetProjectReviewDetailsDTO,
+    ProjectReviewSubmissionDTO,
     SubmitProjectAssessmentReviewInviteStatusDTO,
     SubmitReviewDTO,
 } from "../../../dtos/reviewer.dto";
@@ -86,6 +91,33 @@ export class ReviewerController implements ReviewerControllerPort {
         }
     }
 
+    @Post("/submit-project-assessment-review")
+    @ApiResponse(PROJECT_ASSESSMENT_REVIEW_RESPONSES.SUBMIT_REVIEW.SUCCESS)
+    @ApiResponse(
+        PROJECT_ASSESSMENT_REVIEW_RESPONSES.SUBMIT_REVIEW
+            .REVIEW_ALREADY_COMPLETED
+    )
+    @ApiResponse(
+        PROJECT_ASSESSMENT_REVIEW_RESPONSES.SUBMIT_REVIEW.REVIEW_NOT_FOUND
+    )
+    async submitProjectAssessmentReview(
+        @Body() body: ProjectReviewSubmissionDTO,
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+            const result =
+                await this.reviewService.submitProjectAssessmentReview(
+                    body,
+                    id
+                );
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
     @Get("/get-user-reviews")
     @ApiResponse(REVIEWER_RESPONSES.GET_USER_REVIEWS.SUCCESS)
     async getUserReviews(
@@ -97,6 +129,27 @@ export class ReviewerController implements ReviewerControllerPort {
             const id = user.userData.payload.id;
 
             const result = await this.reviewService.getUserReviews(
+                parameters,
+                id
+            );
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Get("/get-user-project-reviews")
+    @ApiResponse(PROJECT_ASSESSMENT_REVIEW_RESPONSES.GET_USER_REVIEWS.SUCCESS)
+    @ApiResponse(PROJECT_ASSESSMENT_REVIEW_RESPONSES.GET_USER_REVIEWS.ERROR)
+    async getUserProjectReviews(
+        @Query() parameters: GetUserReviewsDTO,
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+
+            const result = await this.reviewService.getUserProjectReviews(
                 parameters,
                 id
             );
@@ -120,6 +173,33 @@ export class ReviewerController implements ReviewerControllerPort {
 
             const result = await this.reviewService.getReviewDetails(
                 parameters,
+                id
+            );
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Get("/get-project-review-details")
+    @ApiResponse(PROJECT_ASSESSMENT_REVIEW_RESPONSES.GET_REVIEW_DETAILS.SUCCESS)
+    @ApiResponse(
+        PROJECT_ASSESSMENT_REVIEW_RESPONSES.GET_REVIEW_DETAILS.REVIEW_NOT_FOUND
+    )
+    @ApiResponse(
+        PROJECT_ASSESSMENT_REVIEW_RESPONSES.GET_REVIEW_DETAILS
+            .ASSESSMENT_NOT_FOUND
+    )
+    async getProjectReviewDetails(
+        @Query() parameters: GetProjectReviewDetailsDTO,
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+
+            const result = await this.reviewService.getProjectReviewDetails(
+                parameters.assessmentSlug,
                 id
             );
             return response.status(result.status).json(result);

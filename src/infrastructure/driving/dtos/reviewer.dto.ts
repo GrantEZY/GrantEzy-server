@@ -155,3 +155,12 @@ export class SubmitProjectAssessmentReviewInviteStatusDTO {
     @IsEnum(InviteStatus)
     status: InviteStatus.ACCEPTED | InviteStatus.REJECTED;
 }
+
+export class GetProjectReviewDetailsDTO {
+    @ApiProperty({
+        description: "Assessment Slug",
+        example: "q3u4th938th3p48hoi9",
+    })
+    @IsString()
+    assessmentSlug: string;
+}

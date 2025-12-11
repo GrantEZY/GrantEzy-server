@@ -291,3 +291,119 @@ export const REVIEWER_RESPONSES = {
     },
   },
 };
+
+export const PROJECT_ASSESSMENT_REVIEW_RESPONSES = {
+  GET_REVIEW_DETAILS: {
+    SUCCESS: {
+      status: 200,
+      description: "Fetched project review details successfully",
+      example: {
+        status: 200,
+        message: "Project Review Details Fetched Successfully",
+        res: {
+          review: { id: "uuid-review" },
+          assessment: { id: "uuid-assessment" },
+          project: { id: "uuid-project" },
+          criteria: { id: "uuid-criteria" },
+        },
+      },
+    },
+    ASSESSMENT_NOT_FOUND: {
+      status: 404,
+      description: "Assessment slug not found",
+      example: {
+        status: 404,
+        message: "Assessment Not Found",
+        res: null,
+      },
+    },
+    REVIEW_NOT_FOUND: {
+      status: 404,
+      description: "Review record not found for this user",
+      example: {
+        status: 404,
+        message: "Review Not Found",
+        res: null,
+      },
+    },
+    ERROR: {
+      status: 500,
+      description: "Unexpected error while fetching project review details",
+      example: {
+        status: 500,
+        message: "Internal Server Error",
+        res: null,
+      },
+    },
+  },
+
+  GET_USER_REVIEWS: {
+    SUCCESS: {
+      status: 200,
+      description: "Fetched all project reviews for the user",
+      example: {
+        status: 200,
+        message: "User Project Reviews Fetch",
+        res: {
+          reviews: [
+            { id: "uuid-review-1" },
+            { id: "uuid-review-2" },
+          ],
+        },
+      },
+    },
+    ERROR: {
+      status: 500,
+      description: "Unexpected error while fetching user project reviews",
+      example: {
+        status: 500,
+        message: "Internal Server Error",
+        res: null,
+      },
+    },
+  },
+
+  SUBMIT_REVIEW: {
+    SUCCESS: {
+      status: 200,
+      description: "Submitted project assessment review successfully",
+      example: {
+        status: 200,
+        message: "Project Assessment Review Submitted Successfully",
+        res: {
+          reviewId: "uuid-review",
+          submissionId: "uuid-submission",
+          status: "COMPLETED",
+        },
+      },
+    },
+    REVIEW_NOT_FOUND: {
+      status: 404,
+      description: "Review record for this user and assessment not found",
+      example: {
+        status: 404,
+        message: "Review Not Found",
+        res: null,
+      },
+    },
+    REVIEW_ALREADY_COMPLETED: {
+      status: 400,
+      description: "Review is already completed",
+      example: {
+        status: 400,
+        message: "Review Already Completed",
+        res: null,
+      },
+    },
+    ERROR: {
+      status: 500,
+      description: "Unexpected server error while submitting review",
+      example: {
+        status: 500,
+        message: "Internal Server Error",
+        res: null,
+      },
+    },
+  },
+};
+

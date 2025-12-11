@@ -8,6 +8,8 @@ import {
     GetUserReviewsDTO,
     SubmitReviewDTO,
     SubmitProjectAssessmentReviewInviteStatusDTO,
+    GetProjectReviewDetailsDTO,
+    ProjectReviewSubmissionDTO,
 } from "../../../infrastructure/driving/dtos/reviewer.dto";
 import {AccessTokenJwt} from "../../../shared/types/jwt.types";
 export interface ReviewerControllerPort {
@@ -27,7 +29,19 @@ export interface ReviewerControllerPort {
         response: Response
     ): Promise<Response>;
 
+    submitProjectAssessmentReview(
+        body: ProjectReviewSubmissionDTO,
+        user: AccessTokenJwt,
+        response: Response
+    ): Promise<Response>;
+
     getUserReviews(
+        parameters: GetUserReviewsDTO,
+        user: AccessTokenJwt,
+        response: Response
+    ): Promise<Response>;
+
+    getUserProjectReviews(
         parameters: GetUserReviewsDTO,
         user: AccessTokenJwt,
         response: Response
@@ -35,6 +49,12 @@ export interface ReviewerControllerPort {
 
     getReviewDetails(
         parameters: GetReviewDetailsDTO,
+        user: AccessTokenJwt,
+        response: Response
+    ): Promise<Response>;
+
+    getProjectReviewDetails(
+        parameters: GetProjectReviewDetailsDTO,
         user: AccessTokenJwt,
         response: Response
     ): Promise<Response>;
