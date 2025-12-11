@@ -321,7 +321,7 @@ export const APPLICANT_PROJECT_MANAGEMENT = {
       "description": "The user’s project for this cycle is not approved or archived",
       "example": {
         "status": 403,
-        "message": "Project wasn't should be active or successfully archived",
+        "message": "Project should be active or archived",
         "res": null
       }
     },
@@ -404,7 +404,7 @@ export const APPLICANT_PROJECT_MANAGEMENT = {
       "description": "The user's project is not approved or archived, thus cannot access review criteria",
       "example": {
         "status": 403,
-        "message": "Project wasn't should be active or successfully archived",
+        "message": "Project should be active or archived",
         "res": null
       }
     },

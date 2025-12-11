@@ -9,7 +9,10 @@ import {
     Min,
 } from "class-validator";
 import {InviteStatus} from "../../../core/domain/constants/invite.constants";
-import {Recommendation} from "../../../core/domain/constants/recommendation.constants";
+import {
+    ProjectReviewRecommendation,
+    Recommendation,
+} from "../../../core/domain/constants/recommendation.constants";
 import {MoneyDTO} from "./pm.dto";
 import {Type} from "class-transformer";
 
@@ -114,4 +117,23 @@ export class GetReviewDetailsDTO {
         example: "q3u4th938th3p48hoi9",
     })
     reviewSlug: string;
+}
+
+export class ProjectReviewSubmissionDTO {
+    @ApiProperty({
+        description: "ProjectId Id for which review is being submitted",
+        example: "a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6",
+    })
+    @IsUUID()
+    projectId: string;
+
+    @ApiProperty({
+        description: "Recommendation for the application",
+        example: ProjectReviewRecommendation.PERFECT,
+    })
+    @IsEnum(ProjectReviewRecommendation)
+    recommendation: ProjectReviewRecommendation;
+
+    @ApiProperty({type: () => String, description: "Review Analysis"})
+    reviewAnalysis: string;
 }

@@ -520,7 +520,7 @@ describe("Project Management Service", () => {
                 expect(error).toBeInstanceOf(ApiError);
                 expect((error as ApiError).status).toBe(403);
                 expect((error as ApiError).message).toBe(
-                    "Project wasn't should be active or successfully archived"
+                    "Project should be active or archived"
                 );
             }
         });
@@ -584,7 +584,7 @@ describe("Project Management Service", () => {
                 expect(error).toBeInstanceOf(ApiError);
                 expect((error as ApiError).status).toBe(403);
                 expect((error as ApiError).message).toBe(
-                    "Project wasn't should be active or successfully archived"
+                    "Project should be active or archived"
                 );
             }
         });

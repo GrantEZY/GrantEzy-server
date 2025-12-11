@@ -360,7 +360,7 @@ export class ProjectManagementService {
             ) {
                 throw new ApiError(
                     403,
-                    "Project wasn't should be active or successfully archived",
+                    "Project should be active or archived",
                     "Conflict Error"
                 );
             }
@@ -418,7 +418,7 @@ export class ProjectManagementService {
             ) {
                 throw new ApiError(
                     403,
-                    "Project wasn't should be active or successfully archived",
+                    "Project should be active or archived",
                     "Conflict Error"
                 );
             }
