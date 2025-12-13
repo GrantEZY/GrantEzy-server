@@ -675,7 +675,7 @@ export class ProjectManagementService {
             }
 
             return {
-                status: 200,
+                status: 201,
                 message: "Reviewer Assigned Successfully",
                 res: {
                     email,

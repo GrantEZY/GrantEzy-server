@@ -41,6 +41,7 @@ import {
     PROJECT_AGGREGATE_PORT,
 } from "../../../../ports/outputs/repository/project/project.aggregate.port";
 import {CycleInviteQueue} from "../../../../infrastructure/driven/queue/queues/cycle.invite.queue";
+import {ConfigService} from "@nestjs/config";
 describe("Applicant ", () => {
     let applicationService: ApplicantService;
     let applicationAggregateRepository: jest.Mocked<GrantApplicationAggregatePort>;
@@ -81,6 +82,14 @@ describe("Applicant ", () => {
                 {
                     provide: PROJECT_AGGREGATE_PORT,
                     useValue: createMock<ProjectAggregatePort>(),
+                },
+                {
+                    provide: ConfigService,
+                    useValue: {
+                        get: jest.fn(() => ({
+                            CLIENT_URL: "http://localhost:3000",
+                        })),
+                    },
                 },
             ],
         }).compile();

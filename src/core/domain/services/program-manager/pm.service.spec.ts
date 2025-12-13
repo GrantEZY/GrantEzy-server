@@ -27,6 +27,7 @@ import {
     ReviewerAggregatePort,
     REVIEW_AGGREGATE_PORT,
 } from "../../../../ports/outputs/repository/review/application.review.aggregate.port";
+import {ConfigService} from "@nestjs/config";
 import {createMock} from "@golevelup/ts-jest";
 import {
     inputCycle,
@@ -83,6 +84,14 @@ describe("Program Manager Service", () => {
                 {
                     provide: CycleInviteQueue,
                     useValue: createMock<CycleInviteQueue>(),
+                },
+                {
+                    provide: ConfigService,
+                    useValue: {
+                        get: jest.fn(() => ({
+                            CLIENT_URL: "http://localhost:3000",
+                        })),
+                    },
                 },
             ],
         }).compile();

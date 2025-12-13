@@ -204,6 +204,18 @@ const saved_Assessment = {
     criteriaId: "5e6c9c20-2ad1-4d5a-8ea3-3dd93f2f9011",
     criteria: {
         id: "5e6c9c20-2ad1-4d5a-8ea3-3dd93f2f9011",
+        cycle: {
+            program: {
+                managerId: "uuid",
+                details: {
+                    name: "name",
+                },
+            },
+            round: {
+                year: 2012,
+                term: "Spring",
+            },
+        },
         name: "UI/UX Quality Review",
         reviewBrief:
             "Evaluate user interface clarity, usability, and accessibility.",
@@ -212,7 +224,14 @@ const saved_Assessment = {
         updatedAt: "2025-11-01T10:30:00.000Z",
     },
     projectId: "a92d5f8f-6c82-4f40-8f7f-a8be2cc4c222",
-    project: null,
+    project: {
+        application: {
+            id: "uuid",
+            basicDetails: {
+                title: "title",
+            },
+        },
+    },
     reviewBrief:
         "User submitted a UI/UX review covering layout, spacing, and accessibility topics.",
     reviewDocument: {
