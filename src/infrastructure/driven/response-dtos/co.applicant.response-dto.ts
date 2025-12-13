@@ -1,5 +1,8 @@
 import {GrantApplication} from "../../../core/domain/aggregates/grantapplication.aggregate";
-import {InviteStatus} from "../../../core/domain/constants/invite.constants";
+import {
+    InviteAs,
+    InviteStatus,
+} from "../../../core/domain/constants/invite.constants";
 import {ApiResponse} from "../../../shared/types/response.type";
 import {Project} from "../../../core/domain/aggregates/project.aggregate";
 export class CoApplicantApplicationDetails {
@@ -8,6 +11,7 @@ export class CoApplicantApplicationDetails {
 
 export class TokenVerificationDetails {
     invitedAt: Date;
+    inviteAs: InviteAs;
     application: {
         name: string;
         problem: string;

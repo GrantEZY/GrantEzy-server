@@ -7,9 +7,13 @@ import {
     IsPositive,
     IsInt,
     Min,
+    IsString,
 } from "class-validator";
 import {InviteStatus} from "../../../core/domain/constants/invite.constants";
-import {Recommendation} from "../../../core/domain/constants/recommendation.constants";
+import {
+    ProjectReviewRecommendation,
+    Recommendation,
+} from "../../../core/domain/constants/recommendation.constants";
 import {MoneyDTO} from "./pm.dto";
 import {Type} from "class-transformer";
 
@@ -37,21 +41,6 @@ export class ScoresDTO {
     @IsNumber()
     @IsPositive()
     innovation: number;
-}
-
-export class SubmitInviteStatusDTO {
-    @ApiProperty({
-        description: "token for verification purpose",
-        example: "sgfksdjfgnsldkfjgsndlfkgjndkjf",
-    })
-    @IsUUID()
-    token: string;
-
-    @ApiProperty({
-        description: "Invite Response Status",
-        example: "ACCEPTED",
-    })
-    status: InviteStatus.ACCEPTED | InviteStatus.REJECTED;
 }
 
 export class SubmitReviewDTO {
@@ -113,5 +102,65 @@ export class GetReviewDetailsDTO {
         description: "Review Slug",
         example: "q3u4th938th3p48hoi9",
     })
+    @IsString()
     reviewSlug: string;
+}
+
+export class ProjectReviewSubmissionDTO {
+    @ApiProperty({
+        description: "AssessmentId for which review is being submitted",
+        example: "a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6",
+    })
+    @IsUUID()
+    assessmentId: string;
+
+    @ApiProperty({
+        description: "Recommendation for the application",
+        example: ProjectReviewRecommendation.PERFECT,
+    })
+    @IsEnum(ProjectReviewRecommendation)
+    recommendation: ProjectReviewRecommendation;
+
+    @ApiProperty({type: () => String, description: "Review Analysis"})
+    @IsString()
+    reviewAnalysis: string;
+}
+
+export class SubmitProjectAssessmentReviewInviteStatusDTO {
+    @ApiProperty({
+        description: "token for verification purpose",
+        example: "sgfksdjfgnsldkfjgsndlfkgjndkjf",
+    })
+    @IsString()
+    token: string;
+
+    @ApiProperty({
+        description: "slug for verification purpose",
+        example: "sgfksdjfgnsldkfjgsndlfkgjndkjf",
+    })
+    @IsString()
+    slug: string;
+
+    @ApiProperty({
+        description: "Encrypted Assessment Id",
+        example: "sgfksdjfgnsldkfjgsndlfkgjndkjf",
+    })
+    @IsString()
+    assessmentId: string;
+
+    @ApiProperty({
+        description: "Invite Response Status",
+        example: "ACCEPTED",
+    })
+    @IsEnum(InviteStatus)
+    status: InviteStatus.ACCEPTED | InviteStatus.REJECTED;
+}
+
+export class GetProjectReviewDetailsDTO {
+    @ApiProperty({
+        description: "Assessment Slug",
+        example: "q3u4th938th3p48hoi9",
+    })
+    @IsString()
+    assessmentSlug: string;
 }

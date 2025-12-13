@@ -81,4 +81,24 @@ export class ProjectAggregateRepository implements ProjectAggregatePort {
             );
         }
     }
+
+    async modifyProjectStatus(
+        project: Project,
+        status: ProjectStatus
+    ): Promise<Project> {
+        try {
+            project.status = status;
+            const updatedProject = await this.projectRepository.save(project);
+            return updatedProject;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Failed to modify project status",
+                "Database"
+            );
+        }
+    }
 }

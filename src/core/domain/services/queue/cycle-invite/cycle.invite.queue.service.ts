@@ -10,6 +10,7 @@ import {UpdateRole} from "../../../../../infrastructure/driving/dtos/shared/shar
 import {EmailQueue} from "../../../../../infrastructure/driven/queue/queues/email.queue";
 import {User} from "../../../aggregates/user.aggregate";
 import {UserRoles} from "../../../constants/userRoles.constants";
+import {InviteAs} from "../../../constants/invite.constants";
 @Injectable()
 export class CycleInviteQueueService {
     constructor(
@@ -59,17 +60,28 @@ export class CycleInviteQueueService {
                 }
             }
 
-            // Use different email template based on role
-            const emailStatus =
-                userDetails.role === UserRoles.REVIEWER
-                    ? await this.emailQueue.addReviewerInviteEmailToQueue(
-                          email,
-                          userDetails
-                      )
-                    : await this.emailQueue.addCycleInviteEmailToQueue(
-                          email,
-                          userDetails
-                      );
+            let emailStatus;
+
+            if (userDetails.role === UserRoles.REVIEWER) {
+                if (userDetails.inviteAs === InviteAs.REVIEWER) {
+                    emailStatus =
+                        await this.emailQueue.addReviewerInviteEmailToQueue(
+                            email,
+                            userDetails
+                        );
+                } else {
+                    emailStatus =
+                        await this.emailQueue.addProjectReviewerInviteEmailToQueue(
+                            email,
+                            userDetails
+                        );
+                }
+            } else {
+                emailStatus = await this.emailQueue.addCycleInviteEmailToQueue(
+                    email,
+                    userDetails
+                );
+            }
 
             if (!emailStatus.status) {
                 throw new ApiError(

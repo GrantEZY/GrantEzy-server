@@ -146,6 +146,7 @@ describe("CoApplicantService", () => {
                 message: "Co Applicant Invite Details Fetch",
                 res: {
                     invitedAt: dummyUserInvite.createdAt,
+                    inviteAs: dummyUserInvite.inviteAs,
                     application: {
                         name: saved_Application.basicDetails.title,
                         problem: saved_Application.basicDetails.problem,

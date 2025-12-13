@@ -9,10 +9,18 @@ import {
     GetTokenDetailsDTO,
     SubmitInviteStatusDTO,
 } from "../../../dtos/co.applicant.dto";
-import {REVIEWER_RESPONSES} from "../../../../../config/swagger/docs/reviewer.swagger";
+import {
+    PROJECT_ASSESSMENT_REVIEW_RESPONSES,
+    REVIEWER_RESPONSES,
+} from "../../../../../config/swagger/docs/reviewer.swagger";
 import {ApiResponse} from "@nestjs/swagger";
 import {AccessTokenJwt} from "../../../../../shared/types/jwt.types";
-import {SubmitReviewDTO} from "../../../dtos/reviewer.dto";
+import {
+    GetProjectReviewDetailsDTO,
+    ProjectReviewSubmissionDTO,
+    SubmitProjectAssessmentReviewInviteStatusDTO,
+    SubmitReviewDTO,
+} from "../../../dtos/reviewer.dto";
 import {CurrentUser} from "../../../../../shared/decorators/currentuser.decorator";
 import {
     GetUserReviewsDTO,
@@ -57,7 +65,8 @@ export class ReviewerController implements ReviewerControllerPort {
         @Res() response: Response
     ): Promise<Response> {
         try {
-            const result = await this.reviewService.updateInviteStatus(body);
+            const result =
+                await this.reviewService.updateApplicationReviewerStatus(body);
             return response.status(result.status).json(result);
         } catch (error) {
             return this.handleError(error, response);
@@ -76,6 +85,33 @@ export class ReviewerController implements ReviewerControllerPort {
         try {
             const id = user.userData.payload.id;
             const result = await this.reviewService.submitReview(body, id);
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Post("/submit-project-assessment-review")
+    @ApiResponse(PROJECT_ASSESSMENT_REVIEW_RESPONSES.SUBMIT_REVIEW.SUCCESS)
+    @ApiResponse(
+        PROJECT_ASSESSMENT_REVIEW_RESPONSES.SUBMIT_REVIEW
+            .REVIEW_ALREADY_COMPLETED
+    )
+    @ApiResponse(
+        PROJECT_ASSESSMENT_REVIEW_RESPONSES.SUBMIT_REVIEW.REVIEW_NOT_FOUND
+    )
+    async submitProjectAssessmentReview(
+        @Body() body: ProjectReviewSubmissionDTO,
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+            const result =
+                await this.reviewService.submitProjectAssessmentReview(
+                    body,
+                    id
+                );
             return response.status(result.status).json(result);
         } catch (error) {
             return this.handleError(error, response);
@@ -102,10 +138,31 @@ export class ReviewerController implements ReviewerControllerPort {
         }
     }
 
+    @Get("/get-user-project-reviews")
+    @ApiResponse(PROJECT_ASSESSMENT_REVIEW_RESPONSES.GET_USER_REVIEWS.SUCCESS)
+    @ApiResponse(PROJECT_ASSESSMENT_REVIEW_RESPONSES.GET_USER_REVIEWS.ERROR)
+    async getUserProjectReviews(
+        @Query() parameters: GetUserReviewsDTO,
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+
+            const result = await this.reviewService.getUserProjectReviews(
+                parameters,
+                id
+            );
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
     @Get("/get-review-details")
     @ApiResponse(REVIEWER_RESPONSES.GET_REVIEW_DETAILS.SUCCESS)
     @ApiResponse(REVIEWER_RESPONSES.GET_REVIEW_DETAILS.REVIEW_NOT_FOUND)
-    @ApiResponse(REVIEWER_RESPONSES.GET_REVIEW_DETAILS.REVIEW_NOT_FOUND)
+    @ApiResponse(REVIEWER_RESPONSES.GET_REVIEW_DETAILS.UNAUTHORIZED_USER)
     async getReviewDetails(
         @Query() parameters: GetReviewDetailsDTO,
         @CurrentUser() user: AccessTokenJwt,
@@ -118,6 +175,54 @@ export class ReviewerController implements ReviewerControllerPort {
                 parameters,
                 id
             );
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Get("/get-project-review-details")
+    @ApiResponse(PROJECT_ASSESSMENT_REVIEW_RESPONSES.GET_REVIEW_DETAILS.SUCCESS)
+    @ApiResponse(
+        PROJECT_ASSESSMENT_REVIEW_RESPONSES.GET_REVIEW_DETAILS.REVIEW_NOT_FOUND
+    )
+    @ApiResponse(
+        PROJECT_ASSESSMENT_REVIEW_RESPONSES.GET_REVIEW_DETAILS
+            .ASSESSMENT_NOT_FOUND
+    )
+    async getProjectReviewDetails(
+        @Query() parameters: GetProjectReviewDetailsDTO,
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+
+            const result = await this.reviewService.getProjectReviewDetails(
+                parameters.assessmentSlug,
+                id
+            );
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Post("/submit-project-assessment-review-invite-status")
+    @ApiResponse(REVIEWER_RESPONSES.UPDATE_REVIEW_INVITE.SUCCESS_ACCEPTED)
+    @ApiResponse(REVIEWER_RESPONSES.UPDATE_REVIEW_INVITE.SUCCESS_REJECTED)
+    @ApiResponse(REVIEWER_RESPONSES.UPDATE_REVIEW_INVITE.USER_NOT_FOUND)
+    @ApiResponse(REVIEWER_RESPONSES.UPDATE_REVIEW_INVITE.CONFLICT_ERROR)
+    @ApiResponse(REVIEWER_RESPONSES.UPDATE_REVIEW_INVITE.ALREADY_REVIEWER)
+    async submitReviewerInviteStatus(
+        @Body() body: SubmitProjectAssessmentReviewInviteStatusDTO,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const result =
+                await this.reviewService.updateProjectAssessmentReviewerStatus(
+                    body
+                );
             return response.status(result.status).json(result);
         } catch (error) {
             return this.handleError(error, response);

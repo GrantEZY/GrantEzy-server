@@ -48,6 +48,9 @@ import {CycleAssessmentCriteriaAggregateRepository} from "../../infrastructure/d
 import {CYCLE_ASSESSMENT_CRITERIA_AGGREGATE_PORT} from "./repository/cycleAssessmentCriteria/cycle.assessment.criteria.aggregate.port";
 import {CycleAssessmentAggregateRepository} from "../../infrastructure/driven/database/repositories/cycle.assessment.aggregate.repository";
 import {CYCLE_ASSESSMENT_AGGREGATE_PORT} from "./repository/cycleAssessment/cycle.assessment.aggregate.port";
+import {ProjectReviewAggregate} from "../../core/domain/aggregates/project.review.aggregate";
+import {PROJECT_REVIEW_AGGREGATE_PORT} from "./repository/projectReview/project.review.aggregate.port";
+import {ProjectReviewAggregateRepository} from "../../infrastructure/driven/database/repositories/project.review.aggregate.repository";
 @Global()
 @Module({
     imports: [
@@ -68,6 +71,7 @@ import {CYCLE_ASSESSMENT_AGGREGATE_PORT} from "./repository/cycleAssessment/cycl
             Project,
             CycleAssessmentAggregate,
             CycleAssessmentCriteriaAggregate,
+            ProjectReviewAggregate,
         ]),
         JwtModule.register({}),
     ],
@@ -114,6 +118,10 @@ import {CYCLE_ASSESSMENT_AGGREGATE_PORT} from "./repository/cycleAssessment/cycl
             provide: CYCLE_ASSESSMENT_AGGREGATE_PORT,
             useClass: CycleAssessmentAggregateRepository,
         },
+        {
+            provide: PROJECT_REVIEW_AGGREGATE_PORT,
+            useClass: ProjectReviewAggregateRepository,
+        },
     ],
     exports: [
         USER_AGGREGATE_PORT,
@@ -132,6 +140,7 @@ import {CYCLE_ASSESSMENT_AGGREGATE_PORT} from "./repository/cycleAssessment/cycl
         PROJECT_AGGREGATE_PORT,
         CYCLE_ASSESSMENT_CRITERIA_AGGREGATE_PORT,
         CYCLE_ASSESSMENT_AGGREGATE_PORT,
+        PROJECT_REVIEW_AGGREGATE_PORT,
     ],
 })
 export class OutputPortModule {}

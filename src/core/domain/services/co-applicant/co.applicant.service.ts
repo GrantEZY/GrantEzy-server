@@ -98,6 +98,7 @@ export class CoApplicantService {
                 status: 200,
                 message: "Co Applicant Invite Details Fetch",
                 res: {
+                    inviteAs: invite.inviteAs,
                     invitedAt: invite.createdAt,
                     application: {
                         name: application.basicDetails.title,

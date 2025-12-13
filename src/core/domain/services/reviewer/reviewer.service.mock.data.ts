@@ -1,4 +1,5 @@
 import {InviteAs} from "../../constants/invite.constants";
+import {ReviewStatus} from "../../constants/status.constants";
 
 const saved_Application = {
     id: "uuid",
@@ -35,7 +36,7 @@ const dummyVerification = {
 
 const dummyUserInvite = {
     id: "c18e3d10-2f51-4cb8-9d3f-37bdbb6c9e9e",
-    inviteAs: "CO_APPLICANT",
+    inviteAs: "REVIEWER",
     status: "SENT",
     email: "jane.doe@example.com",
     applicationId: "7f6d8a60-9b56-43c9-bc21-d4e6f16fd3af",
@@ -97,4 +98,94 @@ const SAVED_USER = {
     updatedAt: "2024-01-10T15:30:00.000Z",
 };
 
-export {dummyUserInvite, saved_Application, createReviewMock, SAVED_USER};
+const mockProjectReview = {
+    id: "a3e2cb42-7b19-4cb1-9ef3-9d8c3148c111",
+    status: ReviewStatus.IN_PROGRESS,
+    recommendation: "APPROVE",
+    reviewAnalysis:
+        "The project meets all required criteria and shows strong execution.",
+    reviewerId: "d9c22a54-3f1a-4c3e-92cd-b725dabcd111",
+    reviewer: {
+        id: "d9c22a54-3f1a-4c3e-92cd-b725dabcd111",
+        name: "John Doe",
+        email: "john.doe@example.com",
+        // ...other User properties
+    },
+    submissionId: "f1b9ac33-9dc9-4e21-9a1d-55abca9f9222",
+    reviewSubmission: {
+        id: "f1b9ac33-9dc9-4e21-9a1d-55abca9f9222",
+        // ...other CycleAssessmentAggregate properties
+    },
+    slug: "project-review-001",
+    createdAt: new Date("2024-02-01T12:00:00Z"),
+    updatedAt: new Date("2024-02-01T12:05:00Z"),
+};
+
+const mockCycleAssessment = {
+    id: "11111111-2222-3333-4444-555555555555",
+
+    criteriaId: "criteria-123",
+    criteria: {
+        id: "criteria-123",
+        name: "Compliance",
+        description: "Ensures project meets required compliance metrics",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+    },
+
+    projectId: "project-321",
+    project: {
+        id: "project-321",
+        name: "AI Research Project",
+        description: "A project focused on building AI solutions.",
+        status: "ACTIVE",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+    },
+
+    reviewBrief: "Initial assessment of the project.",
+
+    reviewDocument: {
+        title: "Project Overview",
+        description: "Summary of project goals and objectives.",
+        fileName: "overview.pdf",
+        fileSize: 204800,
+        mimeType: "application/pdf",
+        storageUrl: "https://storage.example.com/files/overview.pdf",
+        metaData: {uploadedBy: "test_user"},
+    },
+
+    slug: "cycle-assessment-ai-research",
+
+    reviews: [
+        {
+            id: "rev-1",
+            status: "IN_PROGRESS",
+            recommendation: null,
+            reviewAnalysis: "Good structure but needs refinement.",
+            reviewerId: "user-123",
+            reviewer: {
+                id: "user-123",
+                name: "John Reviewer",
+                email: "john@example.com",
+            },
+            submissionId: "11111111-2222-3333-4444-555555555555",
+            reviewSubmission: undefined, // avoid circular reference
+            slug: "review-1",
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        },
+    ],
+
+    createdAt: new Date(),
+    updatedAt: new Date(),
+};
+
+export {
+    dummyUserInvite,
+    saved_Application,
+    createReviewMock,
+    SAVED_USER,
+    mockProjectReview,
+    mockCycleAssessment,
+};

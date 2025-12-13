@@ -20,6 +20,14 @@ import {
     ProjectAggregatePort,
     PROJECT_AGGREGATE_PORT,
 } from "../../../../ports/outputs/repository/project/project.aggregate.port";
+import {
+    UserAggregatePort,
+    USER_AGGREGATE_PORT,
+} from "../../../../ports/outputs/repository/user/user.aggregate.port";
+import {
+    PasswordHasherPort,
+    PASSWORD_HASHER_PORT,
+} from "../../../../ports/outputs/crypto/hash.port";
 import {ProjectManagementService} from "./project.management.service";
 import {EmailQueue} from "../../../../infrastructure/driven/queue/queues/email.queue";
 import {
@@ -35,6 +43,12 @@ import {
 import ApiError from "../../../../shared/errors/api.error";
 import {GrantApplicationStatus} from "../../constants/status.constants";
 import {SharedApplicationService} from "../shared/application/shared.application.service";
+import {CycleInviteQueue} from "../../../../infrastructure/driven/queue/queues/cycle.invite.queue";
+import {
+    UserInviteAggregatePort,
+    USER_INVITE_AGGREGATE_PORT,
+} from "../../../../ports/outputs/repository/user.invite/user.invite.aggregate.port";
+import {ConfigService} from "@nestjs/config";
 describe("Project Management Service", () => {
     let applicationAggregateRepository: jest.Mocked<GrantApplicationAggregatePort>;
     let projectAggregateRepository: jest.Mocked<ProjectAggregatePort>;
@@ -44,6 +58,10 @@ describe("Project Management Service", () => {
     let sharedApplicationService: jest.Mocked<SharedApplicationService>;
     let criteriaRepository: jest.Mocked<CycleAssessmentCriteriaAggregatePort>;
     let assessmentRepository: jest.Mocked<CycleAssessmentAggregatePort>;
+    let userAggregateRepository: jest.Mocked<UserAggregatePort>;
+    let userInviteRepository: jest.Mocked<UserInviteAggregatePort>;
+    let cycleInviteQueue: jest.Mocked<CycleInviteQueue>;
+    let cryptoRespository: jest.Mocked<PasswordHasherPort>;
     beforeEach(async () => {
         const moduleReference: TestingModule = await Test.createTestingModule({
             providers: [
@@ -61,6 +79,10 @@ describe("Project Management Service", () => {
                     useValue: createMock<EmailQueue>(),
                 },
                 {
+                    provide: CycleInviteQueue,
+                    useValue: createMock<CycleInviteQueue>(),
+                },
+                {
                     provide: CYCLE_AGGREGATE_PORT,
                     useValue: createMock<CycleAggregatePort>(),
                 },
@@ -76,6 +98,26 @@ describe("Project Management Service", () => {
                 {
                     provide: CYCLE_ASSESSMENT_AGGREGATE_PORT,
                     useValue: createMock<CycleAssessmentAggregatePort>(),
+                },
+                {
+                    provide: USER_AGGREGATE_PORT,
+                    useValue: createMock<UserAggregatePort>(),
+                },
+                {
+                    provide: USER_INVITE_AGGREGATE_PORT,
+                    useValue: createMock<UserInviteAggregatePort>(),
+                },
+                {
+                    provide: ConfigService,
+                    useValue: {
+                        get: jest.fn(() => ({
+                            CLIENT_URL: "http://localhost:3000",
+                        })),
+                    },
+                },
+                {
+                    provide: PASSWORD_HASHER_PORT,
+                    useValue: createMock<PasswordHasherPort>(),
                 },
             ],
         }).compile();
@@ -107,6 +149,19 @@ describe("Project Management Service", () => {
         assessmentRepository = moduleReference.get(
             CYCLE_ASSESSMENT_AGGREGATE_PORT
         ) as jest.Mocked<CycleAssessmentAggregatePort>;
+
+        userAggregateRepository = moduleReference.get(
+            USER_AGGREGATE_PORT
+        ) as jest.Mocked<UserAggregatePort>;
+        userInviteRepository = moduleReference.get(
+            USER_INVITE_AGGREGATE_PORT
+        ) as jest.Mocked<UserInviteAggregatePort>;
+        cycleInviteQueue = moduleReference.get(
+            CycleInviteQueue
+        ) as jest.Mocked<CycleInviteQueue>;
+        cryptoRespository = moduleReference.get(
+            PASSWORD_HASHER_PORT
+        ) as jest.Mocked<PasswordHasherPort>;
     });
 
     it("to be Defined", () => {
@@ -520,7 +575,7 @@ describe("Project Management Service", () => {
                 expect(error).toBeInstanceOf(ApiError);
                 expect((error as ApiError).status).toBe(403);
                 expect((error as ApiError).message).toBe(
-                    "Project wasn't should be active or successfully archived"
+                    "Project should be active or archived"
                 );
             }
         });
@@ -584,7 +639,7 @@ describe("Project Management Service", () => {
                 expect(error).toBeInstanceOf(ApiError);
                 expect((error as ApiError).status).toBe(403);
                 expect((error as ApiError).message).toBe(
-                    "Project wasn't should be active or successfully archived"
+                    "Project should be active or archived"
                 );
             }
         });
@@ -794,6 +849,105 @@ describe("Project Management Service", () => {
                 expect((error as ApiError).status).toBe(403);
                 expect((error as ApiError).message).toBe(
                     "Only Program Manager Can Access the Criteria Submissions"
+                );
+            }
+        });
+    });
+
+    describe("Invite User For Project Review", () => {
+        it("Successful Invitation", async () => {
+            assessmentRepository.findById.mockResolvedValue(
+                saved_Assessment as any
+            );
+
+            userAggregateRepository.findById.mockResolvedValue({
+                id: "uuid",
+                person: {
+                    email: "userId@gmail.com",
+                    firstName: "John",
+                    lastName: "Doe",
+                },
+            } as any);
+
+            userInviteRepository.addApplicationInvites.mockResolvedValue({
+                "userId@gmail.com": ["token", "slug"],
+            });
+
+            cryptoRespository.encrypt.mockReturnValue("text");
+
+            cycleInviteQueue.UserCycleInvite.mockResolvedValue({
+                status: true,
+            } as any);
+
+            const result =
+                await projectManagementService.assignReviewForProjectAssessment(
+                    {assessmentId: "id", email: "userId@gmail.com"},
+                    "uuid"
+                );
+
+            expect(result).toEqual({
+                status: 201,
+                message: "Reviewer Assigned Successfully",
+                res: {
+                    email: "userId@gmail.com",
+                    application: "title",
+                },
+            });
+        });
+
+        it("Assessment Not Found", async () => {
+            try {
+                assessmentRepository.findById.mockResolvedValue(null);
+
+                await projectManagementService.assignReviewForProjectAssessment(
+                    {assessmentId: "id", email: "userId@gmail.com"},
+                    "uuid"
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).message).toBe(
+                    "Assessment Not Found"
+                );
+            }
+        });
+
+        it("Program Manager Not Found", async () => {
+            try {
+                assessmentRepository.findById.mockResolvedValue(
+                    saved_Assessment as any
+                );
+
+                userAggregateRepository.findById.mockResolvedValue(null);
+
+                await projectManagementService.assignReviewForProjectAssessment(
+                    {assessmentId: "id", email: "userId@gmail.com"},
+                    "uuid"
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe(
+                    "Only Program Manager Can Assign Reviewer"
+                );
+            }
+        });
+
+        it("Program Manager Mismatch", async () => {
+            try {
+                assessmentRepository.findById.mockResolvedValue(
+                    saved_Assessment as any
+                );
+
+                await projectManagementService.assignReviewForProjectAssessment(
+                    {assessmentId: "id", email: "userId@gmail.com"},
+                    "uuid1"
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe(
+                    "Only Program Manager Can Assign Reviewer"
                 );
             }
         });

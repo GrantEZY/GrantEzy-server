@@ -44,6 +44,8 @@ import {
     ProjectAggregatePort,
     PROJECT_AGGREGATE_PORT,
 } from "../../../../ports/outputs/repository/project/project.aggregate.port";
+import {ConfigService} from "@nestjs/config";
+import {ConfigType} from "../../../../config/env/app.types";
 @Injectable()
 /**
  * This contains the services for application creation by the users
@@ -65,7 +67,8 @@ export class ApplicantService {
         @Inject(PROJECT_AGGREGATE_PORT)
         private readonly projectAggregateRepository: ProjectAggregatePort,
         private readonly sharedUserService: UserSharedService,
-        private readonly cycleInviteQueue: CycleInviteQueue
+        private readonly cycleInviteQueue: CycleInviteQueue,
+        private readonly configService: ConfigService<ConfigType>
     ) {}
 
     async createApplication(
@@ -461,17 +464,18 @@ export class ApplicantService {
                 );
             }
 
+            const baseUrl = this.configService.get("app").CLIENT_URL;
             for (const email of emails) {
                 const userCycleInviteStatus =
                     await this.cycleInviteQueue.UserCycleInvite({
                         email,
                         invitedBy: user.person.firstName,
+                        inviteAs: InviteAs.TEAMMATE,
                         role: UserRoles.TEAM_MATE,
                         programName: cycle.program?.details.name ?? "Program",
                         round: cycle.round,
                         applicationName: application.basicDetails.title,
-                        token: details[email][0],
-                        slug: details[email][1],
+                        inviteUrl: `${baseUrl as string}/invite-accept-or-reject/${details[email][0]}/${details[email][1]}`,
                     });
                 if (!userCycleInviteStatus.status) {
                     throw new ApiError(

@@ -1,5 +1,5 @@
 import {ApiProperty} from "@nestjs/swagger";
-import {IsUUID, IsString, IsInt} from "class-validator";
+import {IsUUID, IsString, IsInt, IsEnum} from "class-validator";
 import {Type} from "class-transformer";
 import {InviteStatus} from "../../../core/domain/constants/invite.constants";
 export class CoApplicantApplicationDTO {
@@ -30,18 +30,21 @@ export class SubmitInviteStatusDTO {
         description: "token for verification purpose",
         example: "sgfksdjfgnsldkfjgsndlfkgjndkjf",
     })
+    @IsString()
     token: string;
 
     @ApiProperty({
         description: "slug for verification purpose",
         example: "sgfksdjfgnsldkfjgsndlfkgjndkjf",
     })
+    @IsString()
     slug: string;
 
     @ApiProperty({
         description: "Invite Response Status",
         example: "ACCEPTED",
     })
+    @IsEnum(InviteStatus)
     status: InviteStatus.ACCEPTED | InviteStatus.REJECTED;
 }
 

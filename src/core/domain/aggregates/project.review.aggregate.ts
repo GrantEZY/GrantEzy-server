@@ -37,7 +37,10 @@ export class ProjectReviewAggregate {
     })
     recommendation: ProjectReviewRecommendation | null;
 
-    @Column({type: "text", nullable: true, default: null})
+    @Column({type: "text", nullable: true})
+    reviewAnalysis: string;
+
+    @Column({type: "uuid", nullable: true, default: null})
     @Index()
     @Column({type: "uuid"})
     reviewerId: string;
