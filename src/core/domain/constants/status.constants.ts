@@ -34,6 +34,7 @@ export enum GrantApplicationStatus {
 }
 
 export enum CycleStatus {
+    CREATED = "CREATED",
     OPEN = "OPEN",
     CLOSED = "CLOSED",
     ARCHIVED = "ARCHIVED",
