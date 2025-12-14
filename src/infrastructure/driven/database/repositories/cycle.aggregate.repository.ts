@@ -83,7 +83,7 @@ export class CycleAggregateRepository implements CycleAggregatePort {
                 programId,
                 slug,
                 round: programRound,
-                status: CycleStatus.OPEN,
+                status: CycleStatus.CREATED,
                 budget: cycleBudget,
                 duration: cycleDuration,
                 scoringScheme: cycleScoringScheme,

@@ -26,7 +26,10 @@ import {
     GetUserCreatedApplicationResponse,
     GetUserProjectsResponse,
 } from "../../../../infrastructure/driven/response-dtos/applicant.response-dto";
-import {GrantApplicationStatus} from "../../constants/status.constants";
+import {
+    CycleStatus,
+    GrantApplicationStatus,
+} from "../../constants/status.constants";
 import {
     USER_INVITE_AGGREGATE_PORT,
     UserInviteAggregatePort,
@@ -83,6 +86,14 @@ export class ApplicantService {
                 throw new ApiError(
                     404,
                     "Program Cycle Not Found",
+                    "Conflict Error"
+                );
+            }
+
+            if (cycle.status != CycleStatus.OPEN) {
+                throw new ApiError(
+                    400,
+                    "Applications are not being accepted for this cycle at the moment",
                     "Conflict Error"
                 );
             }

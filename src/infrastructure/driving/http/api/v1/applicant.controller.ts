@@ -42,6 +42,7 @@ export class ApplicantController implements ApplicantControllerPort {
     @ApiResponse(APPLICATION_RESPONSES.CREATE.SUCCESS)
     @ApiResponse(APPLICATION_RESPONSES.CREATE.CYCLE_NOT_FOUND)
     @ApiResponse(APPLICATION_RESPONSES.CREATE.ALREADY_HAVE_A_APPLICATION)
+    @ApiResponse(APPLICATION_RESPONSES.CREATE.CYCLE_NOT_ACTIVE)
     async createApplication(
         @CurrentUser() user: AccessTokenJwt,
         @Body() body: CreateApplicationControllerDTO,
