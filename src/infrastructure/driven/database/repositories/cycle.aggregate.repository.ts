@@ -161,6 +161,7 @@ export class CycleAggregateRepository implements CycleAggregatePort {
                 where: {
                     slug,
                 },
+                relations: ["program"],
             });
         } catch (error) {
             if (error instanceof ApiError) {
@@ -334,7 +335,7 @@ export class CycleAggregateRepository implements CycleAggregatePort {
                 where: {
                     slug,
                 },
-                relations: ["applications"],
+                relations: ["applications", "applications.reviews", "applications.reviews.reviewer"],
             });
         } catch (error) {
             if (error instanceof ApiError) {

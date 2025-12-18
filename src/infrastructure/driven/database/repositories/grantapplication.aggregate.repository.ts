@@ -330,6 +330,7 @@ export class GrantApplicationRepository
             const grantApplication =
                 await this.grantApplicationRepository.findOne({
                     where: {id},
+                    relations: ["reviews"],
                 });
 
             return grantApplication;
@@ -532,6 +533,7 @@ export class GrantApplicationRepository
                     status: GrantApplicationStatus.APPROVED,
                     applicantId: userId,
                 },
+                relations: ["project", "cycle"],
                 skip: (page - 1) * numberOfResults,
                 take: numberOfResults,
             });

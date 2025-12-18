@@ -1,6 +1,5 @@
 import {CycleAssessmentAggregate} from "../../../core/domain/aggregates/cycle.assessment.aggregate";
 import {CycleAssessmentCriteriaAggregate} from "../../../core/domain/aggregates/cycle.assessment.criteria.aggregate";
-import {GrantApplication} from "../../../core/domain/aggregates/grantapplication.aggregate";
 import {Project} from "../../../core/domain/aggregates/project.aggregate";
 import {ApiResponse} from "../../../shared/types/response.type";
 
@@ -10,7 +9,12 @@ export class CreateProjectData {
 }
 
 export class GetCycleProjects {
-    applications: GrantApplication[];
+    projects: Project[];
+    pagination?: {
+        totalResults: number;
+        page: number;
+        numberOfResults: number;
+    };
 }
 
 export class GetProjectDetails {

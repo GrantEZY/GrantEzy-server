@@ -11,6 +11,7 @@ export interface ProjectAggregatePort {
     getProjectDetailsWithApplicationId(
         applicationId: string
     ): Promise<Project | null>;
+    getProjectsByCycleId(cycleId: string): Promise<Project[]>;
 }
 
 export const PROJECT_AGGREGATE_PORT = Symbol("ProjectAggregatePort");

@@ -4,6 +4,8 @@ import {TokenVerificationResponse} from "../../../../infrastructure/driven/respo
 import ApiError from "../../../../shared/errors/api.error";
 import {SubmitInviteStatusDTO} from "../../../../infrastructure/driving/dtos/co.applicant.dto";
 import {InviteAs, InviteStatus} from "../../constants/invite.constants";
+import {Recommendation} from "../../constants/recommendation.constants";
+import {ApplicationReviewAggregate} from "../../aggregates/application.review.aggregate";
 import {
     CycleAssessmentAggregatePort,
     CYCLE_ASSESSMENT_AGGREGATE_PORT,
@@ -350,6 +352,68 @@ export class ReviewerService {
                 updatedReview,
                 ReviewStatus.COMPLETED
             );
+
+            // After completing review, check if all reviews are done and update application status
+            const application =
+                await this.grantApplicationAggregateRepository.findById(
+                    applicationId
+                );
+
+            console.log(" Review completed - checking application status:", {
+                applicationId,
+                hasApplication: !!application,
+                reviewsCount: application?.reviews?.length || 0,
+                reviews: application?.reviews?.map((r: ApplicationReviewAggregate) => ({
+                    id: r.id,
+                    status: r.status,
+                    recommendation: r.recommendation,
+                })),
+            });
+
+            if (application && application.reviews) {
+                const allReviews = application.reviews;
+                const completedReviews = allReviews.filter(
+                    (r: ApplicationReviewAggregate) => r.status === ReviewStatus.COMPLETED
+                );
+
+                console.log(" Review analysis:", {
+                    totalReviews: allReviews.length,
+                    completedReviews: completedReviews.length,
+                    allCompleted: completedReviews.length === allReviews.length,
+                });
+
+                // If all reviews are completed, update application status based on recommendations
+                if (completedReviews.length === allReviews.length) {
+                    const allApproved = completedReviews.every(
+                        (r: ApplicationReviewAggregate) => r.recommendation === Recommendation.APPROVE
+                    );
+                    const anyRejected = completedReviews.some(
+                        (r: ApplicationReviewAggregate) => r.recommendation === Recommendation.REJECT
+                    );
+
+                    console.log("All reviews completed - updating status:", {
+                        allApproved,
+                        anyRejected,
+                        newStatus: allApproved ? "APPROVED" : anyRejected ? "REJECTED" : "UNCHANGED",
+                    });
+
+                    if (allApproved) {
+                        await this.grantApplicationAggregateRepository.modifyApplicationStatus(
+                            application,
+                            GrantApplicationStatus.APPROVED,
+                            false
+                        );
+                        console.log("Application status updated to APPROVED");
+                    } else if (anyRejected) {
+                        await this.grantApplicationAggregateRepository.modifyApplicationStatus(
+                            application,
+                            GrantApplicationStatus.REJECTED,
+                            false
+                        );
+                        console.log(" Application status updated to REJECTED");
+                    }
+                }
+            }
 
             return {
                 status: 200,

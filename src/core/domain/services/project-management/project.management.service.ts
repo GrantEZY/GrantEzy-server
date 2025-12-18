@@ -127,7 +127,17 @@ export class ProjectManagementService {
                 );
             }
 
-            if (application.status === GrantApplicationStatus.APPROVED) {
+            // Check if application is not approved
+            if (application.status !== GrantApplicationStatus.APPROVED) {
+                throw new ApiError(
+                    403,
+                    "Application must be approved before creating a project",
+                    "Conflict Error"
+                );
+            }
+
+            // Check if application already has a project
+            if (application.projectId) {
                 throw new ApiError(
                     403,
                     "Application is already a project",
@@ -135,9 +145,23 @@ export class ProjectManagementService {
                 );
             }
 
+            // Double-check if a project exists for this application (in case of partial failures)
+            const existingProject = await this.projectAggregateRepository.getProjectDetailsWithApplicationId(applicationId);
+            if (existingProject) {
+                console.log('Found existing project for application:', existingProject.id);
+                throw new ApiError(
+                    403,
+                    "A project already exists for this application",
+                    "Conflict Error"
+                );
+            }
+
+            console.log('Creating new project for application:', applicationId);
             const project =
                 await this.projectAggregateRepository.createProject(details);
 
+            // Link the project to the application
+            application.projectId = project.id;
             const updatedApplication =
                 await this.grantApplicationRepository.modifyApplicationStatus(
                     application,
@@ -190,17 +214,21 @@ export class ProjectManagementService {
                 );
             }
 
-            const applications =
-                await this.sharedApplicationService.getCycleProjects(
-                    cycle.id,
-                    page,
-                    numberOfResults
-                );
+            console.log('📊 Fetching projects for cycle:', cycle.id);
+            const projects = await this.projectAggregateRepository.getProjectsByCycleId(cycle.id);
+            console.log('✅ Found projects:', projects.length);
 
             return {
                 status: 200,
                 message: "Cycle Projects",
-                res: {applications},
+                res: {
+                    projects,
+                    pagination: {
+                        totalResults: projects.length,
+                        page: page,
+                        numberOfResults: numberOfResults,
+                    }
+                },
             };
         } catch (error) {
             this.handleError(error);
@@ -274,13 +302,33 @@ export class ProjectManagementService {
         try {
             const {cycleId} = details;
 
+            console.log('📝 Creating cycle criteria:', {
+                cycleId,
+                userId,
+                criteriaName: details.name,
+            });
+
             const cycle = await this.cycleAggregateRepository.findById(cycleId);
 
+            console.log('🔍 Cycle found for criteria creation:', {
+                cycleExists: !!cycle,
+                cycleId: cycle?.id,
+                hasProgram: !!cycle?.program,
+                programId: cycle?.program?.id,
+                managerId: cycle?.program?.managerId,
+            });
+
             if (!cycle) {
+                console.error('❌ Cycle not found');
                 throw new ApiError(404, "Cycle Not Found", "Conflict Error");
             }
 
             if (cycle.program?.managerId != userId) {
+                console.error('❌ Not authorized to create criteria:', {
+                    expectedManagerId: cycle.program?.managerId,
+                    actualUserId: userId,
+                    hasProgram: !!cycle.program,
+                });
                 throw new ApiError(
                     403,
                     "Only Program Manager Can Create The Criteria",
@@ -288,13 +336,24 @@ export class ProjectManagementService {
                 );
             }
 
+            console.log('✅ Authorization passed, creating criteria...');
+
             const cycleCriteria =
                 await this.criteriaRepository.createCycleCriteria(details);
+
+            console.log('✅ Criteria created:', {
+                criteriaId: cycleCriteria.id,
+                criteriaName: cycleCriteria.name,
+            });
 
             const projectApplications =
                 await this.sharedApplicationService.getAllCycleProjects(
                     cycle.id
                 );
+
+            console.log('📧 Sending email notifications to projects:', {
+                projectCount: projectApplications.length,
+            });
 
             await this.emailQueue.cycleReviewToQueue(
                 projectApplications,
@@ -321,14 +380,33 @@ export class ProjectManagementService {
         try {
             const {cycleSlug} = details;
 
+            console.log('📋 Getting cycle criterias for PM:', {
+                cycleSlug,
+                userId,
+            });
+
             const cycle =
                 await this.cycleAggregateRepository.findCycleByslug(cycleSlug);
 
+            console.log('🔍 Cycle found:', {
+                cycleExists: !!cycle,
+                cycleId: cycle?.id,
+                hasProgram: !!cycle?.program,
+                programId: cycle?.program?.id,
+                managerId: cycle?.program?.managerId,
+            });
+
             if (!cycle) {
+                console.error('❌ Cycle not found');
                 throw new ApiError(404, "Cycle Not Found", "Conflict Error");
             }
 
             if (cycle.program?.managerId != userId) {
+                console.error('❌ Not authorized - manager check failed:', {
+                    expectedManagerId: cycle.program?.managerId,
+                    actualUserId: userId,
+                    hasProgram: !!cycle.program,
+                });
                 throw new ApiError(
                     403,
                     "Only Program Manager Can Get The Criterias",
@@ -340,6 +418,8 @@ export class ProjectManagementService {
                 await this.criteriaRepository.getCycleEvaluationCriterias(
                     cycle.id
                 );
+
+            console.log('✅ Criterias fetched:', criterias.length);
 
             return {
                 status: 200,
@@ -498,6 +578,7 @@ export class ProjectManagementService {
                 await this.criteriaRepository.getCriteriaDetailsWithId(
                     criteriaId
                 );
+            
             if (!criteria || criteria.cycle.slug != cycleSlug) {
                 throw new ApiError(404, "Criteria Not Found", "Conflict Error");
             }

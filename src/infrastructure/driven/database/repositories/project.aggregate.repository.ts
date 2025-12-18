@@ -22,6 +22,12 @@ export class ProjectAggregateRepository implements ProjectAggregatePort {
         try {
             const {applicationId, allocatedBudget, plannedDuration} = details;
 
+            console.log('📦 Creating project with details:', {
+                applicationId,
+                allocatedBudget,
+                plannedDuration
+            });
+
             const projectAllocatedBudget =
                 QuotedBudgetObjectBuilder(allocatedBudget);
 
@@ -47,10 +53,13 @@ export class ProjectAggregateRepository implements ProjectAggregatePort {
                 status: ProjectStatus.ACTIVE,
             });
 
+            console.log('💾 Attempting to save project...');
             const newProject = await this.projectRepository.save(project);
+            console.log('✅ Project saved successfully:', newProject.id);
 
             return newProject;
         } catch (error) {
+            console.error('❌ Error creating project:', error);
             if (error instanceof ApiError) {
                 throw error;
             }
@@ -66,7 +75,7 @@ export class ProjectAggregateRepository implements ProjectAggregatePort {
                 where: {
                     applicationId,
                 },
-                relations: ["application"],
+                relations: ["application", "application.cycle"],
             });
 
             return project;
@@ -98,6 +107,31 @@ export class ProjectAggregateRepository implements ProjectAggregatePort {
                 502,
                 "Failed to modify project status",
                 "Database"
+            );
+        }
+    }
+
+    async getProjectsByCycleId(cycleId: string): Promise<Project[]> {
+        try {
+            const projects = await this.projectRepository.find({
+                where: {
+                    application: {
+                        cycleId: cycleId,
+                    },
+                },
+                relations: ["application", "application.applicant", "application.cycle"],
+            });
+
+            return projects;
+        } catch (error) {
+            console.error('❌ Error fetching projects by cycle:', error);
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Failed to fetch projects for cycle",
+                "Database Error"
             );
         }
     }

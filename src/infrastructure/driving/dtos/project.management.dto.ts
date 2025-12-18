@@ -122,7 +122,6 @@ export class GetProjectDetailsDTO {
         description: "slug of the application",
         example: "4b7d1f330f2e4b7a91e35f58f3c9d4ab",
     })
-    @IsUUID()
     applicationSlug: string;
 }
 
