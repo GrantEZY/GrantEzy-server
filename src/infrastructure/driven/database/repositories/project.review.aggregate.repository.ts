@@ -29,6 +29,7 @@ export class ProjectReviewAggregateRepository
                 relations: [
                     "reviewSubmission",
                     "reviewSubmission.project",
+                    "reviewSubmission.project.application",
                     "reviewSubmission.criteria",
                 ],
                 skip: (page - 1) * numberOfResults,
@@ -56,6 +57,7 @@ export class ProjectReviewAggregateRepository
                 relations: [
                     "reviewSubmission",
                     "reviewSubmission.project",
+                    "reviewSubmission.project.application",
                     "reviewSubmission.criteria",
                 ],
             });
@@ -148,6 +150,7 @@ export class ProjectReviewAggregateRepository
                 relations: [
                     "reviewSubmission",
                     "reviewSubmission.project",
+                    "reviewSubmission.project.application",
                     "reviewSubmission.criteria",
                 ],
             });
@@ -176,6 +179,7 @@ export class ProjectReviewAggregateRepository
                 relations: [
                     "reviewSubmission",
                     "reviewSubmission.project",
+                    "reviewSubmission.project.application",
                     "reviewSubmission.criteria",
                 ],
             });
