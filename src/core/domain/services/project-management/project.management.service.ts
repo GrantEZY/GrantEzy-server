@@ -384,8 +384,6 @@ export class ProjectManagementService {
         try {
             const {cycleSlug} = details;
 
-            console.log('[DEBUG] getUserProjectCycleCriteria called with:', { cycleSlug, userId });
-
             const cycle =
                 await this.cycleAggregateRepository.findCycleByslug(cycleSlug);
 
@@ -393,15 +391,11 @@ export class ProjectManagementService {
                 throw new ApiError(404, "Cycle Not Found", "Conflict Error");
             }
 
-            console.log('[DEBUG] Found cycle:', { cycleId: cycle.id, cycleSlug: cycle.slug });
-
             const application =
                 await this.grantApplicationRepository.findUserCycleApplication(
                     userId,
                     cycle.id
                 );
-
-            console.log('[DEBUG] Found application:', application ? { id: application.id, status: application.status, projectId: application.project?.id } : null);
 
             if (!application) {
                 throw new ApiError(
@@ -412,7 +406,6 @@ export class ProjectManagementService {
             }
 
             if (!application.project?.id) {
-                console.log('[DEBUG] Application has no project yet');
                 // Return criterias without submission status if no project exists yet
                 const criterias =
                     await this.criteriaRepository.getCycleEvaluationCriterias(
@@ -433,8 +426,6 @@ export class ProjectManagementService {
                     cycle.id
                 );
 
-            console.log('[DEBUG] Found criterias:', criterias.length, criterias);
-
             // Check submission status for each criteria
             const criteriasWithSubmissionStatus = await Promise.all(
                 criterias.map(async (criteria) => {
@@ -449,8 +440,6 @@ export class ProjectManagementService {
                     };
                 })
             );
-
-            console.log('[DEBUG] Criterias with submission status:', criteriasWithSubmissionStatus);
 
             return {
                 status: 200,
