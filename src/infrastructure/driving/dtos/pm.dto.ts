@@ -405,17 +405,29 @@ export class GetApplicationReviewDetailsDTO {
         description: "Cycle Slug",
         example: "34ruibrjgq94hq83t4p3498",
     })
+    @IsString()
     cycleSlug: string;
 
     @ApiProperty({
         description: "Application Slug",
         example: "q3u4th938th3p48hoi9",
     })
+    @IsString()
     applicationSlug: string;
 
     @ApiProperty({
         description: "Review Slug",
         example: "q3u4th938th3p48hoi9",
     })
+    @IsString()
     reviewSlug: string;
+}
+
+export class ModifyCycleStatusDTO {
+    @ApiProperty({
+        description: "Id of the cycle which need to be modified",
+        example: "4b7d1f33-0f2e-4b7a-91e3-5f58f3c9d4ab",
+    })
+    @IsUUID()
+    cycleId: string;
 }

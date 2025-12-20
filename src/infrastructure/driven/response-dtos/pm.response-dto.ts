@@ -3,6 +3,7 @@ import {GrantApplication} from "../../../core/domain/aggregates/grantapplication
 import {Program} from "../../../core/domain/aggregates/program.aggregate";
 import {ApplicationReviewAggregate} from "../../../core/domain/aggregates/application.review.aggregate";
 import {ApiResponse} from "../../../shared/types/response.type";
+import {CycleStatus} from "../../../core/domain/constants/status.constants";
 
 export class CreateCycleData {
     programId: string;
@@ -48,6 +49,11 @@ export class ProgramManagerProgram {
     program: Program;
 }
 
+export class CycleStatusUpdationData {
+    id: string;
+    status: CycleStatus;
+}
+
 export class CreateCycleResponse extends ApiResponse(CreateCycleData) {}
 export class GetProgramCyclesResponse extends ApiResponse(
     GetProgramCyclesData
@@ -68,4 +74,8 @@ export class GetReviewDetailsResponse extends ApiResponse(GetReviewDetails) {}
 
 export class ProgramManagerDetailsResponse extends ApiResponse(
     ProgramManagerProgram
+) {}
+
+export class CycleStatusUpdationResponse extends ApiResponse(
+    CycleStatusUpdationData
 ) {}

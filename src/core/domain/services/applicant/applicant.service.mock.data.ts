@@ -1,4 +1,5 @@
 import {InviteAs} from "../../constants/invite.constants";
+import {CycleStatus} from "../../constants/status.constants";
 
 const dummyApplicantData = {
     cycleSlug: "4b7d1f330f2e4b7a91e35f58f3c9d4ab",
@@ -45,6 +46,7 @@ const cycleData = {
         year: 2025,
         type: "Spring",
     },
+    status: CycleStatus.OPEN,
     budget: {
         amount: 500000,
         currency: "USD",

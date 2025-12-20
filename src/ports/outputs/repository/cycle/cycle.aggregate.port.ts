@@ -1,4 +1,5 @@
 import {Cycle} from "../../../../core/domain/aggregates/cycle.aggregate";
+import {CycleStatus} from "../../../../core/domain/constants/status.constants";
 import {CreateCycleDTO} from "../../../../infrastructure/driving/dtos/pm.dto";
 import {UpdateCycleDTO} from "../../../../infrastructure/driving/dtos/shared/shared.program.dto";
 export interface CycleAggregatePort {
@@ -18,6 +19,7 @@ export interface CycleAggregatePort {
     findCycleByslug(slug: string): Promise<Cycle | null>;
     deleteCycle(id: string): Promise<boolean>;
     updateCycle(oldCycle: Cycle, updateDetails: UpdateCycleDTO): Promise<Cycle>;
+    modifyCycleStatus(oldCycle: Cycle, status: CycleStatus): Promise<Cycle>;
 }
 
 export const CYCLE_AGGREGATE_PORT = Symbol("CycleAggregatePort");

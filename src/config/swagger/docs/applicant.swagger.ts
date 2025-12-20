@@ -16,6 +16,15 @@ export const APPLICATION_RESPONSES = {
       description: "Program Cycle Not Found",
       example: { status: 404, message: "Program Cycle Not Found", res: null },
     },
+    CYCLE_NOT_ACTIVE: {
+      status: 400,
+      description: "Applications are not being accepted for this cycle at the moment",
+      example: {
+        status: 400,
+        message: "Applications are not being accepted for this cycle at the moment",
+        res: null,
+      },
+    },
     ALREADY_HAVE_A_APPLICATION: {
       status: 409,
       description: "User already has a application",
