@@ -658,6 +658,7 @@ export class GetUserProjectsPaginationDTO {
         description: "page number for pagination",
         example: "1",
     })
+    @Type(() => Number)
     @IsInt()
     page: number;
 
@@ -665,6 +666,7 @@ export class GetUserProjectsPaginationDTO {
         description: "number Of Results in One Page",
         example: "1",
     })
+    @Type(() => Number)
     @IsInt()
     numberOfResults: number;
 }

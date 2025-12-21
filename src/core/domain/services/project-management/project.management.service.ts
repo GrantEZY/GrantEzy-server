@@ -138,6 +138,9 @@ export class ProjectManagementService {
             const project =
                 await this.projectAggregateRepository.createProject(details);
 
+            // Set the projectId on the application for future lookups
+            application.projectId = project.id;
+
             const updatedApplication =
                 await this.grantApplicationRepository.modifyApplicationStatus(
                     application,
@@ -431,7 +434,7 @@ export class ProjectManagementService {
                     cycle.id
                 );
 
-            if (!application?.projectId) {
+            if (!application) {
                 throw new ApiError(
                     403,
                     "User Doesn't have a project for this cycle",
@@ -452,6 +455,22 @@ export class ProjectManagementService {
                 );
             }
 
+            // Get projectId - if not set, find project by applicationId
+            let projectId = application.projectId;
+            if (!projectId) {
+                const project = await this.projectAggregateRepository.getProjectDetailsWithApplicationId(
+                    application.id
+                );
+                if (!project) {
+                    throw new ApiError(
+                        403,
+                        "User Doesn't have a project for this cycle",
+                        "Conflict Error"
+                    );
+                }
+                projectId = project.id;
+            }
+
             const criteria =
                 await this.criteriaRepository.getCriteriaDetails(criteriaSlug);
 
@@ -466,7 +485,7 @@ export class ProjectManagementService {
             const cycleSubmission =
                 await this.assessmentRepository.getCriteriaWithCriteriaIdAndProjectId(
                     criteria.id,
-                    application.projectId
+                    projectId
                 );
 
             return {
@@ -508,7 +527,7 @@ export class ProjectManagementService {
                     criteria.cycleId
                 );
 
-            if (!application?.projectId) {
+            if (!application) {
                 throw new ApiError(
                     403,
                     "Application Is Not a Project",
@@ -516,10 +535,39 @@ export class ProjectManagementService {
                 );
             }
 
+            if (
+                !(
+                    application.status === GrantApplicationStatus.APPROVED ||
+                    application.status === GrantApplicationStatus.ARCHIVED
+                )
+            ) {
+                throw new ApiError(
+                    403,
+                    "Application Is Not a Project",
+                    "Conflict Error"
+                );
+            }
+
+            // Get projectId - if not set, find project by applicationId
+            let projectId = application.projectId;
+            if (!projectId) {
+                const project = await this.projectAggregateRepository.getProjectDetailsWithApplicationId(
+                    application.id
+                );
+                if (!project) {
+                    throw new ApiError(
+                        403,
+                        "Application Is Not a Project",
+                        "Conflict Error"
+                    );
+                }
+                projectId = project.id;
+            }
+
             const submittedAssessment =
                 await this.assessmentRepository.getCriteriaWithCriteriaIdAndProjectId(
                     criteriaId,
-                    application.projectId
+                    projectId
                 );
 
             if (submittedAssessment) {
@@ -527,7 +575,7 @@ export class ProjectManagementService {
                     await this.assessmentRepository.updateAssessmentForProject(
                         submittedAssessment,
                         {
-                            projectId: application.projectId,
+                            projectId: projectId,
                             criteriaId,
                             reviewBrief: reviewStatement,
                             reviewFile: reviewSubmissionFile,
@@ -545,7 +593,7 @@ export class ProjectManagementService {
 
             const assessmentSubmission =
                 await this.assessmentRepository.createAssessmentForProject(
-                    application.projectId,
+                    projectId,
                     criteriaId,
                     reviewStatement,
                     reviewSubmissionFile

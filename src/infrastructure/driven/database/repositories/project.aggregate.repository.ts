@@ -66,7 +66,7 @@ export class ProjectAggregateRepository implements ProjectAggregatePort {
                 where: {
                     applicationId,
                 },
-                relations: ["application"],
+                relations: ["application", "application.cycle"],
             });
 
             return project;
