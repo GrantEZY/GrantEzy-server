@@ -5,6 +5,7 @@ import {
     SubmitInviteStatusDTO,
     GetUserLinkedProjectsPaginationDTO,
     GetProjectDetailsDTO,
+    ManageCoApplicantDTO,
 } from "../../../infrastructure/driving/dtos/co.applicant.dto";
 import {AccessTokenJwt} from "../../../shared/types/jwt.types";
 export interface CoApplicantControllerPort {
@@ -29,6 +30,12 @@ export interface CoApplicantControllerPort {
 
     getProjectDetails(
         parameters: GetProjectDetailsDTO,
+        user: AccessTokenJwt,
+        response: Response
+    ): Promise<Response>;
+
+    removeCoApplicantFromApplication(
+        body: ManageCoApplicantDTO,
         user: AccessTokenJwt,
         response: Response
     ): Promise<Response>;

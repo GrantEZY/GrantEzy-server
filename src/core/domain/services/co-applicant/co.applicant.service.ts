@@ -13,7 +13,10 @@ import {
 } from "../../../../infrastructure/driven/response-dtos/co.applicant.response-dto";
 import {InviteAs, InviteStatus} from "../../constants/invite.constants";
 import {SharedApplicationService} from "../shared/application/shared.application.service";
-import {SubmitInviteStatusDTO} from "../../../../infrastructure/driving/dtos/co.applicant.dto";
+import {
+    SubmitInviteStatusDTO,
+    ManageCoApplicantDTO,
+} from "../../../../infrastructure/driving/dtos/co.applicant.dto";
 import {
     USER_AGGREGATE_PORT,
     UserAggregatePort,
@@ -22,6 +25,8 @@ import {
     ProjectAggregatePort,
     PROJECT_AGGREGATE_PORT,
 } from "../../../../ports/outputs/repository/project/project.aggregate.port";
+import {EmailQueue} from "../../../../infrastructure/driven/queue/queues/email.queue";
+import {ManageCoApplicantResponse} from "../../../../infrastructure/driven/response-dtos/co.applicant.response-dto";
 /**
  * This file contains the co applicant service for viewing the application
  */
@@ -34,7 +39,8 @@ export class CoApplicantService {
         private readonly userAggregateRepository: UserAggregatePort,
         @Inject(PROJECT_AGGREGATE_PORT)
         private readonly projectAggregateRepository: ProjectAggregatePort,
-        private readonly sharedApplicationService: SharedApplicationService
+        private readonly sharedApplicationService: SharedApplicationService,
+        private readonly emailQueue: EmailQueue
     ) {}
 
     async getApplicationDetails(
@@ -242,6 +248,105 @@ export class CoApplicantService {
                 status: 200,
                 message: "Project Details",
                 res: {project},
+            };
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async removeCoApplicantFromApplication(
+        details: ManageCoApplicantDTO,
+        userId: string
+    ): Promise<ManageCoApplicantResponse> {
+        try {
+            const {applicationId} = details;
+
+            const user = await this.userAggregateRepository.findById(
+                userId,
+                false
+            );
+
+            if (!user) {
+                throw new ApiError(404, "User Not Found", "Conflict Error");
+            }
+            const application =
+                await this.applicationAggregateRepository.checkTeamMateApplication(
+                    applicationId,
+                    userId
+                );
+
+            if (!application) {
+                throw new ApiError(
+                    403,
+                    "User Is Not A TeamMate",
+                    "Conflict Error"
+                );
+            }
+
+            const applicant = await this.userAggregateRepository.findById(
+                application.applicantId,
+                false
+            );
+
+            if (!applicant) {
+                throw new ApiError(
+                    404,
+                    "Applicant Not Found",
+                    "Conflict Error"
+                );
+            }
+
+            const isRemoved =
+                await this.applicationAggregateRepository.removeTeamMateFromApplication(
+                    application,
+                    userId
+                );
+
+            if (!isRemoved) {
+                throw new ApiError(
+                    400,
+                    "Error in removing User",
+                    "Conflict Error"
+                );
+            }
+
+            const emailNotification =
+                await this.emailQueue.removeTeamMateFromApplication(
+                    {
+                        applicationName: application.basicDetails.title,
+                        email: user.contact.email,
+                    },
+                    user.contact.email
+                );
+
+            const emailNotificationToApplicant =
+                await this.emailQueue.informApplicantOverCoApplicantDeparture(
+                    {
+                        applicationName: application.basicDetails.title,
+                        email: applicant.contact.email,
+                    },
+                    applicant.contact.email
+                );
+
+            if (
+                !(
+                    emailNotification.status &&
+                    emailNotificationToApplicant.status
+                )
+            ) {
+                throw new ApiError(
+                    400,
+                    "Error in removing User",
+                    "Conflict Error"
+                );
+            }
+
+            return {
+                status: 200,
+                message: "User Removed From Application",
+                res: {
+                    status: true,
+                },
             };
         } catch (error) {
             this.handleError(error);

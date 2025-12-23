@@ -381,3 +381,33 @@ export const RemoveFromApplicationEmailTemplate: EmailTemplateType = {
     </div>
   `,
 };
+
+export const CoApplicantLeftApplicationEmailTemplate: EmailTemplateType = {
+    subject: `A team member has left your application on GrantEzy`,
+    body: (values: EmailBody) => `
+    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+      <h2 style="color: #2c3e50;">Team Member Update</h2>
+
+      <p>Hello,</p>
+
+      <p>
+        This is to inform you that a <strong>team member</strong> has left your application
+        <strong>${(values as RemoveApplicantFromTeamMate).applicationName}</strong>
+        on <strong>GrantEzy</strong>.
+      </p>
+
+      <p>
+        You can continue working on your application and invite another team member if required.
+      </p>
+
+      <p>
+        👉 <a href="${BASE_URL}" style="background: #4CAF50; color: white; padding: 10px 16px;
+           text-decoration: none; border-radius: 5px; display: inline-block;">
+           Go to GrantEzy
+        </a>
+      </p>
+
+      <p>Best regards,<br/>The GrantEzy Team</p>
+    </div>
+  `,
+};

@@ -340,6 +340,41 @@ export class EmailQueue {
         }
     }
 
+    async informApplicantOverCoApplicantDeparture(
+        details: RemoveApplicantFromTeamMate,
+        email: string
+    ): Promise<EmailResponse> {
+        try {
+            const uniqueId = uuid();
+            const jobId = `${uniqueId}-${email}-remove-user-from-application`;
+            const job = await this.emailQueue.add(
+                jobId,
+                {
+                    type: EmailNotifications.INFORM_APPLICANT_ON_CO_APPLICANT_DEPARTURE,
+                    data: details,
+                },
+                {
+                    removeOnComplete: true,
+                }
+            );
+
+            return {
+                status: true,
+                queue: {
+                    name: job.name,
+                },
+            };
+        } catch (error) {
+            this.logger.error(`Error in adding jobs for remove of teammate`);
+            if (error instanceof ApiError) throw error;
+            throw new ApiError(
+                500,
+                "Issue In Sending Email",
+                "Email Queue Error"
+            );
+        }
+    }
+
     async pauseQueue() {
         try {
             await this.emailQueue.pause();

@@ -8,6 +8,7 @@ import {
     CycleReviewCreatedEmailTemplate,
     ProjectAssessmentReviewerInviteEmailTemplate,
     RemoveFromApplicationEmailTemplate,
+    CoApplicantLeftApplicationEmailTemplate,
 } from "./email.template.constants";
 
 export enum EmailNotifications {
@@ -27,6 +28,7 @@ export enum EmailNotifications {
     CYCLE_REVIEW_CREATED = "Cycle Review Created For the Project",
     PROJECT_ASSESSMENT_REVIEWER_INVITE = "You have been invited to review a project assessment",
     REMOVE_USER_FROM_APPLICATION = "This is to inform you that",
+    INFORM_APPLICANT_ON_CO_APPLICANT_DEPARTURE = "This is to inform you that the co applicant has left",
 }
 
 export enum NotificationChannel {
@@ -63,4 +65,6 @@ export const EmailNotificationTemplateMapper: Record<
         ProjectAssessmentReviewerInviteEmailTemplate,
     [EmailNotifications.REMOVE_USER_FROM_APPLICATION]:
         RemoveFromApplicationEmailTemplate,
+    [EmailNotifications.INFORM_APPLICANT_ON_CO_APPLICANT_DEPARTURE]:
+        CoApplicantLeftApplicationEmailTemplate,
 };

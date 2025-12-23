@@ -191,6 +191,80 @@ export const CO_APPLICANT_RESPONSES = {
       },
     },
   },
+  REMOVE_SELF_FROM_APPLICATION: {
+    SUCCESS: {
+      status: 200,
+      description: "User successfully removed themselves from the application",
+      example: {
+        status: 200,
+        message: "User Removed From Application",
+        res: {
+          status: true,
+        },
+      },
+    },
+
+    USER_NOT_FOUND: {
+      status: 404,
+      description: "User not found",
+      example: {
+        status: 404,
+        message: "User Not Found",
+        res: null,
+      },
+    },
+
+    NOT_A_TEAMMATE: {
+      status: 403,
+      description: "User is not a teammate of this application",
+      example: {
+        status: 403,
+        message: "User Is Not A TeamMate",
+        res: null,
+      },
+    },
+
+    APPLICANT_NOT_FOUND: {
+      status: 404,
+      description: "Applicant not found for this application",
+      example: {
+        status: 404,
+        message: "Applicant Not Found",
+        res: null,
+      },
+    },
+
+    REMOVE_FAILED: {
+      status: 400,
+      description: "Error occurred while removing user from application",
+      example: {
+        status: 400,
+        message: "Error in removing User",
+        res: null,
+      },
+    },
+
+    EMAIL_FAILED: {
+      status: 400,
+      description:
+        "User removed but failed to send email notifications",
+      example: {
+        status: 400,
+        message: "Error in removing User",
+        res: null,
+      },
+    },
+
+    ERROR: {
+      status: 500,
+      description: "Unexpected error while removing user from application",
+      example: {
+        status: 500,
+        message: "Internal Server Error",
+        res: null,
+      },
+    },
+  },
 };
 
 
@@ -305,5 +379,7 @@ export const CO_APPLICANT_PROJECT_RESPONSES = {
       },
     },
   },
+
+
 };
 
