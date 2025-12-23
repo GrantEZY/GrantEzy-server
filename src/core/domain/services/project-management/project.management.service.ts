@@ -455,20 +455,12 @@ export class ProjectManagementService {
                 );
             }
 
-            // Get projectId - if not set, find project by applicationId
-            let projectId = application.projectId;
-            if (!projectId) {
-                const project = await this.projectAggregateRepository.getProjectDetailsWithApplicationId(
-                    application.id
+            if (!application.projectId) {
+                throw new ApiError(
+                    403,
+                    "User Doesn't have a project for this cycle",
+                    "Conflict Error"
                 );
-                if (!project) {
-                    throw new ApiError(
-                        403,
-                        "User Doesn't have a project for this cycle",
-                        "Conflict Error"
-                    );
-                }
-                projectId = project.id;
             }
 
             const criteria =
@@ -485,7 +477,7 @@ export class ProjectManagementService {
             const cycleSubmission =
                 await this.assessmentRepository.getCriteriaWithCriteriaIdAndProjectId(
                     criteria.id,
-                    projectId
+                    application.projectId
                 );
 
             return {
@@ -548,26 +540,18 @@ export class ProjectManagementService {
                 );
             }
 
-            // Get projectId - if not set, find project by applicationId
-            let projectId = application.projectId;
-            if (!projectId) {
-                const project = await this.projectAggregateRepository.getProjectDetailsWithApplicationId(
-                    application.id
+            if (!application.projectId) {
+                throw new ApiError(
+                    403,
+                    "Application Is Not a Project",
+                    "Conflict Error"
                 );
-                if (!project) {
-                    throw new ApiError(
-                        403,
-                        "Application Is Not a Project",
-                        "Conflict Error"
-                    );
-                }
-                projectId = project.id;
             }
 
             const submittedAssessment =
                 await this.assessmentRepository.getCriteriaWithCriteriaIdAndProjectId(
                     criteriaId,
-                    projectId
+                    application.projectId
                 );
 
             if (submittedAssessment) {
@@ -575,7 +559,7 @@ export class ProjectManagementService {
                     await this.assessmentRepository.updateAssessmentForProject(
                         submittedAssessment,
                         {
-                            projectId: projectId,
+                            projectId: application.projectId,
                             criteriaId,
                             reviewBrief: reviewStatement,
                             reviewFile: reviewSubmissionFile,
@@ -593,7 +577,7 @@ export class ProjectManagementService {
 
             const assessmentSubmission =
                 await this.assessmentRepository.createAssessmentForProject(
-                    projectId,
+                    application.projectId,
                     criteriaId,
                     reviewStatement,
                     reviewSubmissionFile
