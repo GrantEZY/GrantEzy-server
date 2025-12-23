@@ -6,6 +6,7 @@ import {
     CycleInviteDTO,
     ForgotPasswordEmailDTO,
     InviteEmailDTO,
+    RemoveApplicantFromTeamMate,
 } from "../../../driving/dtos/queue/queue.dto";
 import {EmailResponse} from "../../response-dtos/queue/queue.response-dto";
 import {Logger} from "@nestjs/common";
@@ -295,6 +296,41 @@ export class EmailQueue {
             };
         } catch (error) {
             this.logger.error(`Error in adding jobs for cycleReview`);
+            if (error instanceof ApiError) throw error;
+            throw new ApiError(
+                500,
+                "Issue In Sending Email",
+                "Email Queue Error"
+            );
+        }
+    }
+
+    async removeTeamMateFromApplication(
+        details: RemoveApplicantFromTeamMate,
+        email: string
+    ): Promise<EmailResponse> {
+        try {
+            const uniqueId = uuid();
+            const jobId = `${uniqueId}-${email}-remove-user-from-application`;
+            const job = await this.emailQueue.add(
+                jobId,
+                {
+                    type: EmailNotifications.REMOVE_USER_FROM_APPLICATION,
+                    data: details,
+                },
+                {
+                    removeOnComplete: true,
+                }
+            );
+
+            return {
+                status: true,
+                queue: {
+                    name: job.name,
+                },
+            };
+        } catch (error) {
+            this.logger.error(`Error in adding jobs for remove of teammate`);
             if (error instanceof ApiError) throw error;
             throw new ApiError(
                 500,

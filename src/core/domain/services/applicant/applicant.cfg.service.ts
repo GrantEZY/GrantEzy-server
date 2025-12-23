@@ -24,6 +24,7 @@ import {ManageCoApplicantDTO} from "../../../../infrastructure/driving/dtos/appl
 import {InviteAs} from "../../constants/invite.constants";
 import {UserRoles} from "../../constants/userRoles.constants";
 import {ManageCoApplicantResponse} from "../../../../infrastructure/driven/response-dtos/co.applicant.response-dto";
+import {EmailQueue} from "../../../../infrastructure/driven/queue/queues/email.queue";
 @Injectable()
 export class ApplicantCfgService {
     constructor(
@@ -38,6 +39,7 @@ export class ApplicantCfgService {
         @Inject(USER_INVITE_AGGREGATE_PORT)
         private readonly userInviteAggregateRepository: UserInviteAggregatePort,
         private readonly cycleInviteQueue: CycleInviteQueue,
+        private readonly emailQueue: EmailQueue,
         private readonly configService: ConfigService<ConfigType>
     ) {}
 
@@ -72,7 +74,7 @@ export class ApplicantCfgService {
             if (!application) {
                 throw new ApiError(
                     404,
-                    "Application  Not Found",
+                    "Application Not Found",
                     "Conflict Error"
                 );
             }
@@ -165,7 +167,7 @@ export class ApplicantCfgService {
             if (!application) {
                 throw new ApiError(
                     404,
-                    "Application  Not Found",
+                    "Application Not Found",
                     "Conflict Error"
                 );
             }
@@ -207,7 +209,21 @@ export class ApplicantCfgService {
                     teamMate.personId
                 );
 
-            if (isRemoved) {
+            if (!isRemoved) {
+                throw new ApiError(
+                    400,
+                    "Error in Removing User",
+                    "Conflict Error"
+                );
+            }
+
+            const emailNotification =
+                await this.emailQueue.removeTeamMateFromApplication(
+                    {applicationName: application.basicDetails.title, email},
+                    email
+                );
+
+            if (emailNotification.status) {
                 return {
                     status: 200,
                     message: "Application TeamMate Removed",

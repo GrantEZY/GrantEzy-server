@@ -1108,7 +1108,7 @@ describe("Applicant ", () => {
                 expect(error).toBeInstanceOf(ApiError);
                 expect((error as ApiError).status).toBe(400);
                 expect((error as ApiError).message).toBe(
-                    "In review application cant be deleted"
+                    "In process application cant be deleted"
                 );
             }
         });
