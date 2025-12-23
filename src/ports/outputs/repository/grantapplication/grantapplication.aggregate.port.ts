@@ -75,6 +75,14 @@ export interface GrantApplicationAggregatePort {
         numberOfResults: number
     ): Promise<GrantApplication[]>;
     getAllCycleProjects(cycleId: string): Promise<GrantApplication[]>;
+    checkTeamMateApplication(
+        applicationId: string,
+        userId: string
+    ): Promise<GrantApplication | null>;
+    removeTeamMateFromApplication(
+        application: GrantApplication,
+        userId: string
+    ): Promise<boolean>;
 }
 
 export const GRANT_APPLICATION_AGGREGATE_PORT = Symbol(

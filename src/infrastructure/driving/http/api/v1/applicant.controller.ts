@@ -12,6 +12,7 @@ import {Response} from "express";
 import ApiError from "../../../../../shared/errors/api.error";
 import {ApplicantControllerPort} from "../../../../../ports/inputs/controllers/applicant.controller.port";
 import {ApplicantService} from "../../../../../core/domain/services/applicant/applicant.service";
+import {ApplicantCfgService} from "../../../../../core/domain/services/applicant/applicant.cfg.service";
 import {AccessTokenJwt} from "../../../../../shared/types/jwt.types";
 import {
     AddApplicationRevenueStreamDTO,
@@ -26,17 +27,22 @@ import {
     GetProjectDetailsDTO,
     GetUserCreatedApplicationDTO,
     GetUserProjectsPaginationDTO,
+    ManageCoApplicantDTO,
 } from "../../../dtos/applicant.dto";
 import {CurrentUser} from "../../../../../shared/decorators/currentuser.decorator";
 import {ApiResponse, ApiTags} from "@nestjs/swagger";
 import {
     APPLICATION_RESPONSES,
     PROJECT_RESPONSES,
+    APPLICANT_CFG_RESPONSES,
 } from "../../../../../config/swagger/docs/applicant.swagger";
 @ApiTags("Applicants")
 @Controller("applicant")
 export class ApplicantController implements ApplicantControllerPort {
-    constructor(private readonly applicantService: ApplicantService) {}
+    constructor(
+        private readonly applicantService: ApplicantService,
+        private readonly applicentCfgService: ApplicantCfgService
+    ) {}
 
     @Post("/create-application")
     @ApiResponse(APPLICATION_RESPONSES.CREATE.SUCCESS)
@@ -322,6 +328,58 @@ export class ApplicantController implements ApplicantControllerPort {
                 parameters.applicationSlug,
                 id
             );
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Post("/add-teammates-for-application")
+    @ApiResponse(APPLICANT_CFG_RESPONSES.ADD_TEAMMATE.SUCCESS)
+    @ApiResponse(APPLICANT_CFG_RESPONSES.ADD_TEAMMATE.INVITE_ERROR)
+    @ApiResponse(APPLICANT_CFG_RESPONSES.ADD_TEAMMATE.SELF_INVITE)
+    @ApiResponse(APPLICANT_CFG_RESPONSES.ADD_TEAMMATE.APPLICATION_NOT_FOUND)
+    @ApiResponse(APPLICANT_CFG_RESPONSES.ADD_TEAMMATE.USER_NOT_FOUND)
+    async addTeamMatesToApplication(
+        @Body() body: ManageCoApplicantDTO,
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+
+            const result =
+                await this.applicentCfgService.addTeamMatesToApplication(
+                    body,
+                    id
+                );
+
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Delete("/remove-teammates-for-application")
+    @ApiResponse(APPLICANT_CFG_RESPONSES.REMOVE_TEAMMATE.SUCCESS)
+    @ApiResponse(APPLICANT_CFG_RESPONSES.REMOVE_TEAMMATE.NOT_A_TEAMMATE)
+    @ApiResponse(APPLICANT_CFG_RESPONSES.REMOVE_TEAMMATE.TEAMMATE_NOT_FOUND)
+    @ApiResponse(APPLICANT_CFG_RESPONSES.REMOVE_TEAMMATE.USER_NOT_FOUND)
+    @ApiResponse(APPLICANT_CFG_RESPONSES.REMOVE_TEAMMATE.APPLICATION_NOT_FOUND)
+    async removeTeamMatesToApplication(
+        @Body() body: ManageCoApplicantDTO,
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+
+            const result =
+                await this.applicentCfgService.removeTeamMateFromApplication(
+                    body,
+                    id
+                );
+
             return response.status(result.status).json(result);
         } catch (error) {
             return this.handleError(error, response);
