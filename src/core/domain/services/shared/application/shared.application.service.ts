@@ -131,7 +131,7 @@ export class SharedApplicationService {
 
             if (
                 type === InviteAs.PROJECT_REVIEWER &&
-                application.projectId != null
+                application.projectId == null
             ) {
                 throw new ApiError(
                     400,
