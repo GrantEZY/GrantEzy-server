@@ -88,7 +88,7 @@ export class AuthService {
 
     async validateUser(userData: LoginDTO): Promise<PassportResponseData> {
         try {
-            const {email, password} = userData;
+            const {email, password, role} = userData;
             const user = await this.userAggregateRepository.findByEmail(
                 email,
                 true
@@ -111,27 +111,20 @@ export class AuthService {
                     message: "Password Is Incorrect",
                 };
             }
-            // TODO  uncomment once authorization employed
-            // const userRole = user.role;
-            // if (role && userRole.includes(role as UserRoles)) {
-            //     return {
-            //         status:200,
-            //         user,
-            //         message: "User validated successfully",
-            //     };
-            // } else {
-            //     throw new ApiError(
-            //         403,
-            //         "User doesn't have access to that role",
-            //         "Login Issue"
-            //     );
-            // }p
-
-            return {
-                status: 200,
-                user,
-                message: "User validated successfully",
-            };
+            const userRole = user.role;
+            if (role && userRole.includes(role as UserRoles)) {
+                return {
+                    status: 200,
+                    user,
+                    message: "User validated successfully",
+                };
+            } else {
+                throw new ApiError(
+                    403,
+                    "User doesn't have access to that role",
+                    "Login Issue"
+                );
+            }
         } catch (error) {
             this.handleError(error);
         }
