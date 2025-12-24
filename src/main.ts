@@ -26,7 +26,20 @@ async function initServer() {
     app.useGlobalGuards(new AtGuard(reflector));
     app.enableShutdownHooks();
 
-    app.use(helmet());
+    app.use(
+        helmet({
+            contentSecurityPolicy: {
+                directives: {
+                    "script-src": ["'self'"],
+                },
+            },
+            xFrameOptions: {action: "deny"},
+            xXssProtection: false,
+            referrerPolicy: {
+                policy: "strict-origin-when-cross-origin",
+            },
+        })
+    );
     app.use(cookieParser());
 
     //Enable global for DTO parsing and verification
