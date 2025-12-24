@@ -16,6 +16,8 @@ import cookieParser from "cookie-parser";
 import {ValidationPipe} from "@nestjs/common";
 import {AtGuard} from "./shared/guards/at.guard";
 
+import {GlobalExceptionFilter} from "./shared/errors/error.middleware";
+
 async function initServer() {
     const app = await NestFactory.create(AppModule);
 
@@ -30,6 +32,9 @@ async function initServer() {
     //Enable global for DTO parsing and verification
     app.useGlobalPipes(new ValidationPipe());
 
+    // Error Parsing Middleware
+    app.useGlobalFilters(new GlobalExceptionFilter());
+
     app.setGlobalPrefix("api/v1"); // Set v1 API prefix for all the routes
 
     //swagger setup for api documentation
@@ -42,7 +47,7 @@ async function initServer() {
         credentials: true,
         methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
         allowedHeaders:
-            "Content-Type, Accept, Authorization, X-Requested-With ,Event-Id, X-Csrf-Token",
+            "Content-Type, Accept, Authorization, X-Requested-With , X-Csrf-Token",
     });
 
     await app.listen(process.env.PORT ?? 3000);
