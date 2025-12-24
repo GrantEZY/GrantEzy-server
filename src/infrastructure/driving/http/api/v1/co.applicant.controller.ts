@@ -1,4 +1,13 @@
-import {Body, Controller, Get, Query, Res, Patch, Delete} from "@nestjs/common";
+import {
+    Body,
+    Controller,
+    Get,
+    Query,
+    Res,
+    Patch,
+    Delete,
+    UseGuards,
+} from "@nestjs/common";
 import {ApiTags, ApiResponse} from "@nestjs/swagger";
 import {CoApplicantService} from "../../../../../core/domain/services/co-applicant/co.applicant.service";
 import {CoApplicantControllerPort} from "../../../../../ports/inputs/controllers/co.applicant.controller.port";
@@ -19,8 +28,14 @@ import {
     CO_APPLICANT_PROJECT_RESPONSES,
     CO_APPLICANT_RESPONSES,
 } from "../../../../../config/swagger/docs/co.applicant.swagger";
+
+import {RoleGuard} from "../../../../../shared/guards/role.guard";
+import {UserRoles} from "../../../../../core/domain/constants/userRoles.constants";
+import {Role} from "../../../../../shared/decorators/role.decorator";
 @ApiTags("Co-Applicants")
 @Controller("co-applicant")
+@Role(UserRoles.TEAM_MATE)
+@UseGuards(RoleGuard)
 export class CoApplicantController implements CoApplicantControllerPort {
     constructor(private readonly coApplicantService: CoApplicantService) {}
 

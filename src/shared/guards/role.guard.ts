@@ -18,6 +18,19 @@ export class RoleGuard implements CanActivate {
             [context.getHandler(), context.getClass()]
         );
 
+        const isPublic = this.reflector.getAllAndOverride("isPublic", [
+            context.getHandler(),
+            context.getClass(),
+        ]);
+
+        if (isPublic) {
+            return true;
+        }
+
+        if (!requiredRoles || requiredRoles.length === 0) {
+            return true;
+        }
+
         if (requiredRoles && !requiredRoles.includes(role)) {
             throw new ApiError(
                 403,

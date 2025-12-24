@@ -1,4 +1,13 @@
-import {Body, Controller, Get, Patch, Post, Query, Res} from "@nestjs/common";
+import {
+    Body,
+    Controller,
+    Get,
+    Patch,
+    Post,
+    Query,
+    Res,
+    UseGuards,
+} from "@nestjs/common";
 import {ReviewerService} from "../../../../../core/domain/services/reviewer/reviewer.service";
 import {ApiTags} from "@nestjs/swagger";
 import ApiError from "../../../../../shared/errors/api.error";
@@ -26,8 +35,14 @@ import {
     GetUserReviewsDTO,
     GetReviewDetailsDTO,
 } from "../../../dtos/reviewer.dto";
+
+import {Role} from "../../../../../shared/decorators/role.decorator";
+import {RoleGuard} from "../../../../../shared/guards/role.guard";
+import {UserRoles} from "../../../../../core/domain/constants/userRoles.constants";
 @Controller("reviewer")
 @ApiTags("Reviewer")
+@Role(UserRoles.APPLICANT)
+@UseGuards(RoleGuard)
 export class ReviewerController implements ReviewerControllerPort {
     constructor(private readonly reviewService: ReviewerService) {}
 

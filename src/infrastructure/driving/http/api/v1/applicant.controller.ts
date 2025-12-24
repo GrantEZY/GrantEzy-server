@@ -7,6 +7,7 @@ import {
     Delete,
     Patch,
     Query,
+    UseGuards,
 } from "@nestjs/common";
 import {Response} from "express";
 import ApiError from "../../../../../shared/errors/api.error";
@@ -36,8 +37,14 @@ import {
     PROJECT_RESPONSES,
     APPLICANT_CFG_RESPONSES,
 } from "../../../../../config/swagger/docs/applicant.swagger";
+import {Role} from "../../../../../shared/decorators/role.decorator";
+import {RoleGuard} from "../../../../../shared/guards/role.guard";
+import {UserRoles} from "../../../../../core/domain/constants/userRoles.constants";
+
 @ApiTags("Applicants")
 @Controller("applicant")
+@Role(UserRoles.APPLICANT)
+@UseGuards(RoleGuard)
 export class ApplicantController implements ApplicantControllerPort {
     constructor(
         private readonly applicantService: ApplicantService,

@@ -1,4 +1,12 @@
-import {Body, Controller, Post, Res, Query, Get} from "@nestjs/common";
+import {
+    Body,
+    Controller,
+    Post,
+    Res,
+    Query,
+    Get,
+    UseGuards,
+} from "@nestjs/common";
 import {Response} from "express";
 import {ApiResponse, ApiTags} from "@nestjs/swagger";
 import {ProjectManagementControllerPort} from "../../../../../ports/inputs/controllers/project.management.controller.port";
@@ -23,6 +31,10 @@ import {
     APPLICANT_PROJECT_MANAGEMENT,
     PROJECT_ASSESSMENT_REVIEWER_RESPONSES,
 } from "../../../../../config/swagger/docs/project.management.swagger";
+
+import {Role} from "../../../../../shared/decorators/role.decorator";
+import {RoleGuard} from "../../../../../shared/guards/role.guard";
+import {UserRoles} from "../../../../../core/domain/constants/userRoles.constants";
 @ApiTags("Project Management")
 @Controller("pt-management")
 export class ProjectManagementController
@@ -33,6 +45,8 @@ export class ProjectManagementController
     ) {}
 
     @Post("/create-project")
+    @Role(UserRoles.PROGRAM_MANAGER)
+    @UseGuards(RoleGuard)
     @ApiResponse(PROJECT_MANAGEMENT_RESPONSES.CREATE.SUCCESS)
     @ApiResponse(PROJECT_MANAGEMENT_RESPONSES.CREATE.APPLICATION_NOT_ELIGIBLE)
     @ApiResponse(PROJECT_MANAGEMENT_RESPONSES.CREATE.APPLICATION_NOT_FOUND)
@@ -56,6 +70,8 @@ export class ProjectManagementController
     }
 
     @Get("/get-cycle-projects")
+    @Role(UserRoles.PROGRAM_MANAGER)
+    @UseGuards(RoleGuard)
     @ApiResponse(PROJECT_MANAGEMENT_RESPONSES.GET_CYCLE_PROJECTS.SUCCESS)
     @ApiResponse(
         PROJECT_MANAGEMENT_RESPONSES.GET_CYCLE_PROJECTS.UNAUTHORIZED_MANAGER
@@ -83,6 +99,8 @@ export class ProjectManagementController
     }
 
     @Get("/get-project-details")
+    @Role(UserRoles.PROGRAM_MANAGER)
+    @UseGuards(RoleGuard)
     @ApiResponse(
         PROJECT_MANAGEMENT_RESPONSES.GET_PROJECT_DETAILS.APPLICATION_NOT_FOUND
     )
@@ -110,6 +128,8 @@ export class ProjectManagementController
     }
 
     @Post("/create-cycle-criteria")
+    @Role(UserRoles.PROGRAM_MANAGER)
+    @UseGuards(RoleGuard)
     @ApiResponse(CYCLE_CRITERIA_RESPONSES.CREATE_CRITERIA.SUCCESS)
     @ApiResponse(CYCLE_CRITERIA_RESPONSES.CREATE_CRITERIA.CYCLE_NOT_FOUND)
     @ApiResponse(CYCLE_CRITERIA_RESPONSES.CREATE_CRITERIA.UNAUTHORIZED_MANAGER)
@@ -133,6 +153,8 @@ export class ProjectManagementController
     }
 
     @Get("/get-cycle-criterias")
+    @Role(UserRoles.PROGRAM_MANAGER)
+    @UseGuards(RoleGuard)
     @ApiResponse(CYCLE_CRITERIA_RESPONSES.GET_CYCLE_CRITERIA.SUCCESS)
     @ApiResponse(CYCLE_CRITERIA_RESPONSES.GET_CYCLE_CRITERIA.CYCLE_NOT_FOUND)
     @ApiResponse(
@@ -158,6 +180,8 @@ export class ProjectManagementController
     }
 
     @Get("/get-applicant-project-cycle-review-criteria")
+    @Role(UserRoles.APPLICANT)
+    @UseGuards(RoleGuard)
     @ApiResponse(APPLICANT_PROJECT_MANAGEMENT.GET_USER_CYCLE_CRITERIA.SUCCESS)
     @ApiResponse(
         APPLICANT_PROJECT_MANAGEMENT.GET_USER_CYCLE_CRITERIA.CYCLE_NOT_FOUND
@@ -189,6 +213,8 @@ export class ProjectManagementController
     }
 
     @Get("/get-applicant-cycle-assessment-submission")
+    @Role(UserRoles.APPLICANT)
+    @UseGuards(RoleGuard)
     @ApiResponse(
         APPLICANT_PROJECT_MANAGEMENT.GET_USER_REVIEW_CRITERIA_DETAILS.SUCCESS
     )
@@ -223,6 +249,8 @@ export class ProjectManagementController
     }
 
     @Post("/create-applicant-project-assessment-submission")
+    @Role(UserRoles.APPLICANT)
+    @UseGuards(RoleGuard)
     @ApiResponse(
         APPLICANT_PROJECT_MANAGEMENT.CREATE_PROJECT_ASSESSMENT.SUCCESS_CREATED
     )
@@ -256,6 +284,8 @@ export class ProjectManagementController
     }
 
     @Get("/get-cycle-criteria-assessments")
+    @Role(UserRoles.PROGRAM_MANAGER)
+    @UseGuards(RoleGuard)
     @ApiResponse(
         APPLICANT_PROJECT_MANAGEMENT.GET_CYCLE_CRITERIA_ASSESSMENTS.SUCCESS
     )
@@ -288,6 +318,8 @@ export class ProjectManagementController
     }
 
     @Post("/invite-reviewer-for-project-assessment")
+    @Role(UserRoles.PROGRAM_MANAGER)
+    @UseGuards(RoleGuard)
     @ApiResponse(PROJECT_ASSESSMENT_REVIEWER_RESPONSES.ASSIGN.SUCCESS)
     @ApiResponse(
         PROJECT_ASSESSMENT_REVIEWER_RESPONSES.ASSIGN.UNAUTHORIZED_MANAGER
