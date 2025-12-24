@@ -95,7 +95,7 @@ export class AuthService {
             );
             if (!user) {
                 return {
-                    status: 401,
+                    status: 404,
                     user: null,
                     message: "User Not Found",
                 };
@@ -173,7 +173,7 @@ export class AuthService {
             const user = await this.userAggregateRepository.findById(id, false);
             if (!user) {
                 throw new ApiError(
-                    401,
+                    404,
                     "User Not Found",
                     "User removed from the application"
                 );

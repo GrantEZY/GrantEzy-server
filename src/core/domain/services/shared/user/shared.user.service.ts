@@ -109,7 +109,7 @@ export class UserSharedService {
             if (type == UpdateRole.ADD_ROLE) {
                 if (isThere) {
                     throw new ApiError(
-                        401,
+                        403,
                         "User already has the role privileges",
                         "Conflict Error"
                     );
@@ -140,7 +140,7 @@ export class UserSharedService {
             } else {
                 if (!isThere) {
                     throw new ApiError(
-                        401,
+                        403,
                         "User don't  have the role privileges",
                         "Conflict Error"
                     );

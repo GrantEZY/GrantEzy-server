@@ -151,7 +151,7 @@ describe("AuthService", () => {
                 await authService.validateUser(loginData);
             } catch (error) {
                 expect(error).toBeInstanceOf(ApiError);
-                expect((error as ApiError).status).toBe(401);
+                expect((error as ApiError).status).toBe(404);
                 expect((error as ApiError).message).toBe("User Not Found");
             }
         });
