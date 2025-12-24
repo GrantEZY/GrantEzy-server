@@ -22,12 +22,14 @@ import {
 } from "./co.applicant.mock.data";
 import {SharedApplicationService} from "../shared/application/shared.application.service";
 import {InviteStatus} from "../../constants/invite.constants";
+import {EmailQueue} from "../../../../infrastructure/driven/queue/queues/email.queue";
 describe("CoApplicantService", () => {
     let coApplicationService: CoApplicantService;
     let applicationAggregateRepository: jest.Mocked<GrantApplicationAggregatePort>;
     let sharedApplicationService: jest.Mocked<SharedApplicationService>;
     let userAggregateRepository: jest.Mocked<UserAggregatePort>;
     let projectAggregateRepository: jest.Mocked<ProjectAggregatePort>;
+    let emailQueue: jest.Mocked<EmailQueue>;
     beforeEach(async () => {
         const moduleReference: TestingModule = await Test.createTestingModule({
             providers: [
@@ -48,6 +50,10 @@ describe("CoApplicantService", () => {
                     provide: PROJECT_AGGREGATE_PORT,
                     useValue: createMock<ProjectAggregatePort>(),
                 },
+                {
+                    provide: EmailQueue,
+                    useValue: createMock<EmailQueue>(),
+                },
             ],
         }).compile();
 
@@ -64,6 +70,7 @@ describe("CoApplicantService", () => {
         projectAggregateRepository = moduleReference.get(
             PROJECT_AGGREGATE_PORT
         ) as jest.Mocked<ProjectAggregatePort>;
+        emailQueue = moduleReference.get(EmailQueue) as jest.Mocked<EmailQueue>;
     });
 
     it("should be defined", () => {
@@ -358,6 +365,95 @@ describe("CoApplicantService", () => {
                 expect((error as ApiError).message).toBe(
                     "User Not Linked With the Application"
                 );
+            }
+        });
+    });
+
+    describe("Removal Of Co Applicant From Application", () => {
+        it("Successful Removal Of Co Applicant", async () => {
+            userAggregateRepository.findById.mockResolvedValueOnce(
+                SAVED_USER as any
+            );
+
+            applicationAggregateRepository.checkTeamMateApplication.mockResolvedValue(
+                saved_Application as any
+            );
+
+            const applicant = JSON.parse(JSON.stringify(SAVED_USER));
+            applicant.contact.email = "applicant@gmail.com";
+            userAggregateRepository.findById.mockResolvedValueOnce(
+                applicant as any
+            );
+
+            applicationAggregateRepository.removeTeamMateFromApplication.mockResolvedValue(
+                true
+            );
+
+            emailQueue.removeTeamMateFromApplication.mockResolvedValue({
+                status: true,
+            } as any);
+
+            emailQueue.informApplicantOverCoApplicantDeparture.mockResolvedValue(
+                {status: true} as any
+            );
+
+            const result =
+                await coApplicationService.removeCoApplicantFromApplication(
+                    {applicationId: "id"},
+                    "uuid"
+                );
+
+            expect(result).toEqual({
+                status: 200,
+                message: "User Removed From Application",
+                res: {
+                    status: true,
+                },
+            });
+        });
+
+        it("Application Not Found", async () => {
+            try {
+                userAggregateRepository.findById.mockResolvedValueOnce(
+                    SAVED_USER as any
+                );
+
+                applicationAggregateRepository.checkTeamMateApplication.mockResolvedValue(
+                    null
+                );
+
+                await coApplicationService.removeCoApplicantFromApplication(
+                    {applicationId: "id"},
+                    "uuid"
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(403);
+                expect((error as ApiError).message).toBe(
+                    "User Is Not A TeamMate"
+                );
+            }
+        });
+
+        it("Applicant Not Found", async () => {
+            try {
+                userAggregateRepository.findById.mockResolvedValueOnce(
+                    SAVED_USER as any
+                );
+
+                applicationAggregateRepository.checkTeamMateApplication.mockResolvedValue(
+                    saved_Application as any
+                );
+
+                userAggregateRepository.findById.mockResolvedValueOnce(null);
+                await coApplicationService.removeCoApplicantFromApplication(
+                    {applicationId: "id"},
+                    "uuid"
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(404);
+                expect((error as ApiError).message).toBe("Applicant Not Found");
             }
         });
     });

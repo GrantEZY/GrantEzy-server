@@ -31,6 +31,10 @@ export class UserInviteStatusUpdate {
     status: InviteStatus;
 }
 
+export class ManageCoApplicantDetails {
+    status: boolean;
+}
+
 export class CoApplicantApplicationResponse extends ApiResponse(
     CoApplicantApplicationDetails
 ) {}
@@ -48,3 +52,7 @@ export class GetUserProjectsResponse extends ApiResponse(
 ) {}
 
 export class GetProjectDetailsResponse extends ApiResponse(GetProjectDetails) {}
+
+export class ManageCoApplicantResponse extends ApiResponse(
+    ManageCoApplicantDetails
+) {}

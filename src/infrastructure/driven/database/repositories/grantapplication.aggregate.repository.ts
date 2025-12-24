@@ -570,4 +570,54 @@ export class GrantApplicationRepository
             );
         }
     }
+
+    async checkTeamMateApplication(
+        applicationId: string,
+        userId: string
+    ): Promise<GrantApplication | null> {
+        try {
+            const application = await this.grantApplicationRepository
+                .createQueryBuilder("app")
+                .innerJoin("app.teammates", "user", "user.personId = :userId", {
+                    userId,
+                })
+                .where("app.id = :appId", {appId: applicationId})
+                .getOne();
+
+            return application;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Failed to check teammate application",
+                "Database Error"
+            );
+        }
+    }
+
+    async removeTeamMateFromApplication(
+        application: GrantApplication,
+        userId: string
+    ): Promise<boolean> {
+        try {
+            const applicationId = application.id;
+            await this.grantApplicationRepository
+                .createQueryBuilder()
+                .relation(GrantApplication, "teammates")
+                .of(applicationId)
+                .remove(userId);
+            return true;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Failed to check remove teammate from application",
+                "Database Error"
+            );
+        }
+    }
 }
