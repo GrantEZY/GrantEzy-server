@@ -117,7 +117,13 @@ export class CycleAssessmentAggregateRepository
                 where: {
                     criteriaId,
                 },
-                relations: ["project"],
+                relations: [
+                    "project",
+                    "project.application",
+                    "project.application.applicant",
+                    "project.application.applicant.person",
+                    "reviews",
+                ],
                 skip: (page - 1) * numberOfResults,
                 take: numberOfResults,
             });
