@@ -11,7 +11,7 @@ import {
     GetUserCreatedApplicationDTO,
     GetProjectDetailsDTO,
     GetUserProjectsPaginationDTO,
-    ManageCoApplicantDTO,
+    ManageTeammateDTO,
 } from "../../../infrastructure/driving/dtos/applicant.dto";
 import {AccessTokenJwt} from "../../../shared/types/jwt.types";
 import {Response} from "express";
@@ -94,13 +94,13 @@ export interface ApplicantControllerPort {
     ): Promise<Response>;
 
     addTeamMatesToApplication(
-        body: ManageCoApplicantDTO,
+        body: ManageTeammateDTO,
         user: AccessTokenJwt,
         response: Response
     ): Promise<Response>;
 
     removeTeamMatesToApplication(
-        body: ManageCoApplicantDTO,
+        body: ManageTeammateDTO,
         user: AccessTokenJwt,
         response: Response
     ): Promise<Response>;

@@ -27,7 +27,7 @@ import {
     GetProjectDetailsDTO,
     GetUserCreatedApplicationDTO,
     GetUserProjectsPaginationDTO,
-    ManageCoApplicantDTO,
+    ManageTeammateDTO,
 } from "../../../dtos/applicant.dto";
 import {CurrentUser} from "../../../../../shared/decorators/currentuser.decorator";
 import {ApiResponse, ApiTags} from "@nestjs/swagger";
@@ -341,7 +341,7 @@ export class ApplicantController implements ApplicantControllerPort {
     @ApiResponse(APPLICANT_CFG_RESPONSES.ADD_TEAMMATE.APPLICATION_NOT_FOUND)
     @ApiResponse(APPLICANT_CFG_RESPONSES.ADD_TEAMMATE.USER_NOT_FOUND)
     async addTeamMatesToApplication(
-        @Body() body: ManageCoApplicantDTO,
+        @Body() body: ManageTeammateDTO,
         @CurrentUser() user: AccessTokenJwt,
         @Res() response: Response
     ): Promise<Response> {
@@ -367,7 +367,7 @@ export class ApplicantController implements ApplicantControllerPort {
     @ApiResponse(APPLICANT_CFG_RESPONSES.REMOVE_TEAMMATE.USER_NOT_FOUND)
     @ApiResponse(APPLICANT_CFG_RESPONSES.REMOVE_TEAMMATE.APPLICATION_NOT_FOUND)
     async removeTeamMatesToApplication(
-        @Body() body: ManageCoApplicantDTO,
+        @Body() body: ManageTeammateDTO,
         @CurrentUser() user: AccessTokenJwt,
         @Res() response: Response
     ): Promise<Response> {

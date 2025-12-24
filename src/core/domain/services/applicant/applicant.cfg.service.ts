@@ -20,7 +20,7 @@ import {
     UserInviteAggregatePort,
 } from "../../../../ports/outputs/repository/user.invite/user.invite.aggregate.port";
 import {CycleInviteQueue} from "../../../../infrastructure/driven/queue/queues/cycle.invite.queue";
-import {ManageCoApplicantDTO} from "../../../../infrastructure/driving/dtos/applicant.dto";
+import {ManageTeammateDTO} from "../../../../infrastructure/driving/dtos/applicant.dto";
 import {InviteAs} from "../../constants/invite.constants";
 import {UserRoles} from "../../constants/userRoles.constants";
 import {ManageCoApplicantResponse} from "../../../../infrastructure/driven/response-dtos/co.applicant.response-dto";
@@ -44,7 +44,7 @@ export class ApplicantCfgService {
     ) {}
 
     async addTeamMatesToApplication(
-        teamMatesDetails: ManageCoApplicantDTO,
+        teamMatesDetails: ManageTeammateDTO,
         userId: string
     ): Promise<ManageCoApplicantResponse> {
         try {
@@ -137,7 +137,7 @@ export class ApplicantCfgService {
     }
 
     async removeTeamMateFromApplication(
-        teamMateDetails: ManageCoApplicantDTO,
+        teamMateDetails: ManageTeammateDTO,
         userId: string
     ): Promise<ManageCoApplicantResponse> {
         try {

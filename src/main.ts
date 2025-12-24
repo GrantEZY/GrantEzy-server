@@ -13,7 +13,7 @@ import {AppModule} from "./core/application/app.module";
 
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
-import {ValidationPipe} from "@nestjs/common";
+import {HttpStatus, ValidationPipe} from "@nestjs/common";
 import {AtGuard} from "./shared/guards/at.guard";
 
 import {GlobalExceptionFilter} from "./shared/errors/error.middleware";
@@ -30,7 +30,11 @@ async function initServer() {
     app.use(cookieParser());
 
     //Enable global for DTO parsing and verification
-    app.useGlobalPipes(new ValidationPipe());
+    app.useGlobalPipes(
+        new ValidationPipe({
+            errorHttpStatusCode: HttpStatus.NOT_ACCEPTABLE,
+        })
+    );
 
     // Error Parsing Middleware
     app.useGlobalFilters(new GlobalExceptionFilter());
