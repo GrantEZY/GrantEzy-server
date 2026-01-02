@@ -9,14 +9,6 @@ export class RoleGuard implements CanActivate {
 
     canActivate(context: ExecutionContext): boolean {
         const request = context.switchToHttp().getRequest();
-        const user: AccessTokenJwt = request.user;
-
-        const role = user.userData.payload.role;
-
-        const requiredRoles = this.reflector.getAllAndOverride<UserRoles[]>(
-            "role",
-            [context.getHandler(), context.getClass()]
-        );
 
         const isPublic = this.reflector.getAllAndOverride("isPublic", [
             context.getHandler(),
@@ -26,6 +18,15 @@ export class RoleGuard implements CanActivate {
         if (isPublic) {
             return true;
         }
+
+        const user: AccessTokenJwt = request.user;
+
+        const role = user.userData.payload.role;
+
+        const requiredRoles = this.reflector.getAllAndOverride<UserRoles[]>(
+            "role",
+            [context.getHandler(), context.getClass()]
+        );
 
         if (!requiredRoles || requiredRoles.length === 0) {
             return true;
@@ -38,7 +39,7 @@ export class RoleGuard implements CanActivate {
                 "User Privilege Error"
             );
         }
-
+        console.log("allowed");
         return true;
     }
 }

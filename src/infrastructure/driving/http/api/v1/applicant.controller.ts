@@ -40,6 +40,7 @@ import {
 import {Role} from "../../../../../shared/decorators/role.decorator";
 import {RoleGuard} from "../../../../../shared/guards/role.guard";
 import {UserRoles} from "../../../../../core/domain/constants/userRoles.constants";
+import {Public} from "../../../../../shared/decorators/public.decorator";
 
 @ApiTags("Applicants")
 @Controller("applicant")
@@ -51,6 +52,7 @@ export class ApplicantController implements ApplicantControllerPort {
         private readonly applicentCfgService: ApplicantCfgService
     ) {}
 
+    @Public()
     @Post("/create-application")
     @ApiResponse(APPLICATION_RESPONSES.CREATE.SUCCESS)
     @ApiResponse(APPLICATION_RESPONSES.CREATE.CYCLE_NOT_FOUND)
