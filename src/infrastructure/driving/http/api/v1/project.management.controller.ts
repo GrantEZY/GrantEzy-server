@@ -33,7 +33,7 @@ import {
 } from "../../../../../config/swagger/docs/project.management.swagger";
 
 import {Role} from "../../../../../shared/decorators/role.decorator";
-import {RoleGuard} from "../../../../../shared/guards/role.guard";
+import {RoleGuard} from "../../../../../shared/guards/role/role.guard";
 import {UserRoles} from "../../../../../core/domain/constants/userRoles.constants";
 @ApiTags("Project Management")
 @Controller("pt-management")

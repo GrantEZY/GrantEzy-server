@@ -14,7 +14,7 @@ import {AppModule} from "./core/application/app.module";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import {HttpStatus, ValidationPipe} from "@nestjs/common";
-import {AtGuard} from "./shared/guards/at.guard";
+import {AtGuard} from "./shared/guards/accessToken/at.guard";
 
 import {GlobalExceptionFilter} from "./shared/errors/error.middleware";
 
