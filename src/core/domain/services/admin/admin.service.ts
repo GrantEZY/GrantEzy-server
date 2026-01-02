@@ -145,6 +145,7 @@ export class AdminService {
             if (!user) {
                 throw new ApiError(400, "User Not Found", "User conflict");
             }
+
             return await this.userSharedService.deleteUser(user.personId);
         } catch (error) {
             this.handleError(error);

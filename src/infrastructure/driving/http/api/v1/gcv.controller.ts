@@ -7,6 +7,7 @@ import {
     Get,
     Query,
     Delete,
+    UseGuards,
 } from "@nestjs/common";
 import {ApiResponse, ApiTags} from "@nestjs/swagger";
 import {GCVControllerPort} from "../../../../../ports/inputs/controllers/gcv.controller.port";
@@ -30,12 +31,17 @@ import {
     GetCycleDetailsDTO,
     GetApplicationDetailsDTO,
 } from "../../../dtos/pm.dto";
+import {UserRoles} from "../../../../../core/domain/constants/userRoles.constants";
+import {Role} from "../../../../../shared/decorators/role.decorator";
+import {RoleGuard} from "../../../../../shared/guards/role.guard";
 @ApiTags("GCV-Only")
 @Controller("gcv")
 export class GCVController implements GCVControllerPort {
     constructor(private readonly gcvService: GCVService) {}
 
     @Post("/add-gcv-member")
+    @Role(UserRoles.DIRECTOR)
+    @UseGuards(RoleGuard)
     @ApiResponse(GCV_RESPONSES.ADD_MEMBER.CREATED_NEW)
     @ApiResponse(GCV_RESPONSES.ADD_MEMBER.SUCCESS)
     @ApiResponse(GCV_RESPONSES.ADD_MEMBER.ERROR)
@@ -52,6 +58,8 @@ export class GCVController implements GCVControllerPort {
     }
 
     @Get("/get-gcv-members")
+    @Role(UserRoles.DIRECTOR, UserRoles.COMMITTEE_MEMBER)
+    @UseGuards(RoleGuard)
     @ApiResponse(GCV_RESPONSES.GET_MEMBERS.SUCCESS)
     @ApiResponse(GCV_RESPONSES.GET_MEMBERS.NO_USERS_PRESENT)
     async getAllMembers(
@@ -67,6 +75,8 @@ export class GCVController implements GCVControllerPort {
     }
 
     @Patch("/update-gcv-role")
+    @Role(UserRoles.DIRECTOR)
+    @UseGuards(RoleGuard)
     @ApiResponse(GCV_RESPONSES.UPDATE_MEMBER_ROLE.SUCCESS)
     @ApiResponse(GCV_RESPONSES.UPDATE_MEMBER_ROLE.USER_NOT_FOUND)
     async updateGCVMemberRole(
@@ -83,6 +93,8 @@ export class GCVController implements GCVControllerPort {
     }
 
     @Post("/create-program")
+    @Role(UserRoles.DIRECTOR, UserRoles.COMMITTEE_MEMBER)
+    @UseGuards(RoleGuard)
     @ApiResponse(GCV_RESPONSES.CREATE_PROGRAM.SUCCESS)
     @ApiResponse(GCV_RESPONSES.CREATE_PROGRAM.DUPLICATE)
     async createProgram(
@@ -98,6 +110,8 @@ export class GCVController implements GCVControllerPort {
     }
 
     @Get("/get-programs")
+    @Role(UserRoles.DIRECTOR, UserRoles.COMMITTEE_MEMBER)
+    @UseGuards(RoleGuard)
     @ApiResponse(GCV_RESPONSES.GET_PROGRAMS.SUCCESS)
     async getAllPrograms(
         @Query() query: GetAllProgramDTO,
@@ -112,6 +126,8 @@ export class GCVController implements GCVControllerPort {
     }
 
     @Patch("/update-program")
+    @Role(UserRoles.DIRECTOR, UserRoles.COMMITTEE_MEMBER)
+    @UseGuards(RoleGuard)
     @ApiResponse(GCV_RESPONSES.UPDATE_PROGRAM.SUCCESS)
     @ApiResponse(GCV_RESPONSES.UPDATE_PROGRAM.ERROR)
     async updateProgram(
@@ -127,6 +143,8 @@ export class GCVController implements GCVControllerPort {
     }
 
     @Delete("/delete-program")
+    @Role(UserRoles.DIRECTOR, UserRoles.COMMITTEE_MEMBER)
+    @UseGuards(RoleGuard)
     @ApiResponse(GCV_RESPONSES.DELETE_PROGRAM.SUCCESS)
     @ApiResponse(GCV_RESPONSES.DELETE_PROGRAM.NOT_FOUND)
     @ApiResponse(GCV_RESPONSES.DELETE_PROGRAM.ERROR)
@@ -143,6 +161,8 @@ export class GCVController implements GCVControllerPort {
     }
 
     @Post("/add-program-manager")
+    @Role(UserRoles.DIRECTOR, UserRoles.COMMITTEE_MEMBER)
+    @UseGuards(RoleGuard)
     @ApiResponse(GCV_RESPONSES.ADD_PROGRAM_MANAGER.SUCCESS)
     @ApiResponse(GCV_RESPONSES.ADD_PROGRAM_MANAGER.PROGRAM_NOT_FOUND)
     @ApiResponse(GCV_RESPONSES.ADD_PROGRAM_MANAGER.USER_NOT_FOUND)
@@ -160,6 +180,8 @@ export class GCVController implements GCVControllerPort {
     }
 
     @Patch("/update-program-manager")
+    @Role(UserRoles.DIRECTOR, UserRoles.COMMITTEE_MEMBER)
+    @UseGuards(RoleGuard)
     @ApiResponse(GCV_RESPONSES.ADD_PROGRAM_MANAGER.SUCCESS)
     @ApiResponse(GCV_RESPONSES.ADD_PROGRAM_MANAGER.PROGRAM_NOT_FOUND)
     @ApiResponse(GCV_RESPONSES.ADD_PROGRAM_MANAGER.USER_NOT_FOUND)
@@ -177,6 +199,8 @@ export class GCVController implements GCVControllerPort {
     }
 
     @Get("/get-program-cycles")
+    @Role(UserRoles.DIRECTOR, UserRoles.COMMITTEE_MEMBER)
+    @UseGuards(RoleGuard)
     @ApiResponse(GCV_RESPONSES.PROGRAM_CYCLES.SUCCESS)
     @ApiResponse(GCV_RESPONSES.PROGRAM_CYCLES.NO_CYCLES_FOUND)
     async getProgramCycles(
@@ -192,6 +216,8 @@ export class GCVController implements GCVControllerPort {
     }
 
     @Get("/get-cycle-details")
+    @Role(UserRoles.DIRECTOR, UserRoles.COMMITTEE_MEMBER)
+    @UseGuards(RoleGuard)
     @ApiResponse(GCV_RESPONSES.CYCLE_WITH_APPLICATIONS.SUCCESS)
     @ApiResponse(GCV_RESPONSES.CYCLE_WITH_APPLICATIONS.NOT_FOUND)
     async getCycleDetails(
@@ -209,6 +235,8 @@ export class GCVController implements GCVControllerPort {
     }
 
     @Get("/get-cycle-application-details")
+    @Role(UserRoles.DIRECTOR, UserRoles.COMMITTEE_MEMBER)
+    @UseGuards(RoleGuard)
     @ApiResponse(GCV_RESPONSES.APPLICATION_DETAILS.SUCCESS)
     @ApiResponse(GCV_RESPONSES.APPLICATION_DETAILS.APPLICATION_MISMATCH)
     @ApiResponse(GCV_RESPONSES.APPLICATION_DETAILS.APPLICATION_NOT_FOUND)

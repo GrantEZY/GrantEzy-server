@@ -7,6 +7,7 @@ import {
     Patch,
     Post,
     Res,
+    UseGuards,
 } from "@nestjs/common";
 import {ApiResponse, ApiTags} from "@nestjs/swagger";
 import {Response} from "express";
@@ -34,9 +35,13 @@ import {CurrentUser} from "../../../../../shared/decorators/currentuser.decorato
 import {AccessTokenJwt} from "../../../../../shared/types/jwt.types";
 import {ProgramManagerConfigManagementService} from "../../../../../core/domain/services/program-manager/pm.cfg.management.service";
 import {CycleStatus} from "../../../../../core/domain/constants/status.constants";
-
+import {UserRoles} from "../../../../../core/domain/constants/userRoles.constants";
+import {RoleGuard} from "../../../../../shared/guards/role.guard";
+import {Role} from "../../../../../shared/decorators/role.decorator";
 @ApiTags("ProgramManager")
 @Controller("pm")
+@Role(UserRoles.PROGRAM_MANAGER)
+@UseGuards(RoleGuard)
 export class ProgramManagerController implements ProgramManagerControllerPort {
     constructor(
         private readonly programManagerService: ProgramManagerService,

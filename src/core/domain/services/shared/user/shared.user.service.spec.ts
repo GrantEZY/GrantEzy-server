@@ -205,7 +205,7 @@ describe("SharedUserService", () => {
                 );
             } catch (error) {
                 expect(error).toBeInstanceOf(ApiError);
-                expect((error as ApiError).status).toBe(401);
+                expect((error as ApiError).status).toBe(403);
                 expect((error as ApiError).message).toBe(
                     "User already has the role privileges"
                 );
@@ -334,7 +334,7 @@ describe("SharedUserService", () => {
                 );
             } catch (error) {
                 expect(error).toBeInstanceOf(ApiError);
-                expect((error as ApiError).status).toBe(401);
+                expect((error as ApiError).status).toBe(403);
                 expect((error as ApiError).message).toBe(
                     "User don't  have the role privileges"
                 );

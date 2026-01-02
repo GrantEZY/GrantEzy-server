@@ -7,6 +7,7 @@ import {
     Delete,
     Patch,
     Query,
+    UseGuards,
 } from "@nestjs/common";
 import {Response} from "express";
 import ApiError from "../../../../../shared/errors/api.error";
@@ -27,7 +28,7 @@ import {
     GetProjectDetailsDTO,
     GetUserCreatedApplicationDTO,
     GetUserProjectsPaginationDTO,
-    ManageCoApplicantDTO,
+    ManageTeammateDTO,
 } from "../../../dtos/applicant.dto";
 import {CurrentUser} from "../../../../../shared/decorators/currentuser.decorator";
 import {ApiResponse, ApiTags} from "@nestjs/swagger";
@@ -36,14 +37,22 @@ import {
     PROJECT_RESPONSES,
     APPLICANT_CFG_RESPONSES,
 } from "../../../../../config/swagger/docs/applicant.swagger";
+import {Role} from "../../../../../shared/decorators/role.decorator";
+import {RoleGuard} from "../../../../../shared/guards/role.guard";
+import {UserRoles} from "../../../../../core/domain/constants/userRoles.constants";
+import {Public} from "../../../../../shared/decorators/public.decorator";
+
 @ApiTags("Applicants")
 @Controller("applicant")
+@Role(UserRoles.APPLICANT)
+@UseGuards(RoleGuard)
 export class ApplicantController implements ApplicantControllerPort {
     constructor(
         private readonly applicantService: ApplicantService,
         private readonly applicentCfgService: ApplicantCfgService
     ) {}
 
+    @Public()
     @Post("/create-application")
     @ApiResponse(APPLICATION_RESPONSES.CREATE.SUCCESS)
     @ApiResponse(APPLICATION_RESPONSES.CREATE.CYCLE_NOT_FOUND)
@@ -341,7 +350,7 @@ export class ApplicantController implements ApplicantControllerPort {
     @ApiResponse(APPLICANT_CFG_RESPONSES.ADD_TEAMMATE.APPLICATION_NOT_FOUND)
     @ApiResponse(APPLICANT_CFG_RESPONSES.ADD_TEAMMATE.USER_NOT_FOUND)
     async addTeamMatesToApplication(
-        @Body() body: ManageCoApplicantDTO,
+        @Body() body: ManageTeammateDTO,
         @CurrentUser() user: AccessTokenJwt,
         @Res() response: Response
     ): Promise<Response> {
@@ -367,7 +376,7 @@ export class ApplicantController implements ApplicantControllerPort {
     @ApiResponse(APPLICANT_CFG_RESPONSES.REMOVE_TEAMMATE.USER_NOT_FOUND)
     @ApiResponse(APPLICANT_CFG_RESPONSES.REMOVE_TEAMMATE.APPLICATION_NOT_FOUND)
     async removeTeamMatesToApplication(
-        @Body() body: ManageCoApplicantDTO,
+        @Body() body: ManageTeammateDTO,
         @CurrentUser() user: AccessTokenJwt,
         @Res() response: Response
     ): Promise<Response> {

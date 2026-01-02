@@ -39,10 +39,10 @@ export const LoginSwagger = {
         },
     },
     USER_NOT_FOUND: {
-        status: 401,
+        status: 404,
         description: "User Not Found",
         example: {
-            status: 401,
+            status: 404,
             message: "User Not Found",
             res: null,
         },
@@ -51,7 +51,7 @@ export const LoginSwagger = {
         status: 402,
         description: "Password don't match",
         example: {
-            status: 401,
+            status: 404,
             message: "Password is incorrect",
             res: null,
         },
@@ -60,7 +60,7 @@ export const LoginSwagger = {
         status: 403,
         description: "User doesn't have access to that role",
         example: {
-            status: 401,
+            status: 404,
             message: "User doesn't have access to that role",
             res: null,
         },
@@ -91,10 +91,10 @@ export const RefreshSwagger = {
     },
 
     USER_NOT_FOUND: {
-        status: 401,
+        status: 404,
         description: "User not found",
         example: {
-            status: 401,
+            status: 404,
             message: "User not found",
             res: null,
         },
@@ -103,7 +103,7 @@ export const RefreshSwagger = {
         status: 403,
         description: "Token mismatch",
         example: {
-            status: 401,
+            status: 404,
             message: "Token mismatch",
             res: null,
         },
