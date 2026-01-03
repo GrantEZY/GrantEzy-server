@@ -12,7 +12,6 @@ const genReqId = (request: IncomingMessage, response: ServerResponse) => {
     response.setHeader("X-Request-Id", id);
     return id;
 };
-
 const LoggingSetup = LoggerModule.forRoot({
     pinoHttp: {
         name: process.env.LOGGING_PREFIX,
@@ -63,6 +62,7 @@ const LoggingSetup = LoggerModule.forRoot({
             if (response.statusCode >= 300) return "silent";
             return "info";
         },
+
         customAttributeKeys: {
             req: "request",
             res: "response",
