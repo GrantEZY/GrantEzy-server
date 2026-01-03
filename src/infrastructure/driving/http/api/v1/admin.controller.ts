@@ -34,7 +34,7 @@ import {
 } from "../../../dtos/shared/shared.organization.dto";
 import {Role} from "../../../../../shared/decorators/role.decorator";
 import {UserRoles} from "../../../../../core/domain/constants/userRoles.constants";
-import {RoleGuard} from "../../../../../shared/guards/role.guard";
+import {RoleGuard} from "../../../../../shared/guards/role/role.guard";
 @ApiTags("Admin")
 @Controller("admin")
 @Role(UserRoles.ADMIN)

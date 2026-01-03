@@ -9,7 +9,7 @@ import {Controller, Get, Query, Res} from "@nestjs/common";
 import {Response} from "express";
 import {PublicService} from "../../../../../core/domain/services/public/public.service";
 import {PUBLIC_RESPONSES} from "../../../../../config/swagger/docs/public.swagger";
-import {Public} from "../../../../../shared/decorators/public.decorator";
+import {Public} from "../../../../../shared/decorators/auth.public.decorator";
 @ApiTags("Public")
 @Controller("public")
 @Public()

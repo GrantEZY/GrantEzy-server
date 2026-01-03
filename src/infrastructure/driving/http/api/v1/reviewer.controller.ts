@@ -12,7 +12,7 @@ import {ReviewerService} from "../../../../../core/domain/services/reviewer/revi
 import {ApiTags} from "@nestjs/swagger";
 import ApiError from "../../../../../shared/errors/api.error";
 import {Response} from "express";
-import {Public} from "../../../../../shared/decorators/public.decorator";
+import {Public} from "../../../../../shared/decorators/auth.public.decorator";
 import {ReviewerControllerPort} from "../../../../../ports/inputs/controllers/reviewer.controller.port";
 import {
     GetTokenDetailsDTO,
@@ -37,7 +37,7 @@ import {
 } from "../../../dtos/reviewer.dto";
 
 import {Role} from "../../../../../shared/decorators/role.decorator";
-import {RoleGuard} from "../../../../../shared/guards/role.guard";
+import {RoleGuard} from "../../../../../shared/guards/role/role.guard";
 import {UserRoles} from "../../../../../core/domain/constants/userRoles.constants";
 @Controller("reviewer")
 @ApiTags("Reviewer")

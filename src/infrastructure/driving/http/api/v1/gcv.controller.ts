@@ -33,7 +33,7 @@ import {
 } from "../../../dtos/pm.dto";
 import {UserRoles} from "../../../../../core/domain/constants/userRoles.constants";
 import {Role} from "../../../../../shared/decorators/role.decorator";
-import {RoleGuard} from "../../../../../shared/guards/role.guard";
+import {RoleGuard} from "../../../../../shared/guards/role/role.guard";
 @ApiTags("GCV-Only")
 @Controller("gcv")
 export class GCVController implements GCVControllerPort {

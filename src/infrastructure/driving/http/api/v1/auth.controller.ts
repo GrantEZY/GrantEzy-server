@@ -37,9 +37,9 @@ import {
 } from "../../../../../shared/types/jwt.types";
 import {User} from "../../../../../core/domain/aggregates/user.aggregate";
 import {UserRoles} from "../../../../../core/domain/constants/userRoles.constants";
-import {Public} from "../../../../../shared/decorators/public.decorator";
-import {LocalGuard} from "../../../../../shared/guards/local.guard";
-import {RtGuard} from "../../../../../shared/guards/rt.guard";
+import {Public} from "../../../../../shared/decorators/auth.public.decorator";
+import {LocalGuard} from "../../../../../shared/guards/localAuth/local.guard";
+import {RtGuard} from "../../../../../shared/guards/refreshToken/rt.guard";
 
 @ApiTags("Auth")
 @Controller("auth")

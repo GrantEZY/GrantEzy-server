@@ -1,8 +1,8 @@
 import {Reflector} from "@nestjs/core";
 import {Injectable, CanActivate, ExecutionContext} from "@nestjs/common";
-import ApiError from "../errors/api.error";
-import {AccessTokenJwt} from "../types/jwt.types";
-import {UserRoles} from "../../core/domain/constants/userRoles.constants";
+import ApiError from "../../errors/api.error";
+import {AccessTokenJwt} from "../../types/jwt.types";
+import {UserRoles} from "../../../core/domain/constants/userRoles.constants";
 @Injectable()
 export class RoleGuard implements CanActivate {
     constructor(private readonly reflector: Reflector) {}
@@ -15,12 +15,15 @@ export class RoleGuard implements CanActivate {
             context.getClass(),
         ]);
 
-        if (isPublic) {
+        const isRolePublic = this.reflector.getAllAndOverride("isRolePublic", [
+            context.getHandler(),
+            context.getClass(),
+        ]);
+
+        if (isPublic || isRolePublic) {
             return true;
         }
-
         const user: AccessTokenJwt = request.user;
-
         const role = user.userData.payload.role;
 
         const requiredRoles = this.reflector.getAllAndOverride<UserRoles[]>(
@@ -39,7 +42,6 @@ export class RoleGuard implements CanActivate {
                 "User Privilege Error"
             );
         }
-        console.log("allowed");
         return true;
     }
 }

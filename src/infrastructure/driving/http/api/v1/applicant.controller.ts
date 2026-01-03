@@ -38,10 +38,9 @@ import {
     APPLICANT_CFG_RESPONSES,
 } from "../../../../../config/swagger/docs/applicant.swagger";
 import {Role} from "../../../../../shared/decorators/role.decorator";
-import {RoleGuard} from "../../../../../shared/guards/role.guard";
+import {RoleGuard} from "../../../../../shared/guards/role/role.guard";
 import {UserRoles} from "../../../../../core/domain/constants/userRoles.constants";
-import {Public} from "../../../../../shared/decorators/public.decorator";
-
+import {RolePublic} from "../../../../../shared/decorators/role.public.decorator";
 @ApiTags("Applicants")
 @Controller("applicant")
 @Role(UserRoles.APPLICANT)
@@ -52,7 +51,7 @@ export class ApplicantController implements ApplicantControllerPort {
         private readonly applicentCfgService: ApplicantCfgService
     ) {}
 
-    @Public()
+    @RolePublic()
     @Post("/create-application")
     @ApiResponse(APPLICATION_RESPONSES.CREATE.SUCCESS)
     @ApiResponse(APPLICATION_RESPONSES.CREATE.CYCLE_NOT_FOUND)
@@ -76,6 +75,7 @@ export class ApplicantController implements ApplicantControllerPort {
         }
     }
 
+    @RolePublic()
     @Patch("/add-application-budget")
     @ApiResponse(APPLICATION_RESPONSES.UPDATE_DETAILS.SUCCESS)
     @ApiResponse(APPLICATION_RESPONSES.UPDATE_DETAILS.NOT_FOUND)
@@ -99,6 +99,7 @@ export class ApplicantController implements ApplicantControllerPort {
         }
     }
 
+    @RolePublic()
     @Patch("/add-application-technical-details")
     @ApiResponse(APPLICATION_RESPONSES.UPDATE_DETAILS.SUCCESS)
     @ApiResponse(APPLICATION_RESPONSES.UPDATE_DETAILS.NOT_FOUND)
@@ -122,6 +123,7 @@ export class ApplicantController implements ApplicantControllerPort {
         }
     }
 
+    @RolePublic()
     @Patch("/add-application-revenue-stream")
     @ApiResponse(APPLICATION_RESPONSES.UPDATE_DETAILS.SUCCESS)
     @ApiResponse(APPLICATION_RESPONSES.UPDATE_DETAILS.NOT_FOUND)
@@ -145,6 +147,7 @@ export class ApplicantController implements ApplicantControllerPort {
         }
     }
 
+    @RolePublic()
     @Patch("/add-application-risks-and-milestones")
     @ApiResponse(APPLICATION_RESPONSES.UPDATE_DETAILS.SUCCESS)
     @ApiResponse(APPLICATION_RESPONSES.UPDATE_DETAILS.NOT_FOUND)
@@ -167,6 +170,7 @@ export class ApplicantController implements ApplicantControllerPort {
         }
     }
 
+    @RolePublic()
     @Patch("/add-application-documents")
     @ApiResponse(APPLICATION_RESPONSES.UPDATE_DETAILS.SUCCESS)
     @ApiResponse(APPLICATION_RESPONSES.UPDATE_DETAILS.NOT_FOUND)
@@ -189,6 +193,7 @@ export class ApplicantController implements ApplicantControllerPort {
         }
     }
 
+    @RolePublic()
     @Patch("/add-application-teammates")
     @ApiResponse(APPLICATION_RESPONSES.TEAMMATES.SUCCESS)
     @ApiResponse(APPLICATION_RESPONSES.TEAMMATES.NOT_FOUND)

@@ -36,7 +36,7 @@ import {AccessTokenJwt} from "../../../../../shared/types/jwt.types";
 import {ProgramManagerConfigManagementService} from "../../../../../core/domain/services/program-manager/pm.cfg.management.service";
 import {CycleStatus} from "../../../../../core/domain/constants/status.constants";
 import {UserRoles} from "../../../../../core/domain/constants/userRoles.constants";
-import {RoleGuard} from "../../../../../shared/guards/role.guard";
+import {RoleGuard} from "../../../../../shared/guards/role/role.guard";
 import {Role} from "../../../../../shared/decorators/role.decorator";
 @ApiTags("ProgramManager")
 @Controller("pm")

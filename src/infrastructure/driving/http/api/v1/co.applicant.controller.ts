@@ -12,7 +12,7 @@ import {ApiTags, ApiResponse} from "@nestjs/swagger";
 import {CoApplicantService} from "../../../../../core/domain/services/co-applicant/co.applicant.service";
 import {CoApplicantControllerPort} from "../../../../../ports/inputs/controllers/co.applicant.controller.port";
 import {CurrentUser} from "../../../../../shared/decorators/currentuser.decorator";
-import {Public} from "../../../../../shared/decorators/public.decorator";
+import {Public} from "../../../../../shared/decorators/auth.public.decorator";
 import {
     CoApplicantApplicationDTO,
     GetProjectDetailsDTO,
@@ -29,7 +29,7 @@ import {
     CO_APPLICANT_RESPONSES,
 } from "../../../../../config/swagger/docs/co.applicant.swagger";
 
-import {RoleGuard} from "../../../../../shared/guards/role.guard";
+import {RoleGuard} from "../../../../../shared/guards/role/role.guard";
 import {UserRoles} from "../../../../../core/domain/constants/userRoles.constants";
 import {Role} from "../../../../../shared/decorators/role.decorator";
 @ApiTags("Co-Applicants")
