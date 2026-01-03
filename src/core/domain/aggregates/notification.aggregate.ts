@@ -1,9 +1,16 @@
-import {Entity, Column, PrimaryGeneratedColumn} from "typeorm";
+import {
+    Entity,
+    Column,
+    PrimaryGeneratedColumn,
+    JoinColumn,
+    ManyToOne,
+} from "typeorm";
 import {
     NotificationType,
     NotificationChannel,
     NotificationStatus,
 } from "../constants/notification.constants";
+import {User} from "./user.aggregate";
 @Entity({name: "notifications"})
 export class Notification {
     @PrimaryGeneratedColumn("uuid")
@@ -26,6 +33,28 @@ export class Notification {
 
     @Column({type: "jsonb", nullable: true})
     metadata: Record<string, string>;
+
+    @Column()
+    mentorId: string;
+
+    @ManyToOne(() => User, {
+        onDelete: "SET NULL",
+        cascade: false,
+        eager: true,
+    })
+    @JoinColumn({name: "mentorId"})
+    mentor: User;
+
+    @Column()
+    receiverId: string;
+
+    @ManyToOne(() => User, {
+        onDelete: "SET NULL",
+        cascade: false,
+        eager: true,
+    })
+    @JoinColumn({name: "receiverId"})
+    receiver: User;
 
     @Column({type: Date})
     sentAt: Date;

@@ -1,4 +1,4 @@
-import {Notification} from "../entities/notification.entity";
+import {Notification} from "./notification.aggregate";
 import {
     Entity,
     Column,

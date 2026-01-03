@@ -30,7 +30,7 @@ import {GRANT_APPLICATION_AGGREGATE_PORT} from "./repository/grantapplication/gr
 import {UserInvite} from "../../core/domain/aggregates/user.invite.aggregate";
 import {USER_INVITE_AGGREGATE_PORT} from "./repository/user.invite/user.invite.aggregate.port";
 import {UserInviteAggregateRepository} from "../../infrastructure/driven/database/repositories/user.invite.aggregate.repository";
-import {Notification} from "../../core/domain/entities/notification.entity";
+import {Notification} from "../../core/domain/aggregates/notification.aggregate";
 import {UserNotifications} from "../../core/domain/aggregates/usernotifications.aggregate";
 import {VerificationTokenEntity} from "../../core/domain/entities/verification.entity";
 import {ApplicationReviewAggregate} from "../../core/domain/aggregates/application.review.aggregate";
