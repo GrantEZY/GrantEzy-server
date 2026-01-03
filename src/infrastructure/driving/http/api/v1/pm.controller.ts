@@ -7,6 +7,7 @@ import {
     Patch,
     Post,
     Res,
+    UseGuards,
 } from "@nestjs/common";
 import {ApiResponse, ApiTags} from "@nestjs/swagger";
 import {Response} from "express";
@@ -21,6 +22,7 @@ import {
     InviteReviewerDTO,
     GetApplicationReviewsDTO,
     GetApplicationReviewDetailsDTO,
+    ModifyCycleStatusDTO,
 } from "../../../dtos/pm.dto";
 import ApiError from "../../../../../shared/errors/api.error";
 import {UpdateCycleDTO} from "../../../dtos/shared/shared.program.dto";
@@ -28,14 +30,22 @@ import {
     CYCLE_RESPONSES,
     APPLICATION_REVIEW_RESPONSES,
 } from "../../../../../config/swagger/docs/pm.swagger";
+import {PM_CONFIG_MNGMT} from "../../../../../config/swagger/docs/pm.cfg.management.swagger";
 import {CurrentUser} from "../../../../../shared/decorators/currentuser.decorator";
 import {AccessTokenJwt} from "../../../../../shared/types/jwt.types";
-
+import {ProgramManagerConfigManagementService} from "../../../../../core/domain/services/program-manager/pm.cfg.management.service";
+import {CycleStatus} from "../../../../../core/domain/constants/status.constants";
+import {UserRoles} from "../../../../../core/domain/constants/userRoles.constants";
+import {RoleGuard} from "../../../../../shared/guards/role.guard";
+import {Role} from "../../../../../shared/decorators/role.decorator";
 @ApiTags("ProgramManager")
 @Controller("pm")
+@Role(UserRoles.PROGRAM_MANAGER)
+@UseGuards(RoleGuard)
 export class ProgramManagerController implements ProgramManagerControllerPort {
     constructor(
-        private readonly programManagerService: ProgramManagerService
+        private readonly programManagerService: ProgramManagerService,
+        private readonly configManagementService: ProgramManagerConfigManagementService
     ) {}
 
     @Post("/create-cycle")
@@ -267,6 +277,78 @@ export class ProgramManagerController implements ProgramManagerControllerPort {
                 parameters.reviewSlug,
                 id
             );
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Patch("/open-cycle-for-application")
+    @ApiResponse(PM_CONFIG_MNGMT.MODIFY_CYCLE_STATUS.SUCCESS)
+    @ApiResponse(PM_CONFIG_MNGMT.MODIFY_CYCLE_STATUS.UNAUTHORIZED_MANAGER)
+    @ApiResponse(PM_CONFIG_MNGMT.MODIFY_CYCLE_STATUS.INVALID_STATUS)
+    @ApiResponse(PM_CONFIG_MNGMT.MODIFY_CYCLE_STATUS.CYCLE_NOT_FOUND)
+    async openCycleForApplication(
+        @Body() body: ModifyCycleStatusDTO,
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+            const result = await this.configManagementService.modifyCycleStatus(
+                body,
+                CycleStatus.OPEN,
+                id
+            );
+
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Patch("/close-cycle-for-application")
+    @ApiResponse(PM_CONFIG_MNGMT.MODIFY_CYCLE_STATUS.SUCCESS)
+    @ApiResponse(PM_CONFIG_MNGMT.MODIFY_CYCLE_STATUS.UNAUTHORIZED_MANAGER)
+    @ApiResponse(PM_CONFIG_MNGMT.MODIFY_CYCLE_STATUS.INVALID_STATUS)
+    @ApiResponse(PM_CONFIG_MNGMT.MODIFY_CYCLE_STATUS.CYCLE_NOT_FOUND)
+    async closeCycleForApplication(
+        @Body() body: ModifyCycleStatusDTO,
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+            const result = await this.configManagementService.modifyCycleStatus(
+                body,
+                CycleStatus.CLOSED,
+                id
+            );
+
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Patch("/archive-cycle")
+    @ApiResponse(PM_CONFIG_MNGMT.MODIFY_CYCLE_STATUS.SUCCESS)
+    @ApiResponse(PM_CONFIG_MNGMT.MODIFY_CYCLE_STATUS.UNAUTHORIZED_MANAGER)
+    @ApiResponse(PM_CONFIG_MNGMT.MODIFY_CYCLE_STATUS.INVALID_STATUS)
+    @ApiResponse(PM_CONFIG_MNGMT.MODIFY_CYCLE_STATUS.CYCLE_NOT_FOUND)
+    async archiveCycle(
+        @Body() body: ModifyCycleStatusDTO,
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+            const result = await this.configManagementService.modifyCycleStatus(
+                body,
+                CycleStatus.ARCHIVED,
+                id
+            );
+
             return response.status(result.status).json(result);
         } catch (error) {
             return this.handleError(error, response);

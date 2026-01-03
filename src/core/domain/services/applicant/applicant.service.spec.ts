@@ -172,6 +172,30 @@ describe("Applicant ", () => {
             }
         });
 
+        it("Cycle Not Accepting Applications", async () => {
+            try {
+                const cycleDataNotAccepting = JSON.parse(
+                    JSON.stringify(cycleData)
+                );
+                cycleDataNotAccepting.status = "CREATED";
+
+                cycleAggregateRepository.findCycleByslug.mockResolvedValue(
+                    cycleDataNotAccepting as any
+                );
+
+                await applicationService.createApplication(
+                    "userid",
+                    dummyApplicantData
+                );
+            } catch (error) {
+                expect(error).toBeInstanceOf(ApiError);
+                expect((error as ApiError).status).toBe(400);
+                expect((error as ApiError).message).toBe(
+                    "Applications are not being accepted for this cycle at the moment"
+                );
+            }
+        });
+
         it("User Already  already has a application", async () => {
             try {
                 cycleAggregateRepository.findCycleByslug.mockResolvedValue(
@@ -1084,7 +1108,7 @@ describe("Applicant ", () => {
                 expect(error).toBeInstanceOf(ApiError);
                 expect((error as ApiError).status).toBe(400);
                 expect((error as ApiError).message).toBe(
-                    "In review application cant be deleted"
+                    "In process application cant be deleted"
                 );
             }
         });

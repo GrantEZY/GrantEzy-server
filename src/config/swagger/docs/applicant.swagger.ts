@@ -16,6 +16,15 @@ export const APPLICATION_RESPONSES = {
       description: "Program Cycle Not Found",
       example: { status: 404, message: "Program Cycle Not Found", res: null },
     },
+    CYCLE_NOT_ACTIVE: {
+      status: 400,
+      description: "Applications are not being accepted for this cycle at the moment",
+      example: {
+        status: 400,
+        message: "Applications are not being accepted for this cycle at the moment",
+        res: null,
+      },
+    },
     ALREADY_HAVE_A_APPLICATION: {
       status: 409,
       description: "User already has a application",
@@ -338,4 +347,134 @@ export const PROJECT_RESPONSES = {
     },
   },
 };
+
+export const APPLICANT_CFG_RESPONSES = {
+  ADD_TEAMMATE: {
+    SUCCESS: {
+      status: 200,
+      description: "Application TeamMate Invited",
+      example: {
+        status: 200,
+        message: "Application TeamMate Invited",
+        res: {
+          status: true,
+        },
+      },
+    },
+    USER_NOT_FOUND: {
+      status: 404,
+      description: "User not found",
+      example: {
+        status: 404,
+        message: "User Not Found",
+        res: null,
+      },
+    },
+    APPLICATION_NOT_FOUND: {
+      status: 404,
+      description: "Application not found",
+      example: {
+        status: 404,
+        message: "Application  Not Found",
+        res: null,
+      },
+    },
+    FORBIDDEN: {
+      status: 403,
+      description: "Only the applicant can add teammates",
+      example: {
+        status: 403,
+        message: "Only the applicant can add further details",
+        res: null,
+      },
+    },
+    SELF_INVITE: {
+      status: 403,
+      description: "Applicant cannot invite themselves",
+      example: {
+        status: 403,
+        message: "Applicant cant be invited as CoApplicant",
+        res: null,
+      },
+    },
+    INVITE_ERROR: {
+      status: 500,
+      description: "Error in sending invite",
+      example: {
+        status: 500,
+        message: "Error in sending Invite to the user",
+        res: null,
+      },
+    },
+  },
+
+  REMOVE_TEAMMATE: {
+    SUCCESS: {
+      status: 200,
+      description: "Application TeamMate Removed",
+      example: {
+        status: 200,
+        message: "Application TeamMate Removed",
+        res: {
+          status: true,
+        },
+      },
+    },
+    USER_NOT_FOUND: {
+      status: 404,
+      description: "User not found",
+      example: {
+        status: 404,
+        message: "User Not Found",
+        res: null,
+      },
+    },
+    TEAMMATE_NOT_FOUND: {
+      status: 404,
+      description: "TeamMate not found",
+      example: {
+        status: 404,
+        message: "TeamMate Not Found",
+        res: null,
+      },
+    },
+    APPLICATION_NOT_FOUND: {
+      status: 404,
+      description: "Application not found",
+      example: {
+        status: 404,
+        message: "Application  Not Found",
+        res: null,
+      },
+    },
+    FORBIDDEN: {
+      status: 403,
+      description: "Only the applicant can remove teammates",
+      example: {
+        status: 403,
+        message: "Only the applicant can add further details",
+        res: null,
+      },
+    },
+    NOT_A_TEAMMATE: {
+      status: 403,
+      description: "Person is not a teammate",
+      example: {
+        status: 403,
+        message: "The Person is not a TeamMate",
+        res: null,
+      },
+    },
+    ERROR: {
+      status: 400,
+      description: "Error in removing teammate",
+      example: {
+        status: 400,
+        message: "Error in Removing User",
+        res: null,
+      },
+    },
+  },
+};
+
 

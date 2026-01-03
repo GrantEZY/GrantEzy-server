@@ -74,3 +74,12 @@ export class GetProjectDetailsDTO {
     @IsString()
     applicationSlug: string;
 }
+
+export class ManageCoApplicantDTO {
+    @ApiProperty({
+        description: "UUID of the associated application",
+        example: "4b7d1f33-0f2e-4b7a-91e3-5f58f3c9d4ab",
+    })
+    @IsUUID()
+    applicationId: string;
+}

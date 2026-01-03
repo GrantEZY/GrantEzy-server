@@ -221,8 +221,6 @@ export class AuthController implements AuthControllerPort {
     }
 
     handleError(error: unknown, response: Response) {
-        console.error("AuthController error:", error);
-
         if (error instanceof ApiError) {
             return response.status(error.status).json({
                 status: error.status,

@@ -26,7 +26,10 @@ import {
     GetUserCreatedApplicationResponse,
     GetUserProjectsResponse,
 } from "../../../../infrastructure/driven/response-dtos/applicant.response-dto";
-import {GrantApplicationStatus} from "../../constants/status.constants";
+import {
+    CycleStatus,
+    GrantApplicationStatus,
+} from "../../constants/status.constants";
 import {
     USER_INVITE_AGGREGATE_PORT,
     UserInviteAggregatePort,
@@ -83,6 +86,14 @@ export class ApplicantService {
                 throw new ApiError(
                     404,
                     "Program Cycle Not Found",
+                    "Conflict Error"
+                );
+            }
+
+            if (cycle.status != CycleStatus.OPEN) {
+                throw new ApiError(
+                    400,
+                    "Applications are not being accepted for this cycle at the moment",
                     "Conflict Error"
                 );
             }
@@ -413,6 +424,14 @@ export class ApplicantService {
                 throw new ApiError(404, "User Not Found", "Conflict Error");
             }
 
+            if (emails.includes(user.contact.email)) {
+                throw new ApiError(
+                    403,
+                    "Applicant cant be invited as CoApplicant",
+                    "Conflict Error"
+                );
+            }
+
             const application =
                 await this.applicationAggregateRepository.findById(
                     applicationId
@@ -455,14 +474,6 @@ export class ApplicantService {
                     emails,
                     InviteAs.TEAMMATE
                 );
-
-            if (emails.includes(user.contact.email)) {
-                throw new ApiError(
-                    403,
-                    "Applicant cant be invited as CoApplicant",
-                    "Conflict Error"
-                );
-            }
 
             const baseUrl = this.configService.get("app").CLIENT_URL;
             for (const email of emails) {
@@ -639,10 +650,15 @@ export class ApplicantService {
                 );
             }
 
-            if (application.status === GrantApplicationStatus.IN_REVIEW) {
+            if (
+                !(
+                    application.status === GrantApplicationStatus.DRAFT ||
+                    application.status === GrantApplicationStatus.SUBMITTED
+                )
+            ) {
                 throw new ApiError(
                     400,
-                    "In review application cant be deleted",
+                    "In process application cant be deleted",
                     "Conflict Error"
                 );
             }

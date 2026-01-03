@@ -1,4 +1,8 @@
 import {InviteAs} from "../../constants/invite.constants";
+import {
+    CycleStatus,
+    GrantApplicationStatus,
+} from "../../constants/status.constants";
 
 const dummyApplicantData = {
     cycleSlug: "4b7d1f330f2e4b7a91e35f58f3c9d4ab",
@@ -20,6 +24,7 @@ const saved_Application = {
     applicantId: "uuid",
     cycleId: "uuid",
     stepNumber: 1,
+    status: GrantApplicationStatus.SUBMITTED,
     teamMateInvites: [
         {email: "inthrak04@gmail.com", inviteAs: InviteAs.TEAMMATE},
     ],
@@ -45,6 +50,7 @@ const cycleData = {
         year: 2025,
         type: "Spring",
     },
+    status: CycleStatus.OPEN,
     budget: {
         amount: 500000,
         currency: "USD",
@@ -77,6 +83,7 @@ const cycleData = {
 const InviteResponse = {
     "alice@example.com": ["token", "slug"],
     "bob@example.com": ["token", "slug"],
+    "teamMate@gmail.com": ["token", "slug"],
 };
 
 const applicationsArray = [
@@ -331,6 +338,47 @@ const SAVED_USER = {
     updatedAt: "2024-01-10T15:30:00.000Z",
 };
 
+const TEAM_MATE_USER = {
+    personId: "user-456",
+    person: {
+        id: "user-456",
+        firstName: "TeamMate",
+        lastName: "Doe",
+        password_hash: "hashed_password_123",
+    },
+    status: "ACTIVE",
+    role: ["NORMAL_USER"],
+    commitment: "ACTIVE",
+    contact: {
+        email: "teamMate@gmail.com",
+        phone: "+1-555-1234",
+        address: "123 Main Street, Springfield, USA",
+    },
+    audit: {
+        createdAt: "2024-01-01T10:00:00.000Z",
+        updatedAt: "2024-01-10T15:30:00.000Z",
+    },
+    experiences: [
+        {
+            company: "Acme Corp",
+            position: "Software Engineer",
+            startDate: "2020-01-01T00:00:00.000Z",
+            description: "Worked on backend services",
+            endDate: "2022-06-01T00:00:00.000Z",
+        },
+        {
+            company: "Tech Solutions",
+            position: "Senior Developer",
+            startDate: "2022-07-01T00:00:00.000Z",
+            description: "Leading a small dev team",
+            endDate: null,
+        },
+    ],
+    tokenVersion: 1,
+    createdAt: "2024-01-01T10:00:00.000Z",
+    updatedAt: "2024-01-10T15:30:00.000Z",
+};
+
 const SAVED_CYCLE = {
     programId: "4b7d1f33-0f2e-4b7a-91e3-5f58f3c9d4ab",
     program: {
@@ -397,4 +445,5 @@ export {
     SAVED_USER,
     SAVED_CYCLE,
     saved_project,
+    TEAM_MATE_USER,
 };

@@ -138,6 +138,9 @@ export class ProjectManagementService {
             const project =
                 await this.projectAggregateRepository.createProject(details);
 
+            // Set the projectId on the application for future lookups
+            application.projectId = project.id;
+
             const updatedApplication =
                 await this.grantApplicationRepository.modifyApplicationStatus(
                     application,
@@ -431,7 +434,7 @@ export class ProjectManagementService {
                     cycle.id
                 );
 
-            if (!application?.projectId) {
+            if (!application) {
                 throw new ApiError(
                     403,
                     "User Doesn't have a project for this cycle",
@@ -448,6 +451,14 @@ export class ProjectManagementService {
                 throw new ApiError(
                     403,
                     "Project should be active or archived",
+                    "Conflict Error"
+                );
+            }
+
+            if (!application.projectId) {
+                throw new ApiError(
+                    403,
+                    "User Doesn't have a project for this cycle",
                     "Conflict Error"
                 );
             }
@@ -508,7 +519,28 @@ export class ProjectManagementService {
                     criteria.cycleId
                 );
 
-            if (!application?.projectId) {
+            if (!application) {
+                throw new ApiError(
+                    403,
+                    "Application Is Not a Project",
+                    "Conflict Error"
+                );
+            }
+
+            if (
+                !(
+                    application.status === GrantApplicationStatus.APPROVED ||
+                    application.status === GrantApplicationStatus.ARCHIVED
+                )
+            ) {
+                throw new ApiError(
+                    403,
+                    "Application Is Not a Project",
+                    "Conflict Error"
+                );
+            }
+
+            if (!application.projectId) {
                 throw new ApiError(
                     403,
                     "Application Is Not a Project",

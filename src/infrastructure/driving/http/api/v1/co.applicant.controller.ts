@@ -1,4 +1,13 @@
-import {Body, Controller, Get, Query, Res, Patch} from "@nestjs/common";
+import {
+    Body,
+    Controller,
+    Get,
+    Query,
+    Res,
+    Patch,
+    Delete,
+    UseGuards,
+} from "@nestjs/common";
 import {ApiTags, ApiResponse} from "@nestjs/swagger";
 import {CoApplicantService} from "../../../../../core/domain/services/co-applicant/co.applicant.service";
 import {CoApplicantControllerPort} from "../../../../../ports/inputs/controllers/co.applicant.controller.port";
@@ -10,6 +19,7 @@ import {
     GetTokenDetailsDTO,
     SubmitInviteStatusDTO,
     GetUserLinkedProjectsPaginationDTO,
+    ManageCoApplicantDTO,
 } from "../../../dtos/co.applicant.dto";
 import {AccessTokenJwt} from "../../../../../shared/types/jwt.types";
 import ApiError from "../../../../../shared/errors/api.error";
@@ -18,8 +28,14 @@ import {
     CO_APPLICANT_PROJECT_RESPONSES,
     CO_APPLICANT_RESPONSES,
 } from "../../../../../config/swagger/docs/co.applicant.swagger";
+
+import {RoleGuard} from "../../../../../shared/guards/role.guard";
+import {UserRoles} from "../../../../../core/domain/constants/userRoles.constants";
+import {Role} from "../../../../../shared/decorators/role.decorator";
 @ApiTags("Co-Applicants")
 @Controller("co-applicant")
+@Role(UserRoles.TEAM_MATE)
+@UseGuards(RoleGuard)
 export class CoApplicantController implements CoApplicantControllerPort {
     constructor(private readonly coApplicantService: CoApplicantService) {}
 
@@ -135,6 +151,44 @@ export class CoApplicantController implements CoApplicantControllerPort {
                 parameters.applicationSlug,
                 id
             );
+
+            return response.status(result.status).json(result);
+        } catch (error) {
+            return this.handleError(error, response);
+        }
+    }
+
+    @Delete("/remove-co-applicant-from-application")
+    @ApiResponse(CO_APPLICANT_RESPONSES.REMOVE_SELF_FROM_APPLICATION.SUCCESS)
+    @ApiResponse(
+        CO_APPLICANT_RESPONSES.REMOVE_SELF_FROM_APPLICATION.USER_NOT_FOUND
+    )
+    @ApiResponse(
+        CO_APPLICANT_RESPONSES.REMOVE_SELF_FROM_APPLICATION.NOT_A_TEAMMATE
+    )
+    @ApiResponse(
+        CO_APPLICANT_RESPONSES.REMOVE_SELF_FROM_APPLICATION.APPLICANT_NOT_FOUND
+    )
+    @ApiResponse(
+        CO_APPLICANT_RESPONSES.REMOVE_SELF_FROM_APPLICATION.REMOVE_FAILED
+    )
+    @ApiResponse(
+        CO_APPLICANT_RESPONSES.REMOVE_SELF_FROM_APPLICATION.EMAIL_FAILED
+    )
+    @ApiResponse(CO_APPLICANT_RESPONSES.REMOVE_SELF_FROM_APPLICATION.ERROR)
+    async removeCoApplicantFromApplication(
+        @Body() body: ManageCoApplicantDTO,
+        @CurrentUser() user: AccessTokenJwt,
+        @Res() response: Response
+    ): Promise<Response> {
+        try {
+            const id = user.userData.payload.id;
+
+            const result =
+                await this.coApplicantService.removeCoApplicantFromApplication(
+                    body,
+                    id
+                );
 
             return response.status(result.status).json(result);
         } catch (error) {

@@ -60,7 +60,8 @@ export type EmailBody =
     | CycleInviteBodyDTO
     | ForgotPasswordEmailDTO
     | ProjectCreationDTO
-    | CycleReviewEmailDTO;
+    | CycleReviewEmailDTO
+    | RemoveApplicantFromTeamMate;
 
 export class EmailWorkerJobDTO {
     type: EmailNotifications;
@@ -120,4 +121,12 @@ export class CycleReviewEmailDTO {
 
     @IsEmail()
     email: string;
+}
+
+export class RemoveApplicantFromTeamMate {
+    @IsEmail()
+    email: string;
+
+    @IsString()
+    applicationName: string;
 }

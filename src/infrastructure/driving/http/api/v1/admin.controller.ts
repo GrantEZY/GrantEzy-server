@@ -7,6 +7,7 @@ import {
     Body,
     Patch,
     Delete,
+    UseGuards,
 } from "@nestjs/common";
 import {ApiTags, ApiResponse, ApiProperty} from "@nestjs/swagger";
 import {Response} from "express";
@@ -31,8 +32,13 @@ import {
     CreateOrganizationDTO,
     UpdateOrganizationDTO,
 } from "../../../dtos/shared/shared.organization.dto";
+import {Role} from "../../../../../shared/decorators/role.decorator";
+import {UserRoles} from "../../../../../core/domain/constants/userRoles.constants";
+import {RoleGuard} from "../../../../../shared/guards/role.guard";
 @ApiTags("Admin")
 @Controller("admin")
+@Role(UserRoles.ADMIN)
+@UseGuards(RoleGuard)
 export class AdminController implements AdminControllerPort {
     constructor(private readonly adminService: AdminService) {}
 

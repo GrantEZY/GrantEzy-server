@@ -757,7 +757,7 @@ describe("Project Management Service", () => {
                 newDetails.cycle.slug = "slug";
 
                 criteriaRepository.getCriteriaDetailsWithId.mockResolvedValue(
-                    dummyCycleAssessmentCriteria as any
+                    newDetails as any
                 );
                 await projectManagementService.createAssessmentForProject(
                     dummySubmissionData as any,

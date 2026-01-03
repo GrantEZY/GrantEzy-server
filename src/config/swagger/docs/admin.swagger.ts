@@ -76,10 +76,10 @@
       },
     },
     ALREADY_ROLE_LINKED: {
-      status: 401,
+      status: 404,
       description: "User already has the role privileges",
       example: {
-        status: 401,
+        status: 404,
         message: "User already has the role privileges",
         res: null,
       },

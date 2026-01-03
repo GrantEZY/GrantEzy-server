@@ -83,7 +83,7 @@ export class CycleAggregateRepository implements CycleAggregatePort {
                 programId,
                 slug,
                 round: programRound,
-                status: CycleStatus.OPEN,
+                status: CycleStatus.CREATED,
                 budget: cycleBudget,
                 duration: cycleDuration,
                 scoringScheme: cycleScoringScheme,
@@ -130,14 +130,14 @@ export class CycleAggregateRepository implements CycleAggregatePort {
 
     async getProgramActiveCycle(programId: string): Promise<Cycle[]> {
         try {
-            const cycle = await this.cycleRepository.find({
+            const cycles = await this.cycleRepository.find({
                 where: {
                     programId,
                     status: CycleStatus.OPEN,
                 },
             });
 
-            return cycle;
+            return cycles;
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;
@@ -343,6 +343,32 @@ export class CycleAggregateRepository implements CycleAggregatePort {
             throw new ApiError(
                 502,
                 "Find Cycle Database Error",
+                "Database Error"
+            );
+        }
+    }
+
+    /**
+     *
+     * @param oldCycle prev cycle data
+     * @param status status of the cycle
+     * @returns updated cycle
+     */
+    async modifyCycleStatus(
+        oldCycle: Cycle,
+        status: CycleStatus
+    ): Promise<Cycle> {
+        try {
+            oldCycle.status = status;
+
+            return await this.cycleRepository.save(oldCycle);
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                502,
+                "Update Cycle Database  Error",
                 "Database Error"
             );
         }
