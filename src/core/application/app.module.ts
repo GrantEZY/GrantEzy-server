@@ -17,8 +17,10 @@ import {QueueConnection} from "../../infrastructure/driven/queue/connection";
 import {CoApplicantModule} from "./co-applicant/co.applicant.module";
 import {ReviewerModule} from "./reviewer/reviewer.module";
 import {ProjectManagementModule} from "./project-management/project.management.module";
+import LoggingSetup from "../../utils/logging";
 @Module({
     imports: [
+        LoggingSetup,
         ConfigConnection,
         DatabaseConnection,
         CacheConnection,
