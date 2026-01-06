@@ -8,9 +8,9 @@ export class VerificationTokenEntity {
     @Column({select: false})
     token: string;
 
-    @Column({type: "date"})
+    @Column({type: "timestamp"})
     validTill: Date;
 
-    @Column({type: Date, nullable: true})
+    @Column({type: "timestamp", nullable: true})
     validatedAt: Date;
 }
