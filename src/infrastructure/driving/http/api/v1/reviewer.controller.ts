@@ -41,7 +41,7 @@ import {RoleGuard} from "../../../../../shared/guards/role/role.guard";
 import {UserRoles} from "../../../../../core/domain/constants/userRoles.constants";
 @Controller("reviewer")
 @ApiTags("Reviewer")
-@Role(UserRoles.APPLICANT)
+@Role(UserRoles.REVIEWER)
 @UseGuards(RoleGuard)
 export class ReviewerController implements ReviewerControllerPort {
     constructor(private readonly reviewService: ReviewerService) {}
